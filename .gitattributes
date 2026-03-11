@@ -6,4 +6,5 @@
 *.gguf filter=lfs diff=lfs merge=lfs -text
 *.dic filter=lfs diff=lfs merge=lfs -text
 *.onnx filter=lfs diff=lfs merge=lfs -text
+Assets/StreamingAssets/Whisper/* filter=lfs diff=lfs merge=lfs -text
 Assets/StreamingAssets/Whisper/ggml-small.bin filter=lfs diff=lfs merge=lfs -text
