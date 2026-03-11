@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "profileName": "default",
+  "language": "ja-JP",
+  "useDarkTheme": false,
+  "audio": {
+    "masterVolume": 1.0,
+    "mute": false
+  },
+  "window": {
+    "width": 1000,
+    "height": 800,
+    "posX": 100,
+    "posY": 100
+  },
+  "backend": {
+    "startBackendServer": true,
+    "launchMethod": 1,
+    "executable": "python",
+    "arguments": "-m app.server",
+    "pythonExecutable": "python",
+    "pythonModuleName": "app.server",
+    "pythonModuleArguments": "",
+    "pyLauncherScriptPath": "app/server.py",
+    "pyLauncherExtraArguments": "",
+    "startOllamaServer": true,
+    "ollamaExecutable": "ollama.exe",
+    "ollamaArguments": "serve",
+    "startCoeiroinkServer": true,
+    "coeiroinkExecutable": "D:/COEIROINK_WIN_CPU_v.2.12.3/COEIROINK_WIN_CPU_v.2.12.3/engine/engine.exe",
+    "coeiroinkArguments": "",
+    "startExternalUiProcess": true,
+    "externalUiExecutablePath": "UI/DesktopAgentUI.exe",
+    "externalUiArguments": "",
+    "backendHost": "127.0.0.1",
+    "backendPort": 8000
+  },
+  "llm": {
+    "endpointUrl": "http://127.0.0.1:8000/chat",
+    "timeoutSeconds": 60,
+    "autoStartBackendBeforeRequest": true,
+    "backendStartupWaitSeconds": 2.0,
+    "apiKey": "",
+    "apiKeyHeaderName": "Authorization",
+    "useBearer": true
+  },
+  "coeiroink": {
+    "baseUrl": "http://127.0.0.1:50032/v1",
+    "speakerUuid": "",
+    "styleId": 0
+  },
+  "udpBridge": {
+    "listenHost": "127.0.0.1",
+    "listenPort": 27651
+  },
+  "updatedAtIso8601": "2026-03-02T00:00:00.0000000Z"
+}

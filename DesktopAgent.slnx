@@ -1,0 +1,22 @@
+﻿<Solution>
+  <Project Path="LeTai.TrueShadow.csproj" />
+  <Project Path="LeTai.Common.Editor.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+  <Project Path="AssetCleaner.csproj" />
+  <Project Path="LeTai.TrueShadow.Editor.csproj" />
+  <Project Path="UnityChan.csproj" />
+  <Project Path="LeTai.TrueShadow.Demo.csproj" />
+  <Project Path="LeTai.Asset.TranslucentImage.csproj" />
+  <Project Path="LeTai.Asset.TranslucentImage.Demo.csproj" />
+  <Project Path="LeTai.Common.csproj" />
+  <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="LeTai.Asset.TranslucentImage.Editor.csproj" />
+  <Project Path="LeTai.TranslucentImage.UniversalRP.csproj" />
+  <Project Path="LeTai.Paraform.Scaffold.csproj" />
+  <Project Path="uLipSync.Samples.Common.csproj" />
+  <Project Path="LeTai.TranslucentImage.UniversalRP.Editor.csproj" />
+  <Project Path="LeTai.Paraform.Scaffold.Editor.csproj" />
+  <Project Path="uLipSync.Samples.VRM.Runtime.csproj" />
+  <Project Path="uLipSync.Samples.VRM.Editor.csproj" />
+  <Project Path="uLipSync.Samples.Animator.Runtime.csproj" />
+</Solution>

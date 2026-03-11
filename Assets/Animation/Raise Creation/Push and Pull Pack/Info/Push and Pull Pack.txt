@@ -1,0 +1,75 @@
+This animation pack includes 48 handcrafted animations showcasing a wide variety of push and pull interactions, including object and human interactions. Whether you're developing a game or a cinematic scene, this pack brings lifelike effort-based motion to your characters.
+All animations are created and polished in Autodesk Maya, with realistic weight shifts, transitions, and reaction animations that work seamlessly in both realistic and stylized projects.
+
+🔗 Watch the animations by clicking on this link –
+
+📧 Contact: raisecreation14@gmail.com
+
+Why Choose This Pack?
+
+    48 unique animations for seamless integration.
+    Realistic weight shifts (light/heavy objects).
+    Organized naming for easy implementation.
+
+🔹 Animation List:
+
+🔸 Heavy Object Animations
+
+Anim_Heavy_idle
+Anim_Heavy_In
+Anim_Heavy_out
+Anim_Heavy_Pull
+Anim_Heavy_Push
+Anim_Heavy_Push_V2
+Anim_Heavy_Push_Reverse
+Anim_Heavy_Push_Reverse_V2
+Anim_Heavy_Push_in_Reverse
+Anim_Heavy_Push_out_Reverse
+Anim_Heavy_Push_to_Pull
+
+🔸 Human Push & Pull Animations
+
+Anim_Pull_Human_idle
+Anim_Pull_Human_idle_React
+Anim_Pull_Human_in
+Anim_Pull_Human_in_React
+Anim_Pull_Human_out
+Anim_Pull_Human_out_React
+Anim_Pull_Human_Pull
+Anim_Pull_Human_Pull_Left
+Anim_Pull_Human_Pull_Left_React
+Anim_Pull_Human_Pull_Right
+Anim_Pull_Human_Pull_Right_React
+Anim_Pull_Human_Pull_React
+Anim_Pull_Human_Push
+Anim_Pull_Human_Push_React
+
+🔸 Generic Push & Pull
+
+Anim_Idle
+Anim_Pull_Backward
+Anim_Push_Forward
+Anim_Push_Forward_V2
+Anim_Push_Idle
+Anim_Push_In
+Anim_Push_Kick
+Anim_Push_Left
+Anim_Push_Right
+Anim_Push_Out
+Anim_Push_Stuck
+
+🔸 Small Object Interactions
+
+Anim_Small_Idle
+Anim_Small_In
+Anim_Small_Out
+Anim_Small_Pull_Backward
+Anim_Small_Push_Forward
+Anim_Small_Push_Forward_V2
+Anim_Small_Push_Left
+Anim_Small_Push_Right
+Anim_Small_Stuck
+
+🔸 Misc
+
+Anim_Tried

@@ -1,0 +1,6 @@
+Improvements & fixes in v.1.50
+- Fixed editor freeze caused by infinite loop in SerializedProperty traversal
+- Non-blocking initialization: cache now builds in background without freezing editor, even in large projects
+- Persistent disk cache: cache is saved to disk and restored on next editor launch
+- Significantly faster cache building
+- Full compatibility with Unity 6.3
