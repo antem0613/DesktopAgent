@@ -36,6 +36,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     [SerializeField] private string uiHealthCheckUdpHost = "127.0.0.1";
     [SerializeField] private int uiHealthCheckUdpPort = Constant.UIHealthCheckUdpPort;
     [SerializeField] private int uiHealthCheckUdpTimeoutMs = 180;
+    [SerializeField] private float uiHealthCheckConnectionResetGraceSeconds = 0.6f;
     [SerializeField] private string uiHealthCheckPingMessage = Constant.UIHealthCheckPingMessage;
     [SerializeField] private string uiHealthCheckPongMessage = Constant.UIHealthCheckPongMessage;
     [SerializeField] private string uiForceTopmostMessage = Constant.UIForceTopmostMessage;
@@ -43,6 +44,10 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     [SerializeField] private string uiOpenMenuMessage = Constant.UIOpenMenuMessage;
     [SerializeField] private string uiOpenMenuAckMessage = Constant.UIOpenMenuAckMessage;
     [SerializeField] private MenuDialog uiMenuDialog;
+    [SerializeField] private string uiLoadingShowMessage = Constant.UILoadingShowMessage;
+    [SerializeField] private string uiLoadingHideMessage = Constant.UILoadingHideMessage;
+    [SerializeField] private string uiLoadingAckMessage = Constant.UILoadingAckMessage;
+    [SerializeField] private GameObject uiLoadingIndicatorObject;
     [Header("UI Topmost")]
     [SerializeField] private bool enforceUiTopmost = false;
     [SerializeField] private float uiTopmostEnforceIntervalSeconds = 1.0f;
@@ -69,6 +74,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         public float LastValidationWaitLogAt = -1f;
         public float LastRestartSkipAliveLogAt = -1f;
         public float LastHealthDetailLogAt = -1f;
+        public float LastConnectionResetGraceLogAt = -1f;
     }
 
     private sealed class UiProcessState
@@ -98,6 +104,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     private Thread _uiHealthCheckResponderThread;
     private volatile bool _uiHealthCheckResponderRunning;
     private volatile bool _uiMenuOpenRequested;
+    private volatile int _uiLoadingVisibilityRequest = -1;
     private readonly BackendState _backendState = new();
     private readonly UiHealthState _uiHealthState = new();
     private readonly UiProcessState _uiProcessState = new();
@@ -331,6 +338,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         LogInfo("[BackendManager] Start called.");
         if (_isUiProcess)
         {
+            ApplyUiLoadingIndicatorVisible(false, logOnMissing: false);
             LogInfo("Start skipped in external-ui process. Waiting for UDP bridge commands.");
             return;
         }
@@ -340,14 +348,26 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
     private void Update()
     {
-        if (!_isUiProcess || !_uiMenuOpenRequested)
+        if (!_isUiProcess)
         {
             return;
         }
 
-        LogInfo("UI menu open flag consumed on main thread.");
-        _uiMenuOpenRequested = false;
-        OpenMenuDialogOnUiProcess();
+        if (_uiMenuOpenRequested)
+        {
+            LogInfo("UI menu open flag consumed on main thread.");
+            _uiMenuOpenRequested = false;
+            OpenMenuDialogOnUiProcess();
+        }
+
+        int loadingVisibilityRequest = _uiLoadingVisibilityRequest;
+        if (loadingVisibilityRequest < 0)
+        {
+            return;
+        }
+
+        _uiLoadingVisibilityRequest = -1;
+        ApplyUiLoadingIndicatorVisible(loadingVisibilityRequest == 1, logOnMissing: true);
     }
 
     // --- Backend server startup pipeline ---
@@ -1075,6 +1095,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         _uiHealthState.LastValidationWaitLogAt = -1f;
         _uiHealthState.LastRestartSkipAliveLogAt = -1f;
         _uiHealthState.LastHealthDetailLogAt = -1f;
+        _uiHealthState.LastConnectionResetGraceLogAt = -1f;
         _uiHealthState.MonitoringCoroutine = StartCoroutine(UiHealthCheckLoop());
         LogInfo("UI health check monitoring started.");
     }
@@ -1098,6 +1119,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         _uiHealthState.LastValidationWaitLogAt = -1f;
         _uiHealthState.LastRestartSkipAliveLogAt = -1f;
         _uiHealthState.LastHealthDetailLogAt = -1f;
+        _uiHealthState.LastConnectionResetGraceLogAt = -1f;
     }
 
     /// <summary>
@@ -2632,32 +2654,74 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         string host = string.IsNullOrWhiteSpace(uiHealthCheckUdpHost) ? "127.0.0.1" : uiHealthCheckUdpHost.Trim();
         int port = Mathf.Max(1, uiHealthCheckUdpPort);
         int timeout = Mathf.Max(50, uiHealthCheckUdpTimeoutMs);
+        float connectionResetGraceSeconds = GetUiHealthCheckConnectionResetGraceSeconds(timeout);
         string ping = string.IsNullOrWhiteSpace(uiHealthCheckPingMessage) ? "desktopagent-ui-ping" : uiHealthCheckPingMessage;
         string expectedPong = string.IsNullOrWhiteSpace(uiHealthCheckPongMessage) ? "desktopagent-ui-pong" : uiHealthCheckPongMessage;
+        byte[] requestBytes = Encoding.UTF8.GetBytes(ping);
+        bool hasRetriedAfterConnectionReset = false;
+        int postResetWaitMs = Mathf.Max(0, Mathf.CeilToInt((connectionResetGraceSeconds * 1000f) - timeout));
 
-        try
+        while (true)
         {
-            using var client = new UdpClient();
-            client.Client.ReceiveTimeout = timeout;
-            client.Client.SendTimeout = timeout;
+            try
+            {
+                using var client = new UdpClient();
+                client.Client.ReceiveTimeout = timeout;
+                client.Client.SendTimeout = timeout;
+                client.Send(requestBytes, requestBytes.Length, host, port);
 
-            byte[] requestBytes = Encoding.UTF8.GetBytes(ping);
-            client.Send(requestBytes, requestBytes.Length, host, port);
+                IPEndPoint remote = null;
+                byte[] responseBytes = client.Receive(ref remote);
+                if (responseBytes == null || responseBytes.Length == 0)
+                {
+                    return false;
+                }
 
-            IPEndPoint remote = null;
-            byte[] responseBytes = client.Receive(ref remote);
-            if (responseBytes == null || responseBytes.Length == 0)
+                string response = Encoding.UTF8.GetString(responseBytes).Trim();
+                bool isHealthy = string.Equals(response, expectedPong, StringComparison.Ordinal);
+                if (isHealthy && hasRetriedAfterConnectionReset)
+                {
+                    LogInfo("UI health check recovered within ConnectionReset grace period.");
+                }
+
+                return isHealthy;
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.ConnectionReset)
+            {
+                if (hasRetriedAfterConnectionReset)
+                {
+                    return false;
+                }
+
+                hasRetriedAfterConnectionReset = true;
+                if (ShouldLogUiHealthRepeated(ref _uiHealthState.LastConnectionResetGraceLogAt, 1f))
+                {
+                    LogWarning($"UI health check hit ConnectionReset. Waiting up to {connectionResetGraceSeconds:0.###}s before treating UI as unavailable.");
+                }
+
+                if (postResetWaitMs > 0)
+                {
+                    Thread.Sleep(postResetWaitMs);
+                }
+
+                continue;
+            }
+            catch (SocketException ex) when (ex.SocketErrorCode == SocketError.TimedOut)
             {
                 return false;
             }
+            catch
+            {
+                return false;
+            }
+        }
+    }
 
-            string response = Encoding.UTF8.GetString(responseBytes).Trim();
-            return string.Equals(response, expectedPong, StringComparison.Ordinal);
-        }
-        catch
-        {
-            return false;
-        }
+    private float GetUiHealthCheckConnectionResetGraceSeconds(int timeoutMs)
+    {
+        float roundTripTimeoutSeconds = (Mathf.Max(50, timeoutMs) * 2f) / 1000f;
+        float minimumGraceSeconds = roundTripTimeoutSeconds + 0.1f;
+        return Mathf.Max(minimumGraceSeconds, uiHealthCheckConnectionResetGraceSeconds);
     }
 
     /// <summary>
@@ -2746,10 +2810,14 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         string forceTopmostAck = string.IsNullOrWhiteSpace(uiForceTopmostAckMessage) ? Constant.UIForceTopmostAckMessage : uiForceTopmostAckMessage;
         string openMenu = string.IsNullOrWhiteSpace(uiOpenMenuMessage) ? Constant.UIOpenMenuMessage : uiOpenMenuMessage;
         string openMenuAck = string.IsNullOrWhiteSpace(uiOpenMenuAckMessage) ? Constant.UIOpenMenuAckMessage : uiOpenMenuAckMessage;
+        string loadingShow = string.IsNullOrWhiteSpace(uiLoadingShowMessage) ? Constant.UILoadingShowMessage : uiLoadingShowMessage;
+        string loadingHide = string.IsNullOrWhiteSpace(uiLoadingHideMessage) ? Constant.UILoadingHideMessage : uiLoadingHideMessage;
+        string loadingAck = string.IsNullOrWhiteSpace(uiLoadingAckMessage) ? Constant.UILoadingAckMessage : uiLoadingAckMessage;
         byte[] pongBytes = Encoding.UTF8.GetBytes(pong);
         byte[] forceTopmostAckBytes = Encoding.UTF8.GetBytes(forceTopmostAck);
         byte[] openMenuAckBytes = Encoding.UTF8.GetBytes(openMenuAck);
-        LogInfo($"UI UDP responder loop active. ping={ping}, forceTopmost={forceTopmost}, openMenu={openMenu}");
+        byte[] loadingAckBytes = Encoding.UTF8.GetBytes(loadingAck);
+        LogInfo($"UI UDP responder loop active. ping={ping}, forceTopmost={forceTopmost}, openMenu={openMenu}, loadingShow={loadingShow}, loadingHide={loadingHide}");
 
         while (_uiHealthCheckResponderRunning)
         {
@@ -2788,6 +2856,16 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                     _uiMenuOpenRequested = true;
                     _uiHealthCheckResponder?.Send(openMenuAckBytes, openMenuAckBytes.Length, remote);
                     LogInfo($"UI open-menu UDP ack sent. to={remote.Address}:{remote.Port}, message={openMenuAck}");
+                    continue;
+                }
+
+                if (string.Equals(request, loadingShow, StringComparison.Ordinal)
+                    || string.Equals(request, loadingHide, StringComparison.Ordinal))
+                {
+                    bool visible = string.Equals(request, loadingShow, StringComparison.Ordinal);
+                    _uiLoadingVisibilityRequest = visible ? 1 : 0;
+                    _uiHealthCheckResponder?.Send(loadingAckBytes, loadingAckBytes.Length, remote);
+                    LogInfo($"UI loading UDP request accepted. visible={visible}, from={remote.Address}:{remote.Port}, ack={loadingAck}");
                     continue;
                 }
 
@@ -2848,6 +2926,59 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         LogInfo($"Opening MenuDialog. object={uiMenuDialog.name}, activeInHierarchy={uiMenuDialog.gameObject.activeInHierarchy}");
         uiMenuDialog.Show();
         LogInfo("UI menu opened by bridge request.");
+    }
+
+    private void ApplyUiLoadingIndicatorVisible(bool visible, bool logOnMissing)
+    {
+        if (!_isUiProcess)
+        {
+            return;
+        }
+
+        if (uiLoadingIndicatorObject == null)
+        {
+            if (logOnMissing)
+            {
+                LogWarning("UI loading indicator object is not assigned.");
+            }
+
+            return;
+        }
+
+        if (!visible && IsBackendManagerRootOrAncestor(uiLoadingIndicatorObject))
+        {
+            LogWarning("UI loading indicator hide skipped because target is BackendManager itself or an ancestor.");
+            return;
+        }
+
+        if (uiLoadingIndicatorObject.activeSelf == visible)
+        {
+            return;
+        }
+
+        uiLoadingIndicatorObject.SetActive(visible);
+        LogInfo($"UI loading indicator active={visible}.");
+    }
+
+    private bool IsBackendManagerRootOrAncestor(GameObject target)
+    {
+        if (target == null)
+        {
+            return false;
+        }
+
+        Transform current = transform;
+        while (current != null)
+        {
+            if (current.gameObject == target)
+            {
+                return true;
+            }
+
+            current = current.parent;
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -3013,28 +3144,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         return !IsProcessAlive(process);
     }
 
-    /// <summary>
-    /// COEIROINK接続先の到達可否を確認し、利用可能なエンドポイントを返します。
-    /// </summary>
-    private bool TryResolveCoeiroinkEndpoint(out string host, out int port)
-    {
-        host = Constant.BackendHost;
-        port = Constant.CoeiroinkHealthPort;
-
-        if (!Uri.TryCreate(Constant.BackendHost, UriKind.Absolute, out _))
-        {
-            return false;
-        }
-
-        if (IsTcpReachable(host, port))
-        {
-            return true;
-        }
-
-        return false;
-    }
-
-    // --- Windows JobObject integration ---
     /// <summary>
     /// 起動引数と実行プロセス名から現在プロセスがUIかを判定します。
     /// </summary>

@@ -660,11 +660,18 @@ MonoBehaviour:
   uiHealthCheckRestartCooldownSeconds: 8
   uiHealthCheckUdpHost: 127.0.0.1
   uiHealthCheckUdpPort: 38181
-  uiHealthCheckUdpTimeoutMs: 180
+  uiHealthCheckUdpTimeoutMs: 1000
   uiHealthCheckPingMessage: desktopagent-ui-ping
   uiHealthCheckPongMessage: desktopagent-ui-pong
   uiForceTopmostMessage: desktopagent-ui-force-topmost
   uiForceTopmostAckMessage: desktopagent-ui-force-topmost-ack
+  uiOpenMenuMessage: desktopagent-ui-open-menu
+  uiOpenMenuAckMessage: desktopagent-ui-open-menu-ack
+  uiLoadingShowMessage: desktopagent-ui-loading-show
+  uiLoadingHideMessage: desktopagent-ui-loading-hide
+  uiLoadingAckMessage: desktopagent-ui-loading-ack
+  uiLoadingAnimationObject: {fileID: 0}
+  uiMenuDialog: {fileID: 0}
   enforceUiTopmost: 0
   uiTopmostEnforceIntervalSeconds: 0.1
 --- !u!4 &564487729
@@ -1184,9 +1191,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9f531d41e5d24d6aa7b3a6f7b5f3a9b2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LLMProvider
-  characterSpeechBubbleUI: {fileID: 82772875}
-  bridgeReplyBubbleHideDelaySeconds: 8
-  bridgeMaxQueuedMessages: 32
+  bubbleUI: {fileID: 0}
+  bubbleHideDelaySec: 8
+  maxQueuedMessages: 32
 --- !u!4 &1212215234
 Transform:
   m_ObjectHideFlags: 0
@@ -1698,11 +1705,11 @@ MonoBehaviour:
   ttsAudioSource: {fileID: 140006356}
   characterSpeechBubbleUI: {fileID: 82772875}
   testText: "\u3088\u308D\u3057\u304F\u306D"
-  autoPlayTestTtsOnStart: 1
-  showSpeechBubbleInTtsManager: 0
-  characterSpawnWaitTimeoutSeconds: 12
-  characterSpawnPollIntervalSeconds: 0.1
-  ttsBubbleHideDelaySeconds: 8
+  autoPlayOnStart: 1
+  showSpeechBubble: 0
+  spawnWaitSec: 12
+  spawnPollSec: 0.1
+  bubbleHideDelaySec: 3
 --- !u!4 &1639461556
 Transform:
   m_ObjectHideFlags: 0

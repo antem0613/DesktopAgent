@@ -25,6 +25,9 @@
     public const string UIForceTopmostAckMessage = "desktopagent-ui-force-topmost-ack";
     public const string UIOpenMenuMessage = "desktopagent-ui-open-menu";
     public const string UIOpenMenuAckMessage = "desktopagent-ui-open-menu-ack";
+    public const string UILoadingShowMessage = "desktopagent-ui-loading-show";
+    public const string UILoadingHideMessage = "desktopagent-ui-loading-hide";
+    public const string UILoadingAckMessage = "desktopagent-ui-loading-ack";
 
     public const int BackendPort = 8000;
     public const string BackendHealthCheckPath = "/health";

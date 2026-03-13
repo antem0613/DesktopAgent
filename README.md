@@ -1,4 +1,5 @@
 # DesktopAgent
+[![Unity Version](https://img.shields.io/badge/Unity-6000.0%2B-blueviolet?logo=unity)](https://unity.com/releases/editor/archive)
 
 DesktopAgent は、デスクトップ上に 3D キャラクターを表示し、LLM を通じて作業をサポートできるアプリケーションです。
 

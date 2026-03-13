@@ -47,6 +47,7 @@ public class STTManager : MonoBehaviour
     [SerializeField] private float pttFlushCooldownSec = 0.35f;
     [SerializeField] private float pttFlushRestartSec = 1.5f;
     [SerializeField] private float pttFinalizeLockSec = 6.0f;
+    [SerializeField] private float micToggleMinIntervalSec = 0.08f;
     [SerializeField] private int pttGlobalKey = VK_SPACE;
 
     [Header("Display")]
@@ -130,6 +131,7 @@ public class STTManager : MonoBehaviour
     private float _lastPttFlushAt = -1f;
     private float _restartRequestedAt = -1f;
     private float _streamStartedAt = -1f;
+    private float _lastMicToggleAt = -1f;
     private string _lastAcceptedResult = string.Empty;
     private string _lastIntermediateResult = string.Empty;
     private string _lastFinalResult = string.Empty;
@@ -150,6 +152,8 @@ public class STTManager : MonoBehaviour
     private bool _lastMicIconVisible;
     private bool _lastMicCanRecognize;
     private bool _hasMicUiTracked;
+    private bool _isPttFlushInFlight;
+    private int _pttFlushRequestVersion;
     private float _lastUiFrontAt = -1f;
     private readonly ConcurrentQueue<RecognizedQueueItem> _recognizedQueue = new();
 
@@ -307,11 +311,14 @@ public class STTManager : MonoBehaviour
         _lastPttFlushAt = -1f;
         _restartRequestedAt = -1f;
         _streamStartedAt = -1f;
+        _lastMicToggleAt = -1f;
         _lastAcceptedResult = string.Empty;
         _lastIntermediateResult = string.Empty;
         _lastFinalResult = string.Empty;
         _lastFinalAt = -1f;
         _isStreamStarted = false;
+        _isPttFlushInFlight = false;
+        _pttFlushRequestVersion = 0;
         ResetDropLog();
 
         if (_stream != null)
@@ -398,10 +405,13 @@ public class STTManager : MonoBehaviour
             _lastPttReleased = -1f;
             _lastPttFlushAt = -1f;
             _restartRequestedAt = -1f;
+            _lastMicToggleAt = -1f;
             _lastAcceptedResult = string.Empty;
             _lastIntermediateResult = string.Empty;
             _lastFinalResult = string.Empty;
             _lastFinalAt = -1f;
+            _isPttFlushInFlight = false;
+            _pttFlushRequestVersion = 0;
             ResetDropLog();
             ClearRecognized();
 
@@ -567,7 +577,7 @@ public class STTManager : MonoBehaviour
         _isPttHeld = false;
         _lastPttReleased = Time.unscaledTime;
 
-        FlushStreamPttAsync().Forget();
+        RequestPttFlush();
     }
 
     /// <summary>
@@ -607,61 +617,97 @@ public class STTManager : MonoBehaviour
             BeginPttFinalize();
             _isPttHeld = false;
             _lastPttReleased = Time.unscaledTime;
-            FlushStreamPttAsync().Forget();
+            RequestPttFlush();
         }
 #endif
     }
 
     /// <summary>
+    /// PushToTalkフラッシュ要求を世代管理し、多重起動を防止します。
+    /// </summary>
+    private void RequestPttFlush()
+    {
+        _pttFlushRequestVersion++;
+        int requestVersion = _pttFlushRequestVersion;
+
+        if (_isPttFlushInFlight)
+        {
+            return;
+        }
+
+        FlushStreamPttAsync(requestVersion).Forget();
+    }
+
+    /// <summary>
     /// PushToTalk解放後にストリーム停止を要求して再作成準備を行います。
     /// </summary>
-    private async UniTaskVoid FlushStreamPttAsync()
+    private async UniTaskVoid FlushStreamPttAsync(int requestVersion)
     {
-        if (!_running || recognitionInputMode != RecognitionInputMode.PushToTalk)
+        _isPttFlushInFlight = true;
+        try
         {
-            EndPttFinalize();
-            return;
-        }
+            if (!_running || recognitionInputMode != RecognitionInputMode.PushToTalk)
+            {
+                EndPttFinalize();
+                return;
+            }
 
-        if (_stream == null || _isSwitchingStream || _isPendingRestart)
-        {
-            EndPttFinalize();
-            return;
-        }
+            if (requestVersion != _pttFlushRequestVersion)
+            {
+                EndPttFinalize();
+                return;
+            }
 
-        if (_lastPttFlushAt > 0f && Time.unscaledTime - _lastPttFlushAt < pttFlushCooldownSec)
-        {
-            EndPttFinalize();
-            return;
-        }
+            if (_stream == null || _isSwitchingStream || _isPendingRestart)
+            {
+                EndPttFinalize();
+                return;
+            }
 
-        int delayMs = Mathf.Max(0, pttFlushDelayMs);
-        if (delayMs > 0)
-        {
-            await UniTask.Delay(delayMs);
-        }
+            if (_lastPttFlushAt > 0f && Time.unscaledTime - _lastPttFlushAt < pttFlushCooldownSec)
+            {
+                EndPttFinalize();
+                return;
+            }
 
-        if (!_running || recognitionInputMode != RecognitionInputMode.PushToTalk || _isPttHeld)
-        {
-            EndPttFinalize();
-            return;
-        }
+            int delayMs = Mathf.Max(0, pttFlushDelayMs);
+            if (delayMs > 0)
+            {
+                await UniTask.Delay(delayMs);
+            }
 
-        if (_stream == null || _isSwitchingStream || _isPendingRestart)
-        {
-            EndPttFinalize();
-            return;
-        }
+            if (!_running || recognitionInputMode != RecognitionInputMode.PushToTalk || _isPttHeld)
+            {
+                EndPttFinalize();
+                return;
+            }
 
-        _lastPttFlushAt = Time.unscaledTime;
-        _isPendingRestart = true;
-        _restartRequestedAt = Time.unscaledTime;
-        bool requestedStop = TryStopStream(_stream, "ptt-flush");
-        if (!requestedStop)
+            if (requestVersion != _pttFlushRequestVersion)
+            {
+                EndPttFinalize();
+                return;
+            }
+
+            if (_stream == null || _isSwitchingStream || _isPendingRestart)
+            {
+                EndPttFinalize();
+                return;
+            }
+
+            _lastPttFlushAt = Time.unscaledTime;
+            _isPendingRestart = true;
+            _restartRequestedAt = Time.unscaledTime;
+            bool requestedStop = TryStopStream(_stream, "ptt-flush");
+            if (!requestedStop)
+            {
+                _isPendingRestart = false;
+                _restartRequestedAt = -1f;
+                StartStreamAfterFlushAsync().Forget();
+            }
+        }
+        finally
         {
-            _isPendingRestart = false;
-            _restartRequestedAt = -1f;
-            StartStreamAfterFlushAsync().Forget();
+            _isPttFlushInFlight = false;
         }
     }
 
@@ -769,13 +815,36 @@ public class STTManager : MonoBehaviour
             }
         }
 
-        if (shouldRecord && !microphoneRecord.IsRecording)
+        bool isRecording = microphoneRecord.IsRecording;
+        if (shouldRecord == isRecording)
         {
-            microphoneRecord.StartRecord();
+            return;
         }
-        else if (!shouldRecord && microphoneRecord.IsRecording)
+
+        float minToggleInterval = Mathf.Max(0f, micToggleMinIntervalSec);
+        float now = Time.unscaledTime;
+        if (_lastMicToggleAt > 0f && now - _lastMicToggleAt < minToggleInterval)
         {
-            microphoneRecord.StopRecord();
+            return;
+        }
+
+        try
+        {
+            if (shouldRecord)
+            {
+                microphoneRecord.StartRecord();
+            }
+            else
+            {
+                microphoneRecord.StopRecord();
+            }
+
+            _lastMicToggleAt = now;
+        }
+        catch (Exception ex)
+        {
+            _lastMicToggleAt = now;
+            LogException($"EnsureMicRecording(shouldRecord={shouldRecord})", ex);
         }
     }
 

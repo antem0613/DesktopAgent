@@ -3,6 +3,7 @@ using Kirurobo;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -28,6 +29,8 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
     [SerializeField] private float externalUiPollIntervalSeconds = 0.1f;
     [SerializeField] private float externalUiReadyExtraDelaySeconds = 0.15f;
     [SerializeField] private float externalUiWaitTimeoutSeconds = 1.5f;
+    [SerializeField] private int uiLoadingUdpAckTimeoutMs = 120;
+    [SerializeField] private int uiLoadingUdpRetryCount = 3;
 
     [Header("Action Duration")]
     [SerializeField] private float idleMaxSeconds = 3.5f;
@@ -847,8 +850,9 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         Log.Info("[CharacterManager] SpawnCharacterAsync started.");
         try
         {
-                WaitForBackend(_cancellationTokenSource.Token).Forget();
+            WaitForBackend(_cancellationTokenSource.Token).Forget();
             await WaitForUiProcess(_cancellationTokenSource.Token);
+            await RequestUiLoadingVisibilityAsync(true, _cancellationTokenSource.Token);
 
             if (!TryResolveReferences())
             {
@@ -903,6 +907,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
             Log.Warning("[CharacterManager] SpawnCharacterAsync canceled.");
         } finally
         {
+            await RequestUiLoadingVisibilityAsync(false, CancellationToken.None);
             _isSpawning = false;
             Log.Info("[CharacterManager] SpawnCharacterAsync finished.");
         }
@@ -977,7 +982,6 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
             return;
         }
 
-
         backendManager.StartBackend();
 
         float timeout = Mathf.Max(0.1f, backendWaitTimeoutSeconds);
@@ -1028,6 +1032,77 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         }
 
         Log.Warning($"[CharacterManager] External UI wait timed out ({timeout:0.##}s). Continue spawning character.");
+    }
+
+    private async UniTask RequestUiLoadingVisibilityAsync(bool visible, CancellationToken cancellationToken)
+    {
+        if (IsUiProcessCommandLine())
+        {
+            return;
+        }
+
+        string message = visible ? Constant.UILoadingShowMessage : Constant.UILoadingHideMessage;
+        string ack = Constant.UILoadingAckMessage;
+        int timeoutMs = Mathf.Max(50, uiLoadingUdpAckTimeoutMs);
+        int retries = Mathf.Max(1, uiLoadingUdpRetryCount);
+
+        for (int attempt = 1; attempt <= retries; attempt++)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            try
+            {
+                using var client = new UdpClient();
+                client.Client.ReceiveTimeout = timeoutMs;
+                client.Client.SendTimeout = timeoutMs;
+
+                byte[] payload = Encoding.UTF8.GetBytes(message);
+                client.Send(payload, payload.Length, Constant.BackendHost, Constant.UIHealthCheckUdpPort);
+
+                IPEndPoint remote = null;
+                byte[] response = client.Receive(ref remote);
+                if (response != null && response.Length > 0)
+                {
+                    string responseText = Encoding.UTF8.GetString(response).Trim();
+                    if (string.Equals(responseText, ack, StringComparison.Ordinal))
+                    {
+                        Log.Info($"[CharacterManager] UI loading visibility requested. visible={visible}, attempt={attempt}");
+                        return;
+                    }
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                if (attempt >= retries)
+                {
+                    Log.Warning($"[CharacterManager] Failed to request UI loading visibility. visible={visible}, attempts={attempt}, error={ex.Message}");
+                    return;
+                }
+            }
+
+            if (attempt < retries)
+            {
+                await UniTask.Delay(timeoutMs, cancellationToken: cancellationToken);
+            }
+        }
+    }
+
+    private static bool IsUiProcessCommandLine()
+    {
+        string[] args = Environment.GetCommandLineArgs();
+        for (int i = 0; i < args.Length; i++)
+        {
+            if (string.Equals(args[i], Constant.UIProcessArgument, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     // 設定に一致する外部UIプロセスが動作中か調べる。

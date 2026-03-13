@@ -25,7 +25,7 @@ Direct3D:
 [Physics::Module] Threading Mode: Multi-Threaded
 <RI> Initializing input.
 Using Windows.Gaming.Input
-UnloadTime: 0.229600 ms
+UnloadTime: 0.189700 ms
 RenderGraph is now enabled.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -36,400 +36,281 @@ UnityEngine.Rendering.RenderPipelineAsset:InternalCreatePipeline()
 UnityEngine.Rendering.RenderPipelineManager:TryPrepareRenderPipeline(RenderPipelineAsset)
 UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal(RenderPipelineAsset, IntPtr, Object)
 
-[2026/03/11 17:51:51.119] INFO | [BackendManager] [Character] Awake completed. isUiProcess=False
+[2026/03/12 12:55:26.682] INFO | [StartupSceneRouter] Command line args: F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe
+StartupSceneRouter:ResolveTargetSceneFromCommandLine()
+StartupSceneRouter:TryRouteToTargetScene(String)
+
+[2026/03/12 12:55:26.682] INFO | [StartupSceneRouter] No startup routing option found. Staying on default startup scene.
+StartupSceneRouter:TryRouteToTargetScene(String)
+
+[2026/03/12 12:55:26.683] INFO | [BackendManager] [Character] Awake completed. isUiProcess=False
 BackendManager:Awake()
 
-[2026/03/11 17:51:51.120] INFO | [BackendManager] [Character] AppUserModelID applied: DesktopAgent.App
+[2026/03/12 12:55:26.684] INFO | [BackendManager] [Character] AppUserModelID applied: DesktopAgent.App
 BackendManager:ApplyAppUserModelId()
 BackendManager:Awake()
 
-[2026/03/11 17:51:51.120] INFO | [BackendManager] [Character] Settings applied. startupTimeoutSeconds=4, pollIntervalSeconds=0.25, tcpTimeoutMs=200
+[2026/03/12 12:55:26.684] INFO | [BackendManager] [Character] Settings applied. startupTimeoutSeconds=4, pollIntervalSeconds=0.25, tcpTimeoutMs=200
 BackendManager:ApplySettings()
 BackendManager:Awake()
 
-[2026/03/11 17:51:51.125] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Say'.
+[2026/03/12 12:55:26.688] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Say'.
 CharacterSpeechBubbleUI:InstantiateBubblePrefab(GameObject, String)
 CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
 CharacterSpeechBubbleUI:Awake()
 
-[2026/03/11 17:51:51.125] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Thought'.
+[2026/03/12 12:55:26.688] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Thought'.
 CharacterSpeechBubbleUI:InstantiateBubblePrefab(GameObject, String)
 CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
 CharacterSpeechBubbleUI:Awake()
 
-[2026/03/11 17:51:51.125] INFO | [CharacterSpeechBubbleUI] Bubble instances initialized (tts='Say', thinking='Thought').
+[2026/03/12 12:55:26.689] INFO | [CharacterSpeechBubbleUI] Bubble instances initialized (tts='Say', thinking='Thought').
 CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
 CharacterSpeechBubbleUI:Awake()
 
-[2026/03/11 17:51:51.125] INFO | [CharacterSpeechBubbleUI] Initialized on 'BubbleAnchor'.
+[2026/03/12 12:55:26.689] INFO | [CharacterSpeechBubbleUI] Initialized on 'BubbleAnchor'.
 
-[2026/03/11 17:51:51.126] INFO | [CharacterManager] Awake completed.
+[2026/03/12 12:55:26.689] INFO | [CharacterManager] Awake completed.
 
-[2026/03/11 17:51:51.126] INFO | [TtsCoeiroinkTest] Awake completed. IsUiProcess=False
+[2026/03/12 12:55:26.689] INFO | [TtsCoeiroinkTest] Awake completed. IsUiProcess=False
 TTSManager:Awake()
 
-[2026/03/11 17:51:51.126] INFO | [TtsCoeiroinkTest] Settings applied. healthCheckTimeoutMs=200, startupWaitSeconds=4
+[2026/03/12 12:55:26.690] INFO | [TtsCoeiroinkTest] Settings applied. healthCheckTimeoutMs=200, startupWaitSeconds=4
 TTSManager:ApplySettings()
 TTSManager:Awake()
 
-[2026/03/11 17:51:51.138] INFO | [BackendManager] [Character] Start called.
+[2026/03/12 12:55:26.691] INFO | [StartupSceneRouter] Command line args: F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe
+StartupSceneRouter:ResolveTargetSceneFromCommandLine()
+StartupSceneRouter:TryRouteToTargetScene(String)
+StartupSceneRouter:RouteAfterSceneLoad()
+
+[2026/03/12 12:55:26.704] INFO | [BackendManager] [Character] Start called.
 BackendManager:Start()
 
-[2026/03/11 17:51:51.138] INFO | [BackendManager] [Character] StartBackend requested.
+[2026/03/12 12:55:26.704] INFO | [BackendManager] [Character] StartBackend requested. pid=27260, isUiProcess=False, caller=unknown
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:51.138] INFO | [BackendManager] [Character] UI health check monitoring started.
+[2026/03/12 12:55:26.704] INFO | [BackendManager] [Character] UI health check monitoring started.
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:51.138] INFO | [BackendManager] [Character] begin host=127.0.0.1 port=8000 timeout=4s
-<StartBackendRoutine>d__57:MoveNext()
+[2026/03/12 12:55:26.705] INFO | [BackendManager] [Character] begin host=127.0.0.1 port=8000 timeout=4s
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:51.140] INFO | [BackendManager] [Character] UI start requested. reason=startup, attempt=1, file=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe, args=--ui, cwd=F:\DesktopAgent\build\DesktopAgent
+[2026/03/12 12:55:26.705] INFO | [BackendManager] [Character] Process snapshot (startup-begin). currentPid=27260, isUiProcess=False, none
+BackendManager:LogStartupProcessSnapshot(String)
+<StartBackendRoutine>d__63:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+BackendManager:StartBackend()
+
+[2026/03/12 12:55:26.707] WARNING | [BackendManager] [Character] UI health check hit ConnectionReset. Waiting up to 2.1s before treating UI as unavailable.
+BackendManager:IsUiHealthy()
+BackendManager:TryBeginUiLaunchAttempt(Single, Int32&)
 BackendManager:StartUiProcess(String)
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:51.142] INFO | [BackendManager] [Character] UI taskbar config requested. pid=32496, appId=DesktopAgent.App
+[2026/03/12 12:55:27.807] INFO | [BackendManager] [Character] UI start requested. reason=startup, attempt=1, file=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe, args=--ui, cwd=F:\DesktopAgent\build\DesktopAgent, caller=<StartBackendRoutine>d__63.MoveNext <= SetupCoroutine.InvokeMoveNext <= BackendManager.StartBackend
+BackendManager:StartUiProcess(String)
+<StartBackendRoutine>d__63:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+BackendManager:StartBackend()
+
+[2026/03/12 12:55:27.810] INFO | [BackendManager] [Character] UI taskbar config requested. pid=28156, appId=DesktopAgent.App
 BackendManager:TryConfigureExternalUiTaskbarVisibility(Process)
 BackendManager:TryCreateUiProcess(ProcessStartInfo, String&)
 BackendManager:StartUiProcess(String)
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:51.996] INFO | [BackendManager] [Character] UI taskbar config applied. appId=True, hidden=True
+[2026/03/12 12:55:29.462] INFO | [BackendManager] [Character] UI taskbar config applied. appId=True, hidden=True
 BackendManager:TryConfigureExternalUiTaskbarVisibility(Process)
 BackendManager:TryCreateUiProcess(ProcessStartInfo, String&)
 BackendManager:StartUiProcess(String)
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:51.996] INFO | [BackendManager] [Character] UI process started (native CreateProcess): F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe --ui
+[2026/03/12 12:55:29.462] INFO | [BackendManager] [Character] UI process started (native CreateProcess): F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe --ui, reason=startup, attempt=1, caller=<StartBackendRoutine>d__63.MoveNext <= SetupCoroutine.InvokeMoveNext <= BackendManager.StartBackend
 BackendManager:StartUiProcess(String)
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:52.005] INFO | [BackendManager] [Character] Ollama start skipped: already reachable at 127.0.0.1:11434
+[2026/03/12 12:55:29.462] INFO | [BackendManager] [Character] Process snapshot (after-ui-launch). currentPid=27260, isUiProcess=False, tracked-ui:pid=28156,alive=False,name=
+BackendManager:LogStartupProcessSnapshot(String)
+<StartBackendRoutine>d__63:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+BackendManager:StartBackend()
+
+[2026/03/12 12:55:29.471] INFO | [BackendManager] [Character] Ollama start skipped: already reachable at 127.0.0.1:11434
 BackendManager:StartOllama()
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:52.211] INFO | [BackendManager] [Character] COEIROINK process started (native CreateProcess): D:\COEIROINK_WIN_CPU_v.2.12.3\COEIROINK_WIN_CPU_v.2.12.3\engine\engine.exe
+[2026/03/12 12:55:29.677] INFO | [BackendManager] [Character] COEIROINK process started (native CreateProcess): D:\COEIROINK_WIN_CPU_v.2.12.3\COEIROINK_WIN_CPU_v.2.12.3\engine\engine.exe
 BackendManager:TryStartDependencyProcess(String, String, String, Process&, String)
 BackendManager:StartCoeiroink()
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:52.213] WARNING | [BackendManager] [Character] Detected WindowsApps python shim. Switching backend launch to py -3.
+[2026/03/12 12:55:29.677] INFO | [BackendManager] [Character] Process snapshot (after-dependency-launch). currentPid=27260, isUiProcess=False, tracked-ui:pid=28156,alive=False,name= | tracked-coeiroink:pid=30392,alive=False,name=
+BackendManager:LogStartupProcessSnapshot(String)
+<StartBackendRoutine>d__63:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+BackendManager:StartBackend()
+
+[2026/03/12 12:55:29.679] WARNING | [BackendManager] [Character] Detected WindowsApps python shim. Switching backend launch to py -3.
 BackendManager:TryBuildStartInfo(String, ProcessStartInfo&)
 BackendManager:StartProcess()
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:52.213] INFO | [BackendManager] [Character] starting process: C:\Users\arm04\AppData\Local\Programs\Python\Launcher\py.exe -3 -m app.server
+[2026/03/12 12:55:29.679] INFO | [BackendManager] [Character] starting process: C:\Users\arm04\AppData\Local\Programs\Python\Launcher\py.exe -3 -m app.server
 BackendManager:StartProcess()
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:52.213] INFO | [BackendManager] [Character] WorkingDirectory: F:\DesktopAgent\BackendServer
+[2026/03/12 12:55:29.679] INFO | [BackendManager] [Character] WorkingDirectory: F:\DesktopAgent\BackendServer
 BackendManager:StartProcess()
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:52.216] INFO | [BackendManager] [Character] process started: C:\Users\arm04\AppData\Local\Programs\Python\Launcher\py.exe -3 -m app.server
+[2026/03/12 12:55:29.682] INFO | [BackendManager] [Character] process started: C:\Users\arm04\AppData\Local\Programs\Python\Launcher\py.exe -3 -m app.server
 BackendManager:StartProcess()
-<StartBackendRoutine>d__57:MoveNext()
+<StartBackendRoutine>d__63:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 BackendManager:StartBackend()
 
-[2026/03/11 17:51:52.418] INFO | [CharacterManager] Start begin.
+[2026/03/12 12:55:29.682] INFO | [BackendManager] [Character] Process snapshot (after-backend-launch). currentPid=27260, isUiProcess=False, tracked-ui:pid=28156,alive=False,name= | tracked-backend:pid=26392,alive=False,name= | tracked-coeiroink:pid=30392,alive=False,name=
+BackendManager:LogStartupProcessSnapshot(String)
+<StartBackendRoutine>d__63:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+BackendManager:StartBackend()
+
+[2026/03/12 12:55:29.884] INFO | [CharacterManager] Start begin.
 CharacterManager:Start()
 
-[2026/03/11 17:51:52.418] INFO | [CharacterManager] Spawn request accepted.
+[2026/03/12 12:55:29.884] INFO | [CharacterManager] Spawn request accepted.
 CharacterManager:Start()
 
-[2026/03/11 17:51:52.418] INFO | [CharacterManager] SpawnCharacterAsync started.
-<SpawnCharacterAsync>d__160:MoveNext()
+[2026/03/12 12:55:29.885] INFO | [CharacterManager] SpawnCharacterAsync started.
+<SpawnCharacterAsync>d__162:MoveNext()
 CharacterManager:Start()
 
-[2026/03/11 17:51:52.418] INFO | [BackendManager] [Character] StartBackend skipped: startup is already in progress.
-BackendManager:StartBackend()
-<WaitForBackend>d__162:MoveNext()
+[2026/03/12 12:55:30.085] INFO | [CharacterManager] Requesting StartBackend. source=WaitForBackend, pid=27260, backendAlive=False
+<WaitForBackend>d__164:MoveNext()
 CharacterManager:WaitForBackend(CancellationToken)
-<SpawnCharacterAsync>d__160:MoveNext()
+<SpawnCharacterAsync>d__162:MoveNext()
 CharacterManager:Start()
 
-[2026/03/11 17:51:52.619] WARNING | [CharacterManager] Start deferred: animator is not ready yet.
-CharacterManager:Start()
-
-[2026/03/11 17:51:52.819] INFO | [BackendManager] [Character] StartBackend skipped: startup is already in progress.
+[2026/03/12 12:55:30.085] INFO | [BackendManager] [Character] StartBackend skipped: startup is already in progress. pid=27260, isUiProcess=False, caller=<WaitForBackend>d__164.MoveNext <= CharacterManager.WaitForBackend <= <SpawnCharacterAsync>d__162.MoveNext <= CharacterManager.Start
 BackendManager:StartBackend()
+<WaitForBackend>d__164:MoveNext()
+CharacterManager:WaitForBackend(CancellationToken)
+<SpawnCharacterAsync>d__162:MoveNext()
+CharacterManager:Start()
+
+[2026/03/12 12:55:30.286] WARNING | [CharacterManager] Start deferred: animator is not ready yet.
+CharacterManager:Start()
+
+[2026/03/12 12:55:30.487] INFO | [LLMProvider] Requesting StartBackend. source=TryStartBackend, pid=27260
+LLMProvider:TryStartBackend()
 LLMProvider:StartBridge()
 
-[2026/03/11 17:51:52.820] INFO | [TtsCoeiroinkTest] Start completed.
+[2026/03/12 12:55:30.487] INFO | [BackendManager] [Character] StartBackend skipped: startup is already in progress. pid=27260, isUiProcess=False, caller=LLMProvider.TryStartBackend <= LLMProvider.StartBridge
+BackendManager:StartBackend()
+LLMProvider:TryStartBackend()
+LLMProvider:StartBridge()
+
+[2026/03/12 12:55:30.488] INFO | [TtsCoeiroinkTest] Start completed.
 TTSManager:Start()
 
-[2026/03/11 17:51:52.820] INFO | [TtsCoeiroinkTest] Auto test playback started.
+[2026/03/12 12:55:30.488] INFO | [TtsCoeiroinkTest] Auto test playback started.
 TTSManager:Start()
 
-[2026/03/11 17:51:55.763] INFO | [BackendManager] [Character] UI launch health-check validation completed. Relaunch is enabled.
-<UiHealthCheckLoop>d__90:MoveNext()
+[2026/03/12 12:55:33.442] INFO | [BackendManager] [Character] UI launch health-check validation completed. Relaunch is enabled.
+<UiHealthCheckLoop>d__99:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/03/11 17:51:56.569] WARNING | [CharacterManager] External UI wait timed out (1s). Continue spawning character.
-<WaitForUiProcess>d__163:MoveNext()
+[2026/03/12 12:55:33.442] INFO | [BackendManager] [Character] Process snapshot (after-backend-launch+2s). currentPid=27260, isUiProcess=False, tracked-ui:pid=28156,alive=False,name= | tracked-backend:pid=26392,alive=False,name= | tracked-coeiroink:pid=30392,alive=False,name=
+BackendManager:LogStartupProcessSnapshot(String)
+<LogStartupProcessSnapshotDelayed>d__64:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+
+[2026/03/12 12:55:34.248] WARNING | [CharacterManager] External UI wait timed out (1s). Continue spawning character.
+<WaitForUiProcess>d__165:MoveNext()
 Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
 Cysharp.Threading.Tasks.DelayPromise:MoveNext()
 Cysharp.Threading.Tasks.Internal.PlayerLoopRunner:RunCore()
 
-[2026/03/11 17:51:56.569] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
-ApplicationSettings:LoadSettings()
-ApplicationSettings:.ctor()
-System.Reflection.RuntimeConstructorInfo:InternalInvoke(Object, Object[], Boolean)
-System.RuntimeType:CreateInstanceMono(Boolean, Boolean)
-System.Activator:CreateInstance()
-Singleton`1:get_Instance()
-<LoadModel>d__167:MoveNext()
-CharacterManager:LoadModel(CancellationToken)
-<SpawnCharacterAsync>d__160:MoveNext()
+[2026/03/12 12:55:34.248] INFO | [CharacterManager] UI loading visibility requested. visible=True, attempt=1
+<RequestUiLoadingVisibilityAsync>d__166:MoveNext()
+CharacterManager:RequestUiLoadingVisibilityAsync(Boolean, CancellationToken)
+<SpawnCharacterAsync>d__162:MoveNext()
 Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<WaitForUiProcess>d__163:MoveNext()
+<WaitForUiProcess>d__165:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+Cysharp.Threading.Tasks.DelayPromise:MoveNext()
+Cysharp.Threading.Tasks.I[2026/03/12 12:55:35.781] INFO | [BackendManager] [UI] UI loading UDP request accepted. visible=False, from=127.0.0.1:59355, ack=desktopagent-ui-loading-ack
+BackendManager:UiHealthCheckResponderLoop()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
+
+[2026/03/12 12:55:35.782] INFO | [BackendManager] [UI] UI loading indicator active=False.
+BackendManager:ApplyUiLoadingIndicatorVisible(Boolean, Boolean)
+BackendManager:Update()
+
+[2026/03/12 12:55:36.617] INFO | [BackendManager] [UI] UI force-topmost UDP received. from=127.0.0.1:59356, message=desktopagent-ui-force-topmost
+BackendManager:UiHealthCheckResponderLoop()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
+
+[2026/03/12 12:55:36.665] INFO | [BackendManager] [UI] UI force-topmost UDP processed. success=True
+BackendManager:UiHealthCheckResponderLoop()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
+
+[2026/03/12 12:55:36.666] INFO | [BackendManager] [UI] UI force-topmost UDP ack sent. to=127.0.0.1:59356, message=desktopagent-ui-force-topmost-ack
+BackendManager:UiHealthCheckResponderLoop()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
+
+[2026/03/12 12:55:36.666] WARNING | [BackendManager] [UI] UI health-check responder socket error: ConnectionReset
+BackendManager:UiHealthCheckResponderLoop()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
+
+:TrySetResult(TResult)
+<WaitForUiProcess>d__165:MoveNext()
 Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
 Cysharp.Threading.Tasks.DelayPromise:MoveNext()
 Cysharp.Threading.Tasks.Internal.PlayerLoopRunner:RunCore()
 
-[2026/03/11 17:51:56.569] INFO | 指定されたモデルパス: Iris.vrm
-<LoadModelAsync>d__1:MoveNext()
-LoadVRM:LoadModelAsync(String, CancellationToken)
-<LoadModel>d__1:MoveNext()
-LoadCharacterModel:LoadModel(CancellationToken)
-<LoadModel>d__167:MoveNext()
-CharacterManager:LoadModel(CancellationToken)
-<SpawnCharacterAsync>d__160:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<WaitForUiProcess>d__163:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-Cysharp.Threading.Tasks.DelayPromise:MoveNext()
-Cysharp.Threading.Tasks.Internal.PlayerLoopRunner:RunCore()
+[2026/03/12 12:55:34.662] INFO | [BackendManager] [Character] backend reachable at 127.0.0.1:8000 elapsed=2.5s
+<StartBackendRoutine>d__63:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/03/11 17:51:56.569] INFO | 指定されたモデルファイルをロードします: Iris.vrm
-<LoadModelAsync>d__1:MoveNext()
-LoadVRM:LoadModelAsync(String, CancellationToken)
-<LoadModel>d__1:MoveNext()
-LoadCharacterModel:LoadModel(CancellationToken)
-<LoadModel>d__167:MoveNext()
-CharacterManager:LoadModel(CancellationToken)
-<SpawnCharacterAsync>d__160:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<WaitForUiProcess>d__163:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-Cysharp.Threading.Tasks.DelayPromise:MoveNext()
-Cysharp.Threading.Tasks.Internal.PlayerLoopRunne[2026/03/11 17:51:58.545] INFO | [BackendManager] [UI] UI force-topmost UDP received. from=127.0.0.1:55140, message=desktopagent-ui-force-topmost
-BackendManager:UiHealthCheckResponderLoop()
+[2026/03/12 12:55:35.777] INFO | モデルのロードと表示が完了しました: F:/DesktopAgent/build/DesktopAgent/DesktopAgent_Data/StreamingAssets\Iris.vrm
+<LoadAndDisplayModelFromPath>d__4:MoveNext()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadPathAsync>d__1:MoveNext()
 System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-[2026/03/11 17:51:58.570] INFO | [BackendManager] [UI] UI force-topmost UDP processed. success=True
-BackendManager:UiHealthCheckResponderLoop()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-[2026/03/11 17:51:58.570] INFO | [BackendManager] [UI] UI force-topmost UDP ack sent. to=127.0.0.1:55140, message=desktopagent-ui-force-topmost-ack
-BackendManager:UiHealthCheckResponderLoop()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-[2026/03/11 17:51:58.570] WARNING | [BackendManager] [UI] UI health-check responder socket error: ConnectionReset
-BackendManager:UiHealthCheckResponderLoop()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-Inference Whisper on input data...
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-Whisper inference finished, total time: 0 ms.
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-Final text: 
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-[2026/03/11 17:52:00.187] INFO | [STT] Whisper stream restarted after push-to-talk flush.
-<StartStreamAfterFlushAsync>d__117:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<CreateStreamAsync>d__142:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-Cysharp.Threading.Tasks.WhenAnyLRPromise`1:TryLeftInvokeContinuation(WhenAnyLRPromise`1, Awaiter&)
-Cysharp.Threading.Tasks.<>c:<.ctor>b__2_0(Object)
-Cysharp.Threading.Tasks.UniTaskCompletionSource`1:TrySignalCompletion(UniTaskStatus)
-System.Threading.Tasks.ContinuationTaskFromResultTask`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-UnityEngine.WorkRequest:Invoke()
-UnityEngine.UnitySynchronizationContext:Exec()
-
-Inference Whisper on input data...
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-Whisper inference finished, total time: 1 ms.
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-Final text: 
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-[2026/03/11 17:52:05.231] INFO | [STT] Whisper stream restarted after push-to-talk flush.
-<StartStreamAfterFlushAsync>d__117:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<CreateStreamAsync>d__142:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-Cysharp.Threading.Tasks.WhenAnyLRPromise`1:TryLeftInvokeContinuation(WhenAnyLRPromise`1, Awaiter&)
-Cysharp.Threading.Tasks.<>c:<.ctor>b__2_0(Object)
-Cysharp.Threading.Tasks.UniTaskCompletionSource`1:TrySignalCompletion(UniTaskStatus)
-System.Threading.Tasks.ContinuationTaskFromResultTask`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-UnityEngine.WorkRequest:Invoke()
-UnityEngine.UnitySynchronizationContext:Exec()
-
-Inference Whisper on input data...
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-Whisper inference finished, total time: 1 ms.
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-Final text: 
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
-Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
-System.Threading.Tasks.Task`1:InnerInvoke()
-System.Threading.Tasks.Task:Execute()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
-System.Threading.Tasks.Task:ExecuteEntry(Boolean)
-System.Threading.ThreadPoolWorkQueue:Dispatch()
-
-[2026/03/11 17:52:08.175] INFO | [BackendManager] [UI] UI force-topmost UDP received. from=127.0.0.1:50758, message=desktopagent-ui-force-topmost
-BackendManager:UiHealthCheckResponderLoop()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-[2026/03/11 17:52:08.221] INFO | [BackendManager] [UI] UI force-topmost UDP processed. success=True
-BackendManager:UiHealthCheckResponderLoop()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-[2026/03/11 17:52:08.221] INFO | [BackendManager] [UI] UI force-topmost UDP ack sent. to=127.0.0.1:50758, message=desktopagent-ui-force-topmost-ack
-BackendManager:UiHealthCheckResponderLoop()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-[2026/03/11 17:52:08.221] WARNING | [BackendManager] [UI] UI health-check responder socket error: ConnectionReset
-BackendManager:UiHealthCheckResponderLoop()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Threading.ExecutionContext:Run(ExecutionContext, ContextCallback, Object)
-
-aitTaskContinuation:Run(Task, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
 System.Threading.Tasks.Task:FinishContinuations()
 System.Threading.Tasks.Task`1:TrySetResult(TResult)
 System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
@@ -483,40 +364,267 @@ System.Threading.Tasks.Task`1:TrySetResult(TResult)
 System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
 UniGLTF.UnityLoopTaskScheduler:Update()
 
-[2026/03/11 17:51:57.726] INFO | [CharacterManager] Animator resolved and update loop is active.
+[2026/03/12 12:55:35.780] INFO | [CharacterManager] Character spawn completed. model=VRM1_Model, animator=True
+<SpawnCharacterAsync>d__162:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModel>d__171:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModel>d__1:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModelAsync>d__1:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadAndDisplayModel>d__3:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadAndDisplayModelFromPath>d__4:MoveNext()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadPathAsync>d__1:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadAsync>d__4:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<TryLoadingAsVrm10Async>d__5:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadVrm10DataAsync>d__7:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniGLTF.<LoadAsync>d__33:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<FinalizeAsync>d__11:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadConstraintAsync>d__18:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
+UniGLTF.UnityLoopTaskScheduler:Update()
+
+[2026/03/12 12:55:35.781] INFO | [CharacterManager] UI loading visibility requested. visible=False, attempt=1
+<RequestUiLoadingVisibilityAsync>d__166:MoveNext()
+CharacterManager:RequestUiLoadingVisibilityAsync(Boolean, CancellationToken)
+<SpawnCharacterAsync>d__162:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModel>d__171:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModel>d__1:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModelAsync>d__1:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadAndDisplayModel>d__3:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadAndDisplayModelFromPath>d__4:MoveNext()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadPathAsync>d__1:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadAsync>d__4:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<TryLoadingAsVrm10Async>d__5:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadVrm10DataAsync>d__7:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniGLTF.<LoadAsync>d__33:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<FinalizeAsync>d__11:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadConstraintAsync>d__18:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
+UniGLTF.UnityLoopTaskScheduler:Update()
+
+[2026/03/12 12:55:35.781] INFO | [CharacterManager] SpawnCharacterAsync finished.
+<SpawnCharacterAsync>d__162:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModel>d__171:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModel>d__1:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadModelAsync>d__1:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadAndDisplayModel>d__3:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<LoadAndDisplayModelFromPath>d__4:MoveNext()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadPathAsync>d__1:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadAsync>d__4:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<TryLoadingAsVrm10Async>d__5:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadVrm10DataAsync>d__7:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniGLTF.<LoadAsync>d__33:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<FinalizeAsync>d__11:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
+UniVRM10.<LoadConstraintAsync>d__18:MoveNext()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Runtime.CompilerServices.MoveNextRunner:Run()
+System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
+System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
+System.Threading.Tasks.Task:FinishContinuations()
+System.Threading.Tasks.Task`1:TrySetResult(TResult)
+System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
+UniGLTF.UnityLoopTaskScheduler:Update()
+
+[2026/03/12 12:55:35.795] INFO | [CharacterManager] Animator resolved and update loop is active.
 CharacterManager:Update()
 
-[2026/03/11 17:51:57.775] INFO | アニメーションコントローラーを設定しました。
+[2026/03/12 12:55:35.810] INFO | アニメーションコントローラーを設定しました。
 LoadVRM:UpdateAnimationController(Animator)
 CharacterManager:InitializeAnimatorSync()
 CharacterManager:Update()
 
-[2026/03/11 17:51:57.775] INFO | [CharacterManager] Animator sync initialized.
+[2026/03/12 12:55:35.810] INFO | [CharacterManager] Animator sync initialized.
 CharacterManager:InitializeAnimatorSync()
 CharacterManager:Update()
 
-[2026/03/11 17:51:57.779] INFO | [CharacterManager] Input events registered. handlers=ScrollWheel,RightClick
+[2026/03/12 12:55:35.814] INFO | [CharacterManager] Input events registered. handlers=ScrollWheel,RightClick
 CharacterManager:RegisterInputEvents()
 CharacterManager:ScrollUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:57.779] INFO | [CharacterManager] State initialized. grounded=False, falling=True, dragging=False, walkActive=False, action=Idle
+[2026/03/12 12:55:35.814] INFO | [CharacterManager] State initialized. grounded=False, falling=True, dragging=False, walkActive=False, action=Idle
 CharacterManager:LogRuntimeStateChanges()
 
-[2026/03/11 17:51:57.788] INFO | [TtsCoeiroinkTest] Character spawn confirmed. Start test TTS. elapsed=2.1s
+[2026/03/12 12:55:35.824] INFO | [TtsCoeiroinkTest] Character spawn confirmed. Start test TTS. elapsed=2.2s
 <WaitCharacterSpawn>d__23:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/03/11 17:51:57.788] INFO | [TtsCoeiroinkTest] PlayTts requested. textLength=5
+[2026/03/12 12:55:35.824] INFO | [TtsCoeiroinkTest] PlayTts requested. textLength=5
 TTSManager:PlayTts(String)
 <WaitCharacterSpawn>d__23:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/03/11 17:51:57.806] INFO | [TtsCoeiroinkTest] request endpoint: http://127.0.0.1:50032/v1/synthesis
+[2026/03/12 12:55:35.830] INFO | [TtsCoeiroinkTest] request endpoint: http://127.0.0.1:50032/v1/synthesis
 <Synthesize>d__24:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/03/11 17:51:57.806] INFO | [TtsCoeiroinkTest] request payload: {"text":"よろしくね","speakerUuid":"5e0e0268-9982-11ed-8955-0242ac1c000c","styleId":479653990,"speedScale":1.0,"volumeScale":1.0,"prosodyDetail":[],"pitchScale":0.0,"intonationScale":1.0,"prePhonemeLength":0.1,"postPhonemeLength":0.5,"outputSamplingRate":24000}
+[2026/03/12 12:55:35.830] INFO | [TtsCoeiroinkTest] request payload: {"text":"よろしくね","speakerUuid":"5e0e0268-9982-11ed-8955-0242ac1c000c","styleId":479653990,"speedScale":1.0,"volumeScale":1.0,"prosodyDetail":[],"pitchScale":0.0,"intonationScale":1.0,"prePhonemeLength":0.1,"postPhonemeLength":0.5,"outputSamplingRate":24000}
 <Synthesize>d__24:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
@@ -540,30 +648,30 @@ AnimatorSync:SetBool(String, Boolean)
 AnimatorSync:SetNextGroundAction(GroundAction)
 CheckLanding:OnStateEnter(Animator, AnimatorStateInfo, Int32)
 
-[2026/03/11 17:51:58.544] INFO | [CharacterManager] ZOrder taskbar-landing set-topmost true. success=True
+[2026/03/12 12:55:36.615] INFO | [CharacterManager] ZOrder taskbar-landing set-topmost true. success=True
 CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
 CharacterManager:FallingUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:58.544] INFO | [CharacterManager] ZOrder landing target switched to foreground. target=0xB0C06
+[2026/03/12 12:55:36.615] INFO | [CharacterManager] ZOrder landing target switched to foreground. target=0xFA0832
 CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
 CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
 CharacterManager:FallingUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:58.544] INFO | [CharacterManager] ZOrder landing set-topmost true for taskbar. success=True
+[2026/03/12 12:55:36.616] INFO | [CharacterManager] ZOrder landing set-topmost true for taskbar. success=True
 CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
 CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
 CharacterManager:FallingUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:58.545] INFO | [CharacterManager] ZOrder landing place-above and bring-front. target=0xB0C06, placed=True, brought=True, surface=Taskbar
+[2026/03/12 12:55:36.616] INFO | [CharacterManager] ZOrder landing place-above and bring-front. target=0xFA0832, placed=True, brought=True, surface=Taskbar
 CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
 CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
 CharacterManager:FallingUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:58.545] WARNING | [BackendManager] [Character] ZOrder direct UI handle resolution failed.
+[2026/03/12 12:55:36.616] WARNING | [BackendManager] [Character] ZOrder direct UI handle resolution failed.
 BackendManager:TryGetUiWindowHandle(IntPtr&)
 BackendManager:TryRaiseUiWindow()
 CharacterZOrderHelper:RequestUiTopmostAfterCharacterTopmost(String)
@@ -572,7 +680,7 @@ CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, In
 CharacterManager:FallingUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:58.545] WARNING | [BackendManager] [Character] ZOrder direct UI re-front skipped: UI window handle unavailable.
+[2026/03/12 12:55:36.616] WARNING | [BackendManager] [Character] ZOrder direct UI re-front skipped: UI window handle unavailable.
 BackendManager:TryRaiseUiWindow()
 CharacterZOrderHelper:RequestUiTopmostAfterCharacterTopmost(String)
 CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
@@ -580,7 +688,7 @@ CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, In
 CharacterManager:FallingUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:58.545] INFO | [CharacterManager] ZOrder UI re-front requested via UDP fallback. reason=landing-zorder, host=127.0.0.1, port=38181
+[2026/03/12 12:55:36.616] INFO | [CharacterManager] ZOrder UI re-front requested via UDP fallback. reason=landing-zorder, host=127.0.0.1, port=38181
 CharacterManager:LogUiFrontRequestIfChanged(String, String)
 CharacterZOrderHelper:RequestUiTopmostAfterCharacterTopmost(String)
 CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
@@ -588,10 +696,10 @@ CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, In
 CharacterManager:FallingUpdate()
 CharacterManager:Update()
 
-[2026/03/11 17:51:58.545] INFO | [CharacterManager] Grounded changed: True
+[2026/03/12 12:55:36.616] INFO | [CharacterManager] Grounded changed: True
 CharacterManager:LogRuntimeStateChanges()
 
-[2026/03/11 17:51:58.545] INFO | [CharacterManager] Falling changed: False
+[2026/03/12 12:55:36.616] INFO | [CharacterManager] Falling changed: False
 CharacterManager:LogRuntimeStateChanges()
 
 [AnimatorSync] SetNextGroundAction: Idle
@@ -601,145 +709,73 @@ UnityEngine.Debug:Log(Object)
 AnimatorSync:SetNextGroundAction(GroundAction)
 CheckLanding:OnStateExit(Animator, AnimatorStateInfo, Int32)
 
-[2026/03/11 17:52:01.823] INFO | [TtsCoeiroinkTest] playback started. endpoint=http://127.0.0.1:50032/v1/synthesis
+[2026/03/12 12:55:39.154] INFO | [BackendManager] [Character] Process snapshot (after-backend-launch+8s). currentPid=27260, isUiProcess=False, tracked-ui:pid=28156,alive=False,name= | tracked-backend:pid=26392,alive=False,name= | tracked-coeiroink:pid=30392,alive=False,name=
+BackendManager:LogStartupProcessSnapshot(String)
+<LogStartupProcessSnapshotDelayed>d__64:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
+
+[2026/03/12 12:55:39.416] INFO | [TtsCoeiroinkTest] playback started. endpoint=http://127.0.0.1:50032/v1/synthesis
 <Synthesize>d__24:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[AnimatorSync] SetBool: IsOnWindow = True
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-AnimatorSync:SetBool(String, Boolean)
-AnimatorSync:SetIsOnWindow(Boolean)
-CharacterManager:SetOnWindowState(Boolean, String, String)
-CharacterManager:SyncWindowSurfaceState(Boolean)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[AnimatorSync] SetBool: IsIdling = False
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-AnimatorSync:SetBool(String, Boolean)
-AnimatorSync:ClearGroundActionFlags()
-AnimatorSync:SetIsOnWindow(Boolean)
-CharacterManager:SetOnWindowState(Boolean, String, String)
-CharacterManager:SyncWindowSurfaceState(Boolean)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[AnimatorSync] SetBool: IsSittingWindow = True
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-AnimatorSync:SetBool(String, Boolean)
-CharacterManager:SyncWindowSurfaceState(Boolean)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:05.305] INFO | [CharacterManager] Action changed: Sit
-CharacterManager:LogRuntimeStateChanges()
-
-[AnimatorSync] SetBool: IsOnWindow = False
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-AnimatorSync:SetBool(String, Boolean)
-AnimatorSync:SetIsOnWindow(Boolean)
-CharacterManager:SetOnWindowState(Boolean, String, String)
-CharacterManager:SyncWindowSurfaceState(Boolean)
-CharacterManager:DetachFromWindowTopSupport()
-CharacterManager:FollowSupportingWindow()
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[AnimatorSync] SetBool: IsSittingWindow = False
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-AnimatorSync:SetBool(String, Boolean)
-CharacterManager:SyncWindowSurfaceState(Boolean)
-CharacterManager:DetachFromWindowTopSupport()
-CharacterManager:FollowSupportingWindow()
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.173] INFO | [CharacterManager] ZOrder clear-follow-target set-topmost-false. keepTopmost=False, success=True
-CharacterManager:LogClearFollowTargetIfChanged(String, Boolean, Boolean)
-CharacterManager:ClearSupportingWindowFollowTarget()
-CharacterManager:DetachFromWindowTopSupport()
-CharacterManager:FollowSupportingWindow()
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.174] INFO | [CharacterManager] ZOrder taskbar-landing set-topmost true. success=True
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.174] INFO | [CharacterManager] ZOrder landing target switched to foreground. target=0x3021C
-CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.175] INFO | [CharacterManager] ZOrder landing set-topmost true for taskbar. success=True
-CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.175] INFO | [CharacterManager] ZOrder landing place-above and bring-front. target=0x3021C, placed=True, brought=True, surface=Taskbar
-CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.175] WARNING | [BackendManager] [Character] ZOrder direct UI handle resolution failed.
-BackendManager:TryGetUiWindowHandle(IntPtr&)
-BackendManager:TryRaiseUiWindow()
-CharacterZOrderHelper:RequestUiTopmostAfterCharacterTopmost(String)
-CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.175] WARNING | [BackendManager] [Character] ZOrder direct UI re-front skipped: UI window handle unavailable.
-BackendManager:TryRaiseUiWindow()
-CharacterZOrderHelper:RequestUiTopmostAfterCharacterTopmost(String)
-CharacterZOrderHelper:ApplyLandingZOrder(GroundSurfaceType, IntPtr)
-CharacterManager:CommitGroundedTransitionFromProbe(Single, GroundSurfaceType, IntPtr, RECT, Boolean, Boolean)
-CharacterManager:FallingUpdate()
-CharacterManager:Update()
-
-[2026/03/11 17:52:08.300] INFO | [CharacterManager] Application quit requested. Canceling tasks and unregistering inputs.
+[2026/03/12 12:55:40.549] INFO | [CharacterManager] Application quit requested. Canceling tasks and unregistering inputs.
 CharacterManager:OnApplicationQuit()
 
-[2026/03/11 17:52:08.300] INFO | [CharacterManager] Input events unregistered. handlers=ScrollWheel,RightClick
+[2026/03/12 12:55:40.549] INFO | [CharacterManager] Input events unregistered. handlers=ScrollWheel,RightClick
 CharacterManager:OnApplicationQuit()
 
-[2026/03/11 17:52:08.301] INFO | [BackendManager] [Character] OnApplicationQuit received.
+[2026/03/12 12:55:40.549] INFO | [BackendManager] [Character] OnApplicationQuit received.
 BackendManager:OnApplicationQuit()
 
-[2026/03/11 17:52:08.301] INFO | [BackendManager] [Character] LangGraph process stopped.
+[2026/03/12 12:55:40.549] WARNING | [BackendManager] [Character] StopBackendInternal begin. tracked=backend:unavailable | ollama:null | coeiroink:unavailable | ui:unavailable
+BackendManager:StopBackendInternal()
+BackendManager:TryStopBackendServerOnExit()
+
+[2026/03/12 12:55:40.549] INFO | [BackendManager] [Character] Process snapshot (shutdown-begin). currentPid=27260, isUiProcess=False, tracked-ui:pid=28156,alive=False,name= | tracked-backend:pid=26392,alive=False,name= | tracked-coeiroink:pid=30392,alive=False,name=
+BackendManager:LogStartupProcessSnapshot(String)
+BackendManager:StopBackendInternal()
+BackendManager:TryStopBackendServerOnExit()
+
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] LangGraph stop requested. pid=26392, name=, aliveBefore=False
 BackendManager:StopTrackedProcess(Process&, String)
 BackendManager:StopBackendInternal()
 BackendManager:TryStopBackendServerOnExit()
 
-[2026/03/11 17:52:08.301] INFO | [BackendManager] [Character] COEIROINK process stopped.
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] LangGraph process stopped. pid=26392
 BackendManager:StopTrackedProcess(Process&, String)
 BackendManager:StopBackendInternal()
 BackendManager:TryStopBackendServerOnExit()
 
-[2026/03/11 17:52:08.302] INFO | [BackendManager] [Character] UI Process process stopped.
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] COEIROINK stop requested. pid=30392, name=, aliveBefore=False
 BackendManager:StopTrackedProcess(Process&, String)
 BackendManager:StopBackendInternal()
 BackendManager:TryStopBackendServerOnExit()
 
-[2026/03/11 17:52:08.302] INFO | [BackendManager] [Character] backend stop requested on exit.
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] COEIROINK process stopped. pid=30392
+BackendManager:StopTrackedProcess(Process&, String)
+BackendManager:StopBackendInternal()
+BackendManager:TryStopBackendServerOnExit()
+
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] UI Process stop requested. pid=28156, name=, aliveBefore=False
+BackendManager:StopTrackedProcess(Process&, String)
+BackendManager:StopBackendInternal()
+BackendManager:TryStopBackendServerOnExit()
+
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] UI Process process stopped. pid=28156
+BackendManager:StopTrackedProcess(Process&, String)
+BackendManager:StopBackendInternal()
+BackendManager:TryStopBackendServerOnExit()
+
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] Process snapshot (shutdown-end). currentPid=27260, isUiProcess=False, none
+BackendManager:LogStartupProcessSnapshot(String)
+BackendManager:StopBackendInternal()
+BackendManager:TryStopBackendServerOnExit()
+
+[2026/03/12 12:55:40.550] WARNING | [BackendManager] [Character] StopBackendInternal completed.
+BackendManager:StopBackendInternal()
+BackendManager:TryStopBackendServerOnExit()
+
+[2026/03/12 12:55:40.550] INFO | [BackendManager] [Character] backend stop requested on exit.
 
 [Physics::Module] Cleanup current backend.
 [Physics::Module] Id: 0xf2b8ea05
