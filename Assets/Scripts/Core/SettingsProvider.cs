@@ -110,6 +110,13 @@ public class SettingsProvider : Singleton<SettingsProvider>
             }
 
             document = JsonUtility.FromJson<SettingsDocument>(json);
+            if (document != null
+                && (document.shortcuts == null || document.shortcuts.Count == 0)
+                && TryReadLegacyShortcuts(json, out var migrated))
+            {
+                document.shortcuts = migrated;
+            }
+
             return document != null;
         }
         catch (Exception ex)
@@ -117,6 +124,62 @@ public class SettingsProvider : Singleton<SettingsProvider>
             Log.Warning($"[SettingsProvider] Failed to load JSON settings: {ex.Message}");
             return false;
         }
+    }
+
+    private static bool TryReadLegacyShortcuts(string json, out List<ShortcutBindingEntry> bindings)
+    {
+        bindings = null;
+
+        try
+        {
+            var legacyContainer = JsonUtility.FromJson<LegacyShortcutsContainer>(json);
+            string legacyJson = legacyContainer?.shortcuts?.shortcutBindingsJson;
+            if (string.IsNullOrWhiteSpace(legacyJson))
+            {
+                return false;
+            }
+
+            var legacyData = JsonUtility.FromJson<ShortcutBindingsData>(legacyJson);
+            if (legacyData?.Bindings == null || legacyData.Bindings.Count == 0)
+            {
+                return false;
+            }
+
+            bindings = CloneShortcutBindings(legacyData.Bindings);
+            return bindings.Count > 0;
+        } catch (Exception ex)
+        {
+            Log.Warning($"[SettingsProvider] Failed to migrate legacy shortcuts: {ex.Message}");
+            return false;
+        }
+    }
+
+    private static List<ShortcutBindingEntry> CloneShortcutBindings(IReadOnlyList<ShortcutBindingEntry> source)
+    {
+        var list = new List<ShortcutBindingEntry>();
+        if (source == null)
+        {
+            return list;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            var entry = source[i];
+            if (entry == null)
+            {
+                continue;
+            }
+
+            list.Add(new ShortcutBindingEntry
+            {
+                ActionMap = entry.ActionMap,
+                ActionName = entry.ActionName,
+                PrimaryKey = entry.PrimaryKey,
+                Modifiers = entry.Modifiers != null ? (string[])entry.Modifiers.Clone() : Array.Empty<string>()
+            });
+        }
+
+        return list;
     }
 
     private bool TryLoadFromLegacyIni(string filePath)
@@ -192,7 +255,7 @@ public class SettingsProvider : Singleton<SettingsProvider>
             display = DisplaySection.From(Display),
             performance = PerformanceSection.From(Performance),
             backend = BackendSection.From(Backend),
-            shortcuts = ShortcutsSection.From(Shortcuts)
+            shortcuts = CloneShortcutBindings(Shortcuts?.Shortcuts)
         };
     }
 
@@ -228,10 +291,7 @@ public class SettingsProvider : Singleton<SettingsProvider>
             document.backend.ApplyTo(Backend);
         }
 
-        if (document.shortcuts != null)
-        {
-            document.shortcuts.ApplyTo(Shortcuts);
-        }
+        Shortcuts.Shortcuts = CloneShortcutBindings(document.shortcuts);
     }
 
     private void AssignSettings<T>(T settingsInstance, Dictionary<string, string> values)
@@ -325,7 +385,7 @@ public class SettingsProvider : Singleton<SettingsProvider>
         public DisplaySection display = new DisplaySection();
         public PerformanceSection performance = new PerformanceSection();
         public BackendSection backend = new BackendSection();
-        public ShortcutsSection shortcuts = new ShortcutsSection();
+        public List<ShortcutBindingEntry> shortcuts = new List<ShortcutBindingEntry>();
     }
 
     [Serializable]
@@ -523,21 +583,14 @@ public class SettingsProvider : Singleton<SettingsProvider>
     }
 
     [Serializable]
-    private class ShortcutsSection
+    private class LegacyShortcutsContainer
     {
-        public string shortcutBindingsJson = string.Empty;
+        public LegacyShortcutsSection shortcuts;
+    }
 
-        public static ShortcutsSection From(ShortcutSettings source)
-        {
-            return new ShortcutsSection
-            {
-                shortcutBindingsJson = source.ShortcutBindingsJson
-            };
-        }
-
-        public void ApplyTo(ShortcutSettings target)
-        {
-            target.ShortcutBindingsJson = shortcutBindingsJson;
-        }
+    [Serializable]
+    private class LegacyShortcutsSection
+    {
+        public string shortcutBindingsJson;
     }
 }

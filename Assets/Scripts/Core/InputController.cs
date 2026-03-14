@@ -8,17 +8,22 @@ public class InputController : Singleton<InputController>
     /// <summary>
     /// Input Systemのアクション
     /// </summary>
-    private readonly UDMInputActions _inputActions;
+    private readonly MainInputActions _inputActions;
 
     /// <summary>
     /// UIアクション
     /// </summary>
-    public UDMInputActions.UIActions UI => _inputActions.UI;
+    public MainInputActions.UIActions UI => _inputActions.UI;
 
     /// <summary>
     /// デバッグアクション
     /// </summary>
-    public UDMInputActions.DebugActions Debug => _inputActions.Debug;
+    public MainInputActions.DebugActions Debug => _inputActions.Debug;
+
+    /// <summary>
+    /// ショートカットアクション
+    /// </summary>
+    public MainInputActions.ShortcutActions Shortcut => _inputActions.Shortcut;
 
     /// <summary>
     /// InputActionAsset
@@ -30,10 +35,11 @@ public class InputController : Singleton<InputController>
     /// </summary>
     public InputController()
     {
-        _inputActions = new UDMInputActions();
+        _inputActions = new MainInputActions();
         ShortcutBindingService.Initialize(_inputActions.asset);
         _inputActions.UI.Enable();
         _inputActions.Debug.Enable();
+        _inputActions.Shortcut.Enable();
     }
 
 }

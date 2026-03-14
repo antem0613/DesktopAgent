@@ -13,10 +13,62 @@ public static class ShortcutBindingService
     private const string UserShortcutGroup = "UserShortcut";
     private const int MaxSupportedModifiers = 4;
 
+    public readonly struct DefaultShortcutDefinition
+    {
+        public readonly string ActionMap;
+        public readonly string ActionName;
+        public readonly Key PrimaryKey;
+        public readonly Key[] Modifiers;
+
+        public DefaultShortcutDefinition(string actionMap, string actionName, Key primaryKey, params Key[] modifiers)
+        {
+            ActionMap = actionMap;
+            ActionName = actionName;
+            PrimaryKey = primaryKey;
+            Modifiers = modifiers ?? Array.Empty<Key>();
+        }
+    }
+
     private static bool _loaded;
     private static InputActionAsset _asset;
     private static ShortcutBindingsData _data = new ShortcutBindingsData();
     private static bool _compositeRegistered;
+    private static readonly List<DefaultShortcutDefinition> _defaultDefinitions = new List<DefaultShortcutDefinition>();
+
+    public static void RegisterDefaultBindings(IEnumerable<DefaultShortcutDefinition> definitions)
+    {
+        if (definitions == null)
+        {
+            return;
+        }
+
+        _defaultDefinitions.Clear();
+        foreach (var definition in definitions)
+        {
+            if (string.IsNullOrWhiteSpace(definition.ActionMap)
+                || string.IsNullOrWhiteSpace(definition.ActionName)
+                || definition.PrimaryKey == Key.None)
+            {
+                continue;
+            }
+
+            _defaultDefinitions.Add(definition);
+        }
+
+        if (!_loaded)
+        {
+            return;
+        }
+
+        if (EnsureDefaultBindingsInitialized())
+        {
+            SaveToSettings();
+            if (_asset != null)
+            {
+                ApplyBindingsToAsset(_asset);
+            }
+        }
+    }
 
     public static void Initialize(InputActionAsset asset)
     {
@@ -95,21 +147,79 @@ public static class ShortcutBindingService
 
     private static void LoadFromSettings()
     {
+        bool initializedByDefault = false;
         var settings = ApplicationSettings.Instance?.Shortcuts;
-        if (settings == null || string.IsNullOrWhiteSpace(settings.ShortcutBindingsJson))
+        if (settings == null || settings.Shortcuts == null || settings.Shortcuts.Count == 0)
         {
             _data = new ShortcutBindingsData();
+            initializedByDefault = EnsureDefaultBindingsInitialized();
+            if (initializedByDefault)
+            {
+                SaveToSettings();
+            }
+
             return;
         }
 
         try
         {
-            _data = JsonUtility.FromJson<ShortcutBindingsData>(settings.ShortcutBindingsJson) ?? new ShortcutBindingsData();
+            _data = new ShortcutBindingsData
+            {
+                Bindings = CloneEntries(settings.Shortcuts)
+            };
         } catch (Exception ex)
         {
             Log.Warning($"ショートカット設定の読み込みに失敗しました: {ex.Message}");
             _data = new ShortcutBindingsData();
         }
+
+        initializedByDefault = EnsureDefaultBindingsInitialized();
+        if (initializedByDefault)
+        {
+            SaveToSettings();
+        }
+    }
+
+    private static bool EnsureDefaultBindingsInitialized()
+    {
+        if (_data.Bindings == null)
+        {
+            _data.Bindings = new List<ShortcutBindingEntry>();
+        }
+
+        if (_defaultDefinitions.Count == 0)
+        {
+            return false;
+        }
+
+        bool changed = false;
+        for (int i = 0; i < _defaultDefinitions.Count; i++)
+        {
+            var defaultDefinition = _defaultDefinitions[i];
+            var existing = FindEntry(defaultDefinition.ActionMap, defaultDefinition.ActionName);
+            if (existing == null)
+            {
+                _data.Bindings.Add(ShortcutBindingEntry.FromKeys(
+                    defaultDefinition.ActionMap,
+                    defaultDefinition.ActionName,
+                    defaultDefinition.PrimaryKey,
+                    defaultDefinition.Modifiers));
+                changed = true;
+                continue;
+            }
+
+            if (string.IsNullOrWhiteSpace(existing.PrimaryKey))
+            {
+                existing.PrimaryKey = defaultDefinition.PrimaryKey.ToString();
+                existing.Modifiers = defaultDefinition.Modifiers
+                    .Where(key => key != Key.None)
+                    .Select(key => key.ToString())
+                    .ToArray();
+                changed = true;
+            }
+        }
+
+        return changed;
     }
 
     private static void SaveToSettings()
@@ -120,8 +230,36 @@ public static class ShortcutBindingService
             return;
         }
 
-        settings.ShortcutBindingsJson = JsonUtility.ToJson(_data);
+        settings.Shortcuts = CloneEntries(_data.Bindings);
         ApplicationSettings.Instance.SaveSettings();
+    }
+
+    private static List<ShortcutBindingEntry> CloneEntries(IReadOnlyList<ShortcutBindingEntry> source)
+    {
+        var list = new List<ShortcutBindingEntry>();
+        if (source == null)
+        {
+            return list;
+        }
+
+        for (int i = 0; i < source.Count; i++)
+        {
+            var entry = source[i];
+            if (entry == null)
+            {
+                continue;
+            }
+
+            list.Add(new ShortcutBindingEntry
+            {
+                ActionMap = entry.ActionMap,
+                ActionName = entry.ActionName,
+                PrimaryKey = entry.PrimaryKey,
+                Modifiers = entry.Modifiers != null ? entry.Modifiers.ToArray() : Array.Empty<string>()
+            });
+        }
+
+        return list;
     }
 
     private static void ApplyBindingsToAsset(InputActionAsset asset)

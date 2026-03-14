@@ -65,8 +65,17 @@ public partial class MenuPresenter : IDisposable
     /// </summary>
     private void OpenAppSetting()
     {
-        string folderPath = Application.streamingAssetsPath;
-        string filePath = ApplicationSettingsPath.GetPath();
+        string filePath = SettingsProvider.Instance?.FilePath;
+        if (string.IsNullOrWhiteSpace(filePath))
+        {
+            filePath = ApplicationSettingsPath.GetPath();
+        }
+
+        string folderPath = Path.GetDirectoryName(filePath);
+        if (string.IsNullOrWhiteSpace(folderPath))
+        {
+            folderPath = Application.streamingAssetsPath;
+        }
 
         Log.Info($"Opening settings file: {filePath}");
         Log.Info($"Opening settings folder: {folderPath}");

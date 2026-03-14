@@ -244,7 +244,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0814dea503f9a094ab77c83ca98bc516, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ThemeColorTarget
-  targetKind: 0
+  targetKind: 1
 --- !u!114 &3314767107241793531
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -62,7 +62,7 @@ public sealed class ShortcutBindingPanel : MonoBehaviour
                 new ActionOption
                 {
                     Label = "Push To Talk",
-                    ActionMap = "System",
+                    ActionMap = "Shortcut",
                     ActionName = "PushToTalk",
                     DefaultKey = Key.Space
                 },
@@ -74,6 +74,41 @@ public sealed class ShortcutBindingPanel : MonoBehaviour
                     DefaultKey = Key.Enter
                 }
             };
+        }
+
+        ShortcutBindingService.RegisterDefaultBindings(BuildDefaultDefinitions(actionOptions));
+    }
+
+    private static IEnumerable<ShortcutBindingService.DefaultShortcutDefinition> BuildDefaultDefinitions(IEnumerable<ActionOption> options)
+    {
+        if (options == null)
+        {
+            yield break;
+        }
+
+        foreach (var option in options)
+        {
+            if (option == null)
+            {
+                continue;
+            }
+
+            var modifiers = new List<Key>();
+            if (option.DefaultModifier1 != Key.None)
+            {
+                modifiers.Add(option.DefaultModifier1);
+            }
+
+            if (option.DefaultModifier2 != Key.None)
+            {
+                modifiers.Add(option.DefaultModifier2);
+            }
+
+            yield return new ShortcutBindingService.DefaultShortcutDefinition(
+                option.ActionMap,
+                option.ActionName,
+                option.DefaultKey,
+                modifiers.ToArray());
         }
     }
 
@@ -143,6 +178,7 @@ public sealed class ShortcutBindingPanel : MonoBehaviour
 
         var option = row.Option;
         ShortcutBindingService.SetShortcut(option.ActionMap, option.ActionName, primaryKey, modifiers.ToArray());
+        RefreshPushToTalkBindingIfNeeded(option);
     }
 
     private void HandleReset(ShortcutBindingRow row)
@@ -159,6 +195,27 @@ public sealed class ShortcutBindingPanel : MonoBehaviour
 
         ShortcutBindingService.SetShortcut(option.ActionMap, option.ActionName, option.DefaultKey, modifiers.ToArray());
         row.SetKeys(option.DefaultKey, modifiers.ToArray());
+        RefreshPushToTalkBindingIfNeeded(option);
+    }
+
+    private static void RefreshPushToTalkBindingIfNeeded(ActionOption option)
+    {
+        if (option == null)
+        {
+            return;
+        }
+
+        if (!string.Equals(option.ActionMap, "Shortcut", StringComparison.OrdinalIgnoreCase)
+            || !string.Equals(option.ActionName, "PushToTalk", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var sttManager = FindFirstObjectByType<STTManager>();
+        if (sttManager != null)
+        {
+            sttManager.RefreshPushToTalkBinding();
+        }
     }
 
     private static bool TryParseKey(string text, out Key key)

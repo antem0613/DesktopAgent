@@ -146,6 +146,7 @@ public class STTManager : MonoBehaviour
     private Coroutine _recognizedTextHideCoroutine;
     private InputAction _pushToTalkAction;
     private bool _ownsPushToTalkAction;
+    private bool _isPttShortcutOverrideActive;
     private bool _isUiProcess;
     private bool _lastShouldRecordState;
     private bool _hasLastShouldTracked;
@@ -156,6 +157,9 @@ public class STTManager : MonoBehaviour
     private int _pttFlushRequestVersion;
     private float _lastUiFrontAt = -1f;
     private readonly ConcurrentQueue<RecognizedQueueItem> _recognizedQueue = new();
+
+    private const string PttShortcutActionMap = "Shortcut";
+    private const string PttShortcutActionName = "PushToTalk";
 
     /// <summary>
     /// 実行環境判定、設定反映、PushToTalk入力初期化を行います。
@@ -180,7 +184,8 @@ public class STTManager : MonoBehaviour
     /// </summary>
     private void OnDisable()
     {
-        DisablePushToTalkAction();
+        DisposePushToTalkAction();
+        _isPttHeld = false;
     }
 
     /// <summary>
@@ -469,8 +474,29 @@ public class STTManager : MonoBehaviour
     {
         DisposePushToTalkAction();
 
+        bool hasShortcutOverride = HasPushToTalkShortcutOverride();
+        _isPttShortcutOverrideActive = hasShortcutOverride;
+
+        // ショートカット設定がある場合は、PTT入力をショートカット専用に固定する。
+        if (hasShortcutOverride)
+        {
+            _pushToTalkAction = new InputAction("WhisperPushToTalk", InputActionType.Button);
+            ShortcutBindingService.ApplyToAction(_pushToTalkAction, PttShortcutActionMap, PttShortcutActionName, Key.Space);
+            _ownsPushToTalkAction = true;
+
+            _pushToTalkAction.started += OnPushToTalkStarted;
+            _pushToTalkAction.canceled += OnPushToTalkCanceled;
+            return;
+        }
+
         _pushToTalkAction = pushToTalkInput.action;
         _ownsPushToTalkAction = false;
+
+        if (_pushToTalkAction == null)
+        {
+            _pushToTalkAction = InputController.Instance?.Asset?.FindAction($"{PttShortcutActionMap}/{PttShortcutActionName}", false);
+            _ownsPushToTalkAction = false;
+        }
 
         if (_pushToTalkAction == null)
         {
@@ -481,6 +507,51 @@ public class STTManager : MonoBehaviour
 
         _pushToTalkAction.started += OnPushToTalkStarted;
         _pushToTalkAction.canceled += OnPushToTalkCanceled;
+    }
+
+    /// <summary>
+    /// 保存済みショートカット設定を再読み込みして、PTT入力へ再バインドします。
+    /// </summary>
+    public void RefreshPushToTalkBinding()
+    {
+        bool shouldEnable = _pushToTalkAction != null && _pushToTalkAction.enabled;
+        SetupPushToTalkAction();
+        if (shouldEnable)
+        {
+            EnablePushToTalkAction();
+        }
+    }
+
+    private static bool HasPushToTalkShortcutOverride()
+    {
+        var shortcuts = ShortcutBindingService.GetShortcuts();
+        if (shortcuts == null)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < shortcuts.Count; i++)
+        {
+            var entry = shortcuts[i];
+            if (entry == null)
+            {
+                continue;
+            }
+
+            if (!string.Equals(entry.ActionMap, PttShortcutActionMap, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            if (!string.Equals(entry.ActionName, PttShortcutActionName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            return !string.IsNullOrWhiteSpace(entry.PrimaryKey);
+        }
+
+        return false;
     }
 
     /// <summary>
@@ -504,7 +575,7 @@ public class STTManager : MonoBehaviour
     /// </summary>
     private void DisablePushToTalkAction()
     {
-        if (_pushToTalkAction != null && _pushToTalkAction.enabled)
+        if (_ownsPushToTalkAction && _pushToTalkAction != null && _pushToTalkAction.enabled)
         {
             _pushToTalkAction.Disable();
         }
@@ -588,7 +659,8 @@ public class STTManager : MonoBehaviour
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         if (!_isUiProcess
             || recognitionInputMode != RecognitionInputMode.PushToTalk
-            || Application.isFocused)
+            || Application.isFocused
+            || _isPttShortcutOverrideActive)
         {
             return;
         }

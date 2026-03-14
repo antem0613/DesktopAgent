@@ -1245,6 +1245,28 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         TryResizeWindowForScale(configuredScale);
     }
 
+    // UI操作でキャラクター拡大率を変更し、必要に応じて設定保存する。
+    public void SetCharacterScale(float value, bool saveSettings = true)
+    {
+        float nextScale = Mathf.Clamp(value, Mathf.Min(minScale, maxScale), Mathf.Max(minScale, maxScale));
+
+        if (_modelContainer != null)
+        {
+            _modelContainer.transform.localScale = Vector3.one * nextScale;
+            TryResizeWindowForScale(nextScale);
+        }
+
+        var appSettings = ApplicationSettings.Instance;
+        if (appSettings?.Character != null)
+        {
+            appSettings.Character.Scale = nextScale;
+            if (saveSettings)
+            {
+                appSettings.SaveSettings();
+            }
+        }
+    }
+
     // モデルから利用可能なAvatarを取得し、必要なら生成する。
     private static Avatar CreateAvatarFromModel(GameObject model)
     {

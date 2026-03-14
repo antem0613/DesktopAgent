@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -312,7 +313,7 @@ public class BackendSettings
 public class ShortcutSettings
 {
     /// <summary>
-    /// ショートカット定義のJSON
+    /// ショートカット定義
     /// </summary>
-    public string ShortcutBindingsJson { get; set; } = string.Empty;
+    public List<ShortcutBindingEntry> Shortcuts { get; set; } = new List<ShortcutBindingEntry>();
 }
