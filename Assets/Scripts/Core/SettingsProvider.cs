@@ -8,7 +8,7 @@ using UnityEngine;
 
 public class SettingsProvider : Singleton<SettingsProvider>
 {
-    private const int CurrentSchemaVersion = 1;
+    private const int CurrentSchemaVersion = 2;
     private const string SettingsDirectoryName = "Settings";
     private const string SettingsFileName = "application_settings.json";
 
@@ -33,11 +33,18 @@ public class SettingsProvider : Singleton<SettingsProvider>
     {
         InitializeDefaults();
 
-        if (TryLoadFromJson(FilePath, out var document))
+        if (TryLoadFromJson(FilePath, out var document, out bool migrated))
         {
             ApplyDocument(document);
             IsLoaded = true;
             ValidateSettings();
+
+            // 旧形式からの移行が発生した場合は、新形式で再保存して次回以降の互換負担を減らす。
+            if (migrated)
+            {
+                Save();
+            }
+
             return true;
         }
 
@@ -92,9 +99,10 @@ public class SettingsProvider : Singleton<SettingsProvider>
         return Path.Combine(Application.persistentDataPath, SettingsDirectoryName, SettingsFileName);
     }
 
-    private bool TryLoadFromJson(string filePath, out SettingsDocument document)
+    private bool TryLoadFromJson(string filePath, out SettingsDocument document, out bool migrated)
     {
         document = null;
+        migrated = false;
 
         try
         {
@@ -110,14 +118,31 @@ public class SettingsProvider : Singleton<SettingsProvider>
             }
 
             document = JsonUtility.FromJson<SettingsDocument>(json);
-            if (document != null
-                && (document.shortcuts == null || document.shortcuts.Count == 0)
-                && TryReadLegacyShortcuts(json, out var migrated))
+            if (document == null)
             {
-                document.shortcuts = migrated;
+                return false;
             }
 
-            return document != null;
+            if (document.schemaVersion <= 0)
+            {
+                document.schemaVersion = 1;
+                migrated = true;
+            }
+
+            if ((document.shortcuts == null || document.shortcuts.Count == 0)
+                && TryReadLegacyShortcuts(json, out var migratedShortcuts))
+            {
+                document.shortcuts = migratedShortcuts;
+                migrated = true;
+            }
+
+            if (document.schemaVersion < CurrentSchemaVersion)
+            {
+                document.schemaVersion = CurrentSchemaVersion;
+                migrated = true;
+            }
+
+            return true;
         }
         catch (Exception ex)
         {
@@ -133,20 +158,32 @@ public class SettingsProvider : Singleton<SettingsProvider>
         try
         {
             var legacyContainer = JsonUtility.FromJson<LegacyShortcutsContainer>(json);
-            string legacyJson = legacyContainer?.shortcuts?.shortcutBindingsJson;
-            if (string.IsNullOrWhiteSpace(legacyJson))
+            var legacySection = legacyContainer?.shortcuts;
+            if (legacySection == null)
             {
                 return false;
             }
 
-            var legacyData = JsonUtility.FromJson<ShortcutBindingsData>(legacyJson);
-            if (legacyData?.Bindings == null || legacyData.Bindings.Count == 0)
+            // 旧形式1: shortcuts.shortcutBindingsJson = "{\"Bindings\":[...]}"
+            string legacyJson = legacySection.shortcutBindingsJson;
+            if (!string.IsNullOrWhiteSpace(legacyJson))
             {
-                return false;
+                var legacyData = JsonUtility.FromJson<ShortcutBindingsData>(legacyJson);
+                if (legacyData?.Bindings != null && legacyData.Bindings.Count > 0)
+                {
+                    bindings = CloneShortcutBindings(legacyData.Bindings);
+                    return bindings.Count > 0;
+                }
             }
 
-            bindings = CloneShortcutBindings(legacyData.Bindings);
-            return bindings.Count > 0;
+            // 旧形式2: shortcuts.shortcuts = [{...}]
+            if (legacySection.shortcuts != null && legacySection.shortcuts.Count > 0)
+            {
+                bindings = CloneShortcutBindings(legacySection.shortcuts);
+                return bindings.Count > 0;
+            }
+
+            return false;
         } catch (Exception ex)
         {
             Log.Warning($"[SettingsProvider] Failed to migrate legacy shortcuts: {ex.Message}");
@@ -592,5 +629,6 @@ public class SettingsProvider : Singleton<SettingsProvider>
     private class LegacyShortcutsSection
     {
         public string shortcutBindingsJson;
+        public List<ShortcutBindingEntry> shortcuts;
     }
 }

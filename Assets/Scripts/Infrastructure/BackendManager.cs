@@ -3108,16 +3108,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         {
         }
 
-        try
-        {
-            if (IsProcessAlive(process))
-            {
-                process.Kill();
-            }
-        } catch
-        {
-        }
-
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         if (pid > 0)
         {
@@ -3140,6 +3130,16 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             }
         }
 #endif
+
+        try
+        {
+            if (IsProcessAlive(process))
+            {
+                process.Kill();
+            }
+        } catch
+        {
+        }
 
         return !IsProcessAlive(process);
     }

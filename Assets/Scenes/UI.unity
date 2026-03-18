@@ -1170,14 +1170,22 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
       propertyPath: actionOptions.Array.size
-      value: 1
+      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
       propertyPath: actionOptions.Array.data[0].Label
       value: "\u30D7\u30C3\u30B7\u30E5\u30C8\u30A5\u30C8\u30FC\u30AF"
       objectReference: {fileID: 0}
     - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: actionOptions.Array.data[1].Label
+      value: "\u30C0\u30A4\u30A2\u30ED\u30B0\u958B\u9589"
+      objectReference: {fileID: 0}
+    - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
       propertyPath: actionOptions.Array.data[0].ActionMap
+      value: Shortcut
+      objectReference: {fileID: 0}
+    - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: actionOptions.Array.data[1].ActionMap
       value: Shortcut
       objectReference: {fileID: 0}
     - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
@@ -1189,8 +1197,24 @@ PrefabInstance:
       value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: actionOptions.Array.data[1].ActionName
+      value: ToggleShowDialog
+      objectReference: {fileID: 0}
+    - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: actionOptions.Array.data[1].DefaultKey
+      value: 19
+      objectReference: {fileID: 0}
+    - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
       propertyPath: actionOptions.Array.data[0].DefaultModifier1
       value: 55
+      objectReference: {fileID: 0}
+    - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: actionOptions.Array.data[1].DefaultModifier1
+      value: 55
+      objectReference: {fileID: 0}
+    - target: {fileID: 5006053675987069837, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: actionOptions.Array.data[1].DefaultModifier2
+      value: 51
       objectReference: {fileID: 0}
     - target: {fileID: 5083132014026358976, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
       propertyPath: m_Alpha
@@ -1542,7 +1566,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.2627451}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.38431373}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
