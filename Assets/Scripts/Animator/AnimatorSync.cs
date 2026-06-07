@@ -1,4 +1,4 @@
-﻿using Unity.Logging;
+using Unity.Logging;
 using UnityEngine;
 
 public sealed class AnimatorSync
@@ -10,7 +10,7 @@ public sealed class AnimatorSync
         _animator = animator;
     }
 
-    public void SetNextGroundAction(CharacterManager.GroundAction action)
+    public void SetNextGroundAction(GroundAction action)
     {
         if (_animator.GetBool(Constant.AnimatorIsOnWindow))
         {
@@ -19,9 +19,9 @@ public sealed class AnimatorSync
         }
 
         Debug.Log("[AnimatorSync] SetNextGroundAction: " + action);
-        SetBool(Constant.AnimatorIsIdling, action == CharacterManager.GroundAction.Idle);
-        SetBool(Constant.AnimatorIsWalking, action == CharacterManager.GroundAction.Walk);
-        SetBool(Constant.AnimatorIsSitting, action == CharacterManager.GroundAction.Sit);
+        SetBool(Constant.AnimatorIsIdling, action == GroundAction.Idle);
+        SetBool(Constant.AnimatorIsWalking, action == GroundAction.Walk);
+        SetBool(Constant.AnimatorIsSitting, action == GroundAction.Sit);
     }
 
     public void SetFalling(bool value)

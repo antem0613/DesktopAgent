@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Runtime.CompilerServices;
 
 public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
@@ -31,8 +31,8 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
 
     private AnimatorSync _animatorSync;
     private Animator _boundAnimator;
-    private CharacterManager.GroundAction _currentAction = CharacterManager.GroundAction.Idle;
-    private CharacterManager.GroundAction _pendingAction = CharacterManager.GroundAction.Idle;
+    private GroundAction _currentAction = GroundAction.Idle;
+    private GroundAction _pendingAction = GroundAction.Idle;
     private bool _hasPendingAction;
     private float _currentActionRemainSeconds;
     private bool _waitingLandingAnimation;
@@ -52,7 +52,7 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
     public bool AnimatorIsDragging => _animatorSync != null && _animatorSync.GetBool(Constant.AnimatorIsDragging);
     public bool AnimatorIsOnWindow => _animatorSync != null && _animatorSync.GetBool(Constant.AnimatorIsOnWindow);
     public bool IsGroundBehaviorActive => !_waitingLandingAnimation;
-    public CharacterManager.GroundAction CurrentAction => _currentAction;
+    public GroundAction CurrentAction => _currentAction;
 
     public void OnTestStart()
     {
@@ -61,7 +61,7 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
             return;
         }
 
-        _currentAction = CharacterManager.GroundAction.Idle;
+        _currentAction = GroundAction.Idle;
         _hasPendingAction = false;
         _waitingLandingAnimation = false;
         _actionTimerActive = false;
@@ -115,7 +115,7 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
             return;
         }
 
-        if (_currentAction == CharacterManager.GroundAction.Walk)
+        if (_currentAction == GroundAction.Walk)
         {
             return;
         }
@@ -216,8 +216,8 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
 
         if (AnimatorIsOnWindow)
         {
-            _currentAction = CharacterManager.GroundAction.Sit;
-            _pendingAction = CharacterManager.GroundAction.Sit;
+            _currentAction = GroundAction.Sit;
+            _pendingAction = GroundAction.Sit;
             _hasPendingAction = false;
             _currentActionRemainSeconds = 0f;
             _actionTimerActive = false;
@@ -258,7 +258,7 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
             return;
         }
 
-        if (_currentAction != CharacterManager.GroundAction.Walk || _waitingLandingAnimation || AnimatorIsFalling)
+        if (_currentAction != GroundAction.Walk || _waitingLandingAnimation || AnimatorIsFalling)
         {
             return;
         }
@@ -290,8 +290,8 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
 
         if (IsOnWindowActive())
         {
-            _currentAction = CharacterManager.GroundAction.Sit;
-            _pendingAction = CharacterManager.GroundAction.Sit;
+            _currentAction = GroundAction.Sit;
+            _pendingAction = GroundAction.Sit;
             _hasPendingAction = false;
             _actionTimerActive = false;
             _currentActionRemainSeconds = 0f;
@@ -327,8 +327,8 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
         _waitingLandingAnimation = true;
         _actionTimerActive = false;
         _pendingAction = onWindowExpected
-            ? CharacterManager.GroundAction.Sit
-            : CharacterManager.GroundAction.Idle;
+            ? GroundAction.Sit
+            : GroundAction.Idle;
         _hasPendingAction = true;
         _currentActionRemainSeconds = 0f;
         if (!onWindowExpected)
@@ -352,18 +352,18 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
 
         if (onWindowAfterLanding)
         {
-            _currentAction = CharacterManager.GroundAction.Sit;
-            _pendingAction = CharacterManager.GroundAction.Sit;
+            _currentAction = GroundAction.Sit;
+            _pendingAction = GroundAction.Sit;
             _hasPendingAction = false;
             _animatorSync.SetShouldGoNext(false);
             LogAnimatorFlags("exitLanding onWindowDirect");
             return;
         }
 
-        _currentAction = CharacterManager.GroundAction.Idle;
-        _pendingAction = CharacterManager.GroundAction.Idle;
+        _currentAction = GroundAction.Idle;
+        _pendingAction = GroundAction.Idle;
         _hasPendingAction = false;
-        _animatorSync.SetNextGroundAction(CharacterManager.GroundAction.Idle);
+        _animatorSync.SetNextGroundAction(GroundAction.Idle);
         _animatorSync.SetShouldGoNext(true);
         LogAnimatorFlags("exitLanding");
     }
@@ -617,16 +617,16 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
         _hasPendingAction = true;
     }
 
-    private CharacterManager.GroundAction PickNextAction()
+    private GroundAction PickNextAction()
     {
         if (IsOnWindowActive())
         {
-            return CharacterManager.GroundAction.Sit;
+            return GroundAction.Sit;
         }
 
-        float idle = _currentAction == CharacterManager.GroundAction.Idle ? 0f : Mathf.Max(0f, idleBias);
-        float sit = _currentAction == CharacterManager.GroundAction.Sit ? 0f : Mathf.Max(0f, sitBias);
-        float walk = _currentAction == CharacterManager.GroundAction.Walk ? 0f : Mathf.Max(0f, walkBias);
+        float idle = _currentAction == GroundAction.Idle ? 0f : Mathf.Max(0f, idleBias);
+        float sit = _currentAction == GroundAction.Sit ? 0f : Mathf.Max(0f, sitBias);
+        float walk = _currentAction == GroundAction.Walk ? 0f : Mathf.Max(0f, walkBias);
         float total = idle + sit + walk;
 
         if (total <= 0f)
@@ -637,34 +637,34 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
         float roll = Random.Range(0f, total);
         if (roll < idle)
         {
-            return CharacterManager.GroundAction.Idle;
+            return GroundAction.Idle;
         }
 
         roll -= idle;
         if (roll < sit)
         {
-            return CharacterManager.GroundAction.Sit;
+            return GroundAction.Sit;
         }
 
-        return CharacterManager.GroundAction.Walk;
+        return GroundAction.Walk;
     }
 
-    private CharacterManager.GroundAction PickDifferentActionFallback(CharacterManager.GroundAction current)
+    private GroundAction PickDifferentActionFallback(GroundAction current)
     {
-        if (current != CharacterManager.GroundAction.Idle)
+        if (current != GroundAction.Idle)
         {
-            return CharacterManager.GroundAction.Idle;
+            return GroundAction.Idle;
         }
 
-        if (current != CharacterManager.GroundAction.Sit)
+        if (current != GroundAction.Sit)
         {
-            return CharacterManager.GroundAction.Sit;
+            return GroundAction.Sit;
         }
 
-        return CharacterManager.GroundAction.Walk;
+        return GroundAction.Walk;
     }
 
-    private CharacterManager.GroundAction GetCurrentGroundActionFromAnimatorFlags()
+    private GroundAction GetCurrentGroundActionFromAnimatorFlags()
     {
         if (_animatorSync == null)
         {
@@ -673,24 +673,24 @@ public class TestActionDecisionManager : MonoBehaviour, ITestFeatureComponent
 
         if (_animatorSync.GetBool(Constant.AnimatorIsWalking))
         {
-            return CharacterManager.GroundAction.Walk;
+            return GroundAction.Walk;
         }
 
         if (_animatorSync.GetBool(Constant.AnimatorIsSitting))
         {
-            return CharacterManager.GroundAction.Sit;
+            return GroundAction.Sit;
         }
 
-        return CharacterManager.GroundAction.Idle;
+        return GroundAction.Idle;
     }
 
-    private float PickActionDuration(CharacterManager.GroundAction action)
+    private float PickActionDuration(GroundAction action)
     {
         switch (action)
         {
-            case CharacterManager.GroundAction.Sit:
+            case GroundAction.Sit:
                 return Random.Range(Mathf.Max(0f, sitMinSeconds), Mathf.Max(sitMinSeconds, sitMaxSeconds));
-            case CharacterManager.GroundAction.Idle:
+            case GroundAction.Idle:
                 return Random.Range(Mathf.Max(0f, idleMinSeconds), Mathf.Max(idleMinSeconds, idleMaxSeconds));
             default:
                 return 0f;

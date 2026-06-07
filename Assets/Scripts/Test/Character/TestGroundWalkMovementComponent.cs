@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class TestGroundWalkMovementComponent : MonoBehaviour, ITestFeatureComponent
 {
@@ -71,7 +71,7 @@ public class TestGroundWalkMovementComponent : MonoBehaviour, ITestFeatureCompon
 
         CaptureFrontYawIfNeeded();
 
-        if (actionDecisionManager.CurrentAction != CharacterManager.GroundAction.Walk)
+        if (actionDecisionManager.CurrentAction != GroundAction.Walk)
         {
             _walkActive = false;
             _waitingForActionTransition = false;

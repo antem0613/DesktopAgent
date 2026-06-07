@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Runtime.CompilerServices;
 
 public class TestAnimatorSyncInitializationComponent : MonoBehaviour, ITestFeatureComponent
@@ -9,7 +9,7 @@ public class TestAnimatorSyncInitializationComponent : MonoBehaviour, ITestFeatu
     [SerializeField] private TestCharacterSpawnComponent characterSpawnComponent;
     [SerializeField] private Animator directAnimator;
     [SerializeField] private bool applyDefaultCharacterAnimationController = true;
-    [SerializeField] private CharacterManager.GroundAction initialGroundAction = CharacterManager.GroundAction.Idle;
+    [SerializeField] private GroundAction initialGroundAction = GroundAction.Idle;
     [SerializeField] private bool initialIsFalling;
     [SerializeField] private bool initialIsDragging;
     [SerializeField] private bool initialIsOnWindow;

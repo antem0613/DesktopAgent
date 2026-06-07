@@ -11,7 +11,6 @@ using System.Runtime.InteropServices;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
-using Unity.Logging;
 using UnityEngine.SceneManagement;
 
 public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
@@ -21,16 +20,16 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     [SerializeField] private string appUserModelId = Constant.DefaultAppUserModelId;
 #endif
 
-    private float startupTimeoutSeconds = 4f;
-    private float pollIntervalSeconds = 0.25f;
+    private float startupTimeout = 4f;
+    private float pollInterval = 0.25f;
     private int tcpTimeoutMs = 200;
 
     [Header("UI Health Check")]
-    [SerializeField] private float uiHealthCheckIntervalSeconds = 2f;
-    [SerializeField] private float uiHealthCheckStartupGraceSeconds = 3f;
-    [SerializeField] private int uiHealthCheckSuccessThreshold = 1;
-    [SerializeField] private int uiHealthCheckMissThreshold = 2;
-    [SerializeField] private float uiHealthCheckInitialValidationTimeoutSeconds = 12f;
+    [SerializeField] private float healthCheckInterval = 2f;
+    [SerializeField] private float healthCheckStartGrace = 3f;
+    [SerializeField] private int healthCheckSuccessThreshold = 1;
+    [SerializeField] private int healthCheckMissThreshold = 2;
+    [SerializeField] private float healthCheckInitialTimeout = 12f;
     [SerializeField] private bool autoRestartUiProcessOnHealthCheckFailure = true;
     [SerializeField] private float uiHealthCheckRestartCooldownSeconds = 8f;
     [SerializeField] private string uiHealthCheckUdpHost = "127.0.0.1";
@@ -57,10 +56,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         public bool IsShutdownProcessed;
         public bool IsBackendStartupInProgress;
         public bool IsBackendStartupIssued;
-        public bool HasLoggedSettings;
-        public float LastLoggedStartupTimeoutSeconds;
-        public float LastLoggedPollIntervalSeconds;
-        public int LastLoggedTcpTimeoutMs;
     }
 
     private sealed class UiHealthState
@@ -70,11 +65,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         public int ConsecutiveSuccesses;
         public float StartedAt = -1f;
         public bool IsPendingLaunchValidation;
-        public float LastHeartbeatNoResponseLogAt = -1f;
-        public float LastValidationWaitLogAt = -1f;
-        public float LastRestartSkipAliveLogAt = -1f;
-        public float LastHealthDetailLogAt = -1f;
-        public float LastConnectionResetGraceLogAt = -1f;
     }
 
     private sealed class UiProcessState
@@ -93,7 +83,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
     private IntPtr _managedProcessJob = IntPtr.Zero;
 #endif
-    private bool _isUiProcess;
     private static readonly object s_uiLaunchSync = new object();
     private static readonly object s_backendStartSync = new object();
     private static bool s_backendStartupIssued;
@@ -116,48 +105,12 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     private protected override void Awake()
     {
         base.Awake();
-        _isUiProcess = IsUiProcess();
-        LogInfo($"[BackendManager] Awake completed. isUiProcess={_isUiProcess}");
-        if (_isUiProcess)
-        {
-            string sceneName = SceneManager.GetActiveScene().name;
-            LogInfo($"[BackendManager] UI process bootstrap begin. activeScene={sceneName}, openMenuMessage={uiOpenMenuMessage}, openMenuAck={uiOpenMenuAckMessage}");
-        }
+
         ConfigureUiInput();
-        ApplyAppUserModelId();
         StartUiHealthCheckResponderIfNeeded();
         StartUiTopmostEnforcementIfNeeded();
-        SubscribeUiSceneChangeFrontingIfNeeded();
 
         ApplySettings();
-    }
-
-    /// <summary>
-    /// UIプロセス時のみシーン変更イベントを購読し、前面化制御を有効化します。
-    /// </summary>
-    private void SubscribeUiSceneChangeFrontingIfNeeded()
-    {
-        if (!_isUiProcess || _uiProcessState.IsSceneChangeSubscribed)
-        {
-            return;
-        }
-
-        SceneManager.activeSceneChanged += OnUiActiveSceneChanged;
-        _uiProcessState.IsSceneChangeSubscribed = true;
-    }
-
-    /// <summary>
-    /// 購読済みのシーン変更イベントを解除し、重複購読を防ぎます。
-    /// </summary>
-    private void UnsubscribeUiSceneChangeFronting()
-    {
-        if (!_uiProcessState.IsSceneChangeSubscribed)
-        {
-            return;
-        }
-
-        SceneManager.activeSceneChanged -= OnUiActiveSceneChanged;
-        _uiProcessState.IsSceneChangeSubscribed = false;
     }
 
     /// <summary>
@@ -165,11 +118,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void OnUiActiveSceneChanged(Scene previous, Scene current)
     {
-        if (!_isUiProcess)
-        {
-            return;
-        }
-
         string target = (Constant.UIStartupSceneName ?? string.Empty).Trim();
         if (!string.IsNullOrWhiteSpace(target)
             && !string.Equals(current.name, target, StringComparison.OrdinalIgnoreCase))
@@ -179,10 +127,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         bool fronted = ForceUiWindowFront();
-        if (!fronted && ShouldLogUiHealthRepeated(ref _uiProcessState.LastTopmostEnforceLogAt, 2f))
-        {
-            LogWarning($"[BackendManager] UI scene switch fronting failed. scene={current.name}");
-        }
 #endif
     }
 
@@ -191,11 +135,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void ConfigureUiInput()
     {
-        if (!_isUiProcess)
-        {
-            return;
-        }
-
         Application.runInBackground = true;
 
         try
@@ -203,7 +142,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             var inputSystemType = Type.GetType("UnityEngine.InputSystem.InputSystem, Unity.InputSystem");
             if (inputSystemType == null)
             {
-                LogInfo("InputSystem not found. runInBackground only.");
                 return;
             }
 
@@ -211,53 +149,20 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             object settings = settingsProperty?.GetValue(null);
             if (settings == null)
             {
-                LogInfo("InputSystem settings unavailable. runInBackground only.");
                 return;
             }
 
             PropertyInfo backgroundBehaviorProperty = settings.GetType().GetProperty("backgroundBehavior", BindingFlags.Public | BindingFlags.Instance);
             if (backgroundBehaviorProperty?.PropertyType == null)
             {
-                LogInfo("backgroundBehavior property unavailable.");
                 return;
             }
 
             object ignoreFocusValue = Enum.Parse(backgroundBehaviorProperty.PropertyType, "IgnoreFocus", ignoreCase: true);
             backgroundBehaviorProperty.SetValue(settings, ignoreFocusValue);
-            LogInfo("External UI background input enabled.");
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"External UI background input setup failed: {ex.GetType().Name}:{ex.Message}");
         }
-    }
-
-    /// <summary>
-    /// 現在プロセスに AppUserModelID を設定し、タスクバー識別を安定化します。
-    /// </summary>
-    private void ApplyAppUserModelId()
-    {
-#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        string appId = (appUserModelId ?? string.Empty).Trim();
-        if (string.IsNullOrWhiteSpace(appId))
-        {
-            appId = Constant.DefaultAppUserModelId;
-        }
-
-        try
-        {
-            int hr = SetCurrentProcessExplicitAppUserModelID(appId);
-            if (hr != 0)
-            {
-                LogWarning($"SetCurrentProcessExplicitAppUserModelID failed. hr=0x{hr:X8}, appId={appId}");
-            } else
-            {
-                LogInfo($"AppUserModelID applied: {appId}");
-            }
-        } catch (Exception ex)
-        {
-            LogWarning($"AppUserModelID apply failed: {ex.Message}");
-        }
-#endif
     }
 
     // --- Public backend controls ---
@@ -271,13 +176,11 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         {
             if (_backendState.IsBackendStartupInProgress)
             {
-                LogInfo("StartBackend skipped: startup is already in progress.");
                 return;
             }
 
             if (_backendState.IsBackendStartupIssued || s_backendStartupIssued)
             {
-                LogInfo("StartBackend skipped: startup has already been issued for this session.");
                 return;
             }
 
@@ -286,7 +189,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             s_backendStartupIssued = true;
         }
 
-        LogInfo("StartBackend requested.");
         ApplySettings();
         EnsureProcessJob();
         EnsureUiHealthCheckMonitoring();
@@ -299,7 +201,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     public void StopBackend()
     {
-        LogInfo("StopBackend requested.");
         StopBackendInternal();
     }
 
@@ -309,11 +210,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     public void RunHealthCheck()
     {
-        bool reachable = IsBackendAlive();
-        int backendPort = ResolveBackendPort();
-        LogInfo(reachable
-            ? $"backend reachable at {Constant.BackendHost}:{backendPort}"
-            : $"backend not reachable at {Constant.BackendHost}:{backendPort}");
+        IsBackendAlive();
+        ResolveBackendPort();
     }
 
     [ContextMenu("Run UI Health Check")]
@@ -322,11 +220,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     public void RunUiHealthCheck()
     {
-        int detectedUiProcesses = GetAliveUiProcessCount();
-        bool healthy = IsUiHealthy();
-        LogInfo(healthy
-            ? $"UI health check passed: UDP heartbeat responded. uiLaunchAttempts={_uiProcessState.LaunchAttemptCount}, detectedUiProcesses={detectedUiProcesses}"
-            : $"UI health check failed: UDP heartbeat did not respond. uiLaunchAttempts={_uiProcessState.LaunchAttemptCount}, detectedUiProcesses={detectedUiProcesses}");
+        GetAliveUiProcessCount();
+        IsUiHealthy();
     }
 
     // --- Lifecycle startup hook ---
@@ -335,27 +230,13 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void Start()
     {
-        LogInfo("[BackendManager] Start called.");
-        if (_isUiProcess)
-        {
-            ApplyUiLoadingIndicatorVisible(false, logOnMissing: false);
-            LogInfo("Start skipped in external-ui process. Waiting for UDP bridge commands.");
-            return;
-        }
-
         StartBackend();
     }
 
     private void Update()
     {
-        if (!_isUiProcess)
-        {
-            return;
-        }
-
         if (_uiMenuOpenRequested)
         {
-            LogInfo("UI menu open flag consumed on main thread.");
             _uiMenuOpenRequested = false;
             OpenMenuDialogOnUiProcess();
         }
@@ -377,29 +258,17 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     private IEnumerator StartBackendRoutine()
     {
         int backendPort = ResolveBackendPort();
-        LogInfo($"begin host={Constant.BackendHost} port={backendPort} timeout={startupTimeoutSeconds:0.##}s");
 
         if (!_uiProcessState.IsStartupLaunchIssued)
         {
             _uiProcessState.IsStartupLaunchIssued = true;
             bool startedByStartup = StartUiProcess("startup");
-            if (!startedByStartup)
-            {
-                LogWarning("UI startup launch attempt did not start a new process. Startup path will not retry automatically.");
-            }
-        }
-        else
-        {
-            LogInfo("UI startup launch skipped: already issued in this session.");
         }
 
         StartOllama();
         StartCoeiroink();
 
-        if (IsProcessAlive(_process))
-        {
-            LogInfo("process already running.");
-        } else if (!StartProcess())
+        if (!IsProcessAlive(_process) && !StartProcess())
         {
             lock (s_backendStartSync)
             {
@@ -409,16 +278,14 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         }
 
         // Allow realistic server boot time; 2s cap was too aggressive and caused false startup failures.
-        float timeout = Mathf.Clamp(startupTimeoutSeconds, 1.0f, 120.0f);
-        float poll = Mathf.Max(0.05f, pollIntervalSeconds);
+        float timeout = Mathf.Clamp(startupTimeout, 1.0f, 120.0f);
+        float poll = Mathf.Max(0.05f, pollInterval);
         float elapsed = 0f;
 
         while (elapsed < timeout)
         {
             if (IsBackendAlive())
             {
-                LogInfo($"backend reachable at {Constant.BackendHost}:{backendPort} elapsed={elapsed:0.##}s");
-
                 lock (s_backendStartSync)
                 {
                     _backendState.IsBackendStartupInProgress = false;
@@ -430,18 +297,12 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             elapsed += poll;
         }
 
-        LogError($"timeout: backend not reachable at {Constant.BackendHost}:{backendPort}. startupTimeoutSeconds={timeout:0.##}");
         lock (s_backendStartSync)
         {
             _backendState.IsBackendStartupInProgress = false;
             // Startup failed: allow a future explicit retry (e.g. from LLMProvider) instead of deadlocking the session.
             _backendState.IsBackendStartupIssued = false;
             s_backendStartupIssued = false;
-        }
-
-        if (IsProcessAlive(_process))
-        {
-            LogWarning("backend process is alive but health check failed. Keeping process for next retry.");
         }
     }
 
@@ -453,7 +314,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         string workingDirectory = ResolveWorkingDirectory();
         if (string.IsNullOrWhiteSpace(workingDirectory) || !Directory.Exists(workingDirectory))
         {
-            LogError($"WorkingDirectory not found: {workingDirectory}");
             return false;
         }
 
@@ -462,9 +322,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             return false;
         }
 
-        LogInfo($"starting process: {startInfo.FileName} {startInfo.Arguments}");
-        LogInfo($"WorkingDirectory: {startInfo.WorkingDirectory}");
-
         try
         {
             _process = Process.Start(startInfo);
@@ -472,11 +329,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             {
                 if (TryLaunchBackend(startInfo, out _process, out string nativeSuccessMessage))
                 {
-                    LogInfo(nativeSuccessMessage);
                     return true;
                 }
-
-                LogError("Process.Start returned null.");
 
                 if (TryLaunchPythonBackend(workingDirectory, out _process))
                 {
@@ -495,7 +349,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         {
             if (TryLaunchBackend(startInfo, out _process, out string nativeSuccessMessage))
             {
-                LogInfo(nativeSuccessMessage);
                 return true;
             }
 
@@ -504,16 +357,14 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                 return true;
             }
 
-            LogError($"process start failed (Win32): {ex.Message}");
             return false;
-        } catch (Exception ex)
+        } catch
         {
             if (TryLaunchPythonBackend(workingDirectory, out _process))
             {
                 return true;
             }
 
-            LogError($"process start failed: {ex.Message}");
             return false;
         }
     }
@@ -544,22 +395,18 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         try
         {
-            LogWarning($"Retrying backend start via py launcher: {fallbackInfo.FileName} {fallbackInfo.Arguments}");
             process = Process.Start(fallbackInfo);
             if (process == null)
             {
-                LogWarning("py launcher fallback returned null process.");
                 return false;
             }
 
             WireProcessOutput(process);
             TryAssignProcessToJob(process);
-            LogInfo("backend process started via py launcher fallback.");
+
             return true;
-        }
-        catch (Exception ex)
+        } catch
         {
-            LogWarning($"py launcher fallback failed: {ex.Message}");
             return false;
         }
     }
@@ -640,15 +487,13 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
             if (!TryCreateNativeProcess(startInfo, startupInfo, out process, out int lastError))
             {
-                LogWarning($"Backend CreateProcess failed. error={lastError}, file={startInfo.FileName}, args={startInfo.Arguments}, cwd={startInfo.WorkingDirectory}");
                 return false;
             }
 
             successMessage = $"process started: {startInfo.FileName} {startInfo.Arguments}";
             return true;
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"Backend CreateProcess exception: {ex.GetType().Name}:{ex.Message}");
             return false;
         }
 #else
@@ -672,12 +517,10 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         {
             if (!IsPythonCommandName(fileName))
             {
-                LogError($"launch executable could not be resolved. file={fileName}, workingDir={workingDirectory}");
                 return false;
             }
 
             resolvedFileName = fileName;
-            LogWarning($"Python executable path could not be resolved. Falling back to command-name launch: {resolvedFileName}");
         }
 
         fileName = resolvedFileName;
@@ -698,8 +541,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             {
                 args = "-3 " + args;
             }
-
-            LogWarning("Detected WindowsApps python shim. Switching backend launch to py -3.");
         }
 
         startInfo = new ProcessStartInfo
@@ -807,34 +648,18 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             var provider = SettingsProvider.Instance;
             if (provider?.Backend != null)
             {
-                startupTimeoutSeconds = provider.Backend.StartupTimeoutSeconds;
-                pollIntervalSeconds = provider.Backend.PollIntervalSeconds;
+                startupTimeout = provider.Backend.StartupTimeoutSeconds;
+                pollInterval = provider.Backend.PollIntervalSeconds;
                 tcpTimeoutMs = provider.Backend.TcpTimeoutMs;
                 applied = true;
             }
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"Failed to load startup timings from SettingsProvider: {ex.Message}");
         }
 
         if (!applied)
         {
-            LogInfo("Using built-in default startup timings.");
             return;
-        }
-
-        bool changed = !_backendState.HasLoggedSettings
-            || !Mathf.Approximately(_backendState.LastLoggedStartupTimeoutSeconds, startupTimeoutSeconds)
-            || !Mathf.Approximately(_backendState.LastLoggedPollIntervalSeconds, pollIntervalSeconds)
-            || _backendState.LastLoggedTcpTimeoutMs != tcpTimeoutMs;
-
-        if (changed)
-        {
-            _backendState.HasLoggedSettings = true;
-            _backendState.LastLoggedStartupTimeoutSeconds = startupTimeoutSeconds;
-            _backendState.LastLoggedPollIntervalSeconds = pollIntervalSeconds;
-            _backendState.LastLoggedTcpTimeoutMs = tcpTimeoutMs;
-            LogInfo($"Settings applied. startupTimeoutSeconds={startupTimeoutSeconds:0.###}, pollIntervalSeconds={pollIntervalSeconds:0.###}, tcpTimeoutMs={tcpTimeoutMs}");
         }
     }
 
@@ -865,36 +690,11 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         try
         {
             process.EnableRaisingEvents = true;
-            process.OutputDataReceived += (_, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(e.Data))
-                {
-                    LogInfo($"[stdout] {e.Data}");
-                }
-            };
-            process.ErrorDataReceived += (_, e) =>
-            {
-                if (!string.IsNullOrWhiteSpace(e.Data))
-                {
-                    LogWarning($"[stderr] {e.Data}");
-                }
-            };
-            process.Exited += (_, __) =>
-            {
-                try
-                {
-                    LogWarning($"process exited. ExitCode={process.ExitCode}");
-                } catch
-                {
-                    LogWarning("process exited.");
-                }
-            };
 
             process.BeginOutputReadLine();
             process.BeginErrorReadLine();
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"Failed to wire process output: {ex.Message}");
         }
     }
 
@@ -951,7 +751,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void OnApplicationQuit()
     {
-        LogInfo("OnApplicationQuit received.");
         TryStopBackendServerOnExit();
     }
 
@@ -960,7 +759,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void OnDestroy()
     {
-        LogInfo("OnDestroy received.");
         TryStopBackendServerOnExit();
     }
 
@@ -969,7 +767,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void OnDisable()
     {
-        LogInfo("OnDisable received.");
         TryStopBackendServerOnExit();
     }
 
@@ -980,9 +777,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     {
         StopUiTopmostEnforcement();
         StopUiHealthCheckResponder();
-        UnsubscribeUiSceneChangeFronting();
 
-        if (_isUiProcess || _backendState.IsShutdownProcessed)
+        if (_backendState.IsShutdownProcessed)
         {
             return;
         }
@@ -990,7 +786,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         _backendState.IsShutdownProcessed = true;
 
         StopBackendInternal();
-        LogInfo("backend stop requested on exit.");
     }
 
     /// <summary>
@@ -998,11 +793,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void StartUiTopmostEnforcementIfNeeded()
     {
-        if (!_isUiProcess || !enforceUiTopmost)
-        {
-            return;
-        }
-
         if (_uiProcessState.TopmostEnforceCoroutine != null)
         {
             return;
@@ -1010,7 +800,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         _uiProcessState.LastTopmostEnforceLogAt = -1f;
         _uiProcessState.TopmostEnforceCoroutine = StartCoroutine(UiTopmostEnforcementLoop());
-        LogInfo("UI topmost enforcement started.");
     }
 
     /// <summary>
@@ -1033,16 +822,12 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         // Give the standalone player window a short moment to initialize its main handle.
         yield return new WaitForSeconds(0.25f);
 
-        while (_isUiProcess && !_backendState.IsShutdownProcessed)
+        while (!_backendState.IsShutdownProcessed)
         {
             bool applied = false;
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
             applied = WindowsAPI.SetCurrentWindowTopmost(true);
 #endif
-            if (!applied && ShouldLogUiHealthRepeated(ref _uiProcessState.LastTopmostEnforceLogAt, 5f))
-            {
-                LogWarning("UI topmost enforcement failed. Window handle may not be ready yet.");
-            }
 
             float interval = Mathf.Max(0.2f, uiTopmostEnforceIntervalSeconds);
             yield return new WaitForSeconds(interval);
@@ -1077,11 +862,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void EnsureUiHealthCheckMonitoring()
     {
-        if (_isUiProcess)
-        {
-            return;
-        }
-
         if (_uiHealthState.MonitoringCoroutine != null)
         {
             return;
@@ -1091,13 +871,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         _uiHealthState.ConsecutiveSuccesses = 0;
         _uiHealthState.StartedAt = Time.realtimeSinceStartup;
         _uiHealthState.IsPendingLaunchValidation = false;
-        _uiHealthState.LastHeartbeatNoResponseLogAt = -1f;
-        _uiHealthState.LastValidationWaitLogAt = -1f;
-        _uiHealthState.LastRestartSkipAliveLogAt = -1f;
-        _uiHealthState.LastHealthDetailLogAt = -1f;
-        _uiHealthState.LastConnectionResetGraceLogAt = -1f;
         _uiHealthState.MonitoringCoroutine = StartCoroutine(UiHealthCheckLoop());
-        LogInfo("UI health check monitoring started.");
     }
 
     /// <summary>
@@ -1115,11 +889,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         _uiHealthState.ConsecutiveSuccesses = 0;
         _uiHealthState.StartedAt = -1f;
         _uiHealthState.IsPendingLaunchValidation = false;
-        _uiHealthState.LastHeartbeatNoResponseLogAt = -1f;
-        _uiHealthState.LastValidationWaitLogAt = -1f;
-        _uiHealthState.LastRestartSkipAliveLogAt = -1f;
-        _uiHealthState.LastHealthDetailLogAt = -1f;
-        _uiHealthState.LastConnectionResetGraceLogAt = -1f;
     }
 
     /// <summary>
@@ -1127,7 +896,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private bool ShouldExitUiHealthCheckLoop()
     {
-        return _backendState.IsShutdownProcessed || _isUiProcess;
+        return _backendState.IsShutdownProcessed;
     }
 
     /// <summary>
@@ -1135,7 +904,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private bool IsUiHealthCheckWithinStartupGrace()
     {
-        float grace = Mathf.Max(0f, uiHealthCheckStartupGraceSeconds);
+        float grace = Mathf.Max(0f, healthCheckStartGrace);
         return _uiHealthState.StartedAt >= 0f
             && Time.realtimeSinceStartup - _uiHealthState.StartedAt < grace;
     }
@@ -1160,7 +929,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             return false;
         }
 
-        LogWarning($"UI health check detected multiple UI processes ({aliveUiProcesses}). Attempting to collapse duplicates.");
         if (TryCollapseDuplicateUiProcesses())
         {
             ResetUiHealthProgress();
@@ -1175,18 +943,13 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     private void HandleHealthyUiHeartbeat()
     {
         _uiHealthState.ConsecutiveSuccesses++;
-        if (_uiHealthState.ConsecutiveMisses > 0)
-        {
-            LogInfo("UI health check recovered.");
-        }
 
         _uiHealthState.ConsecutiveMisses = 0;
 
         if (_uiHealthState.IsPendingLaunchValidation
-            && _uiHealthState.ConsecutiveSuccesses >= Mathf.Max(1, uiHealthCheckSuccessThreshold))
+            && _uiHealthState.ConsecutiveSuccesses >= Mathf.Max(1, healthCheckSuccessThreshold))
         {
             _uiHealthState.IsPendingLaunchValidation = false;
-            LogInfo("UI launch health-check validation completed. Relaunch is enabled.");
         }
     }
 
@@ -1203,35 +966,13 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         float pendingElapsedSeconds = _uiHealthState.StartedAt > 0f
             ? Time.realtimeSinceStartup - _uiHealthState.StartedAt
             : 0f;
-        float pendingTimeoutSeconds = Mathf.Max(2f, uiHealthCheckInitialValidationTimeoutSeconds);
+        float pendingTimeoutSeconds = Mathf.Max(2f, healthCheckInitialTimeout);
         if (pendingElapsedSeconds >= pendingTimeoutSeconds)
         {
             _uiHealthState.IsPendingLaunchValidation = false;
-            LogWarning($"UI launch health-check validation timed out after {pendingElapsedSeconds:0.0}s. Continuing with normal health-check flow. uiLaunchAttempts={_uiProcessState.LaunchAttemptCount}");
-        }
-
-        if (ShouldLogUiHealthRepeated(ref _uiHealthState.LastValidationWaitLogAt, 5f))
-        {
-            LogInfo($"UI health check waiting for first launch validation. uiLaunchAttempts={_uiProcessState.LaunchAttemptCount}, elapsed={pendingElapsedSeconds:0.0}s, timeout={pendingTimeoutSeconds:0.0}s");
         }
 
         return _uiHealthState.IsPendingLaunchValidation;
-    }
-
-    /// <summary>
-    /// UIプロセスが存在するのにUDP応答がない場合のみ、間引き警告を出力します。
-    /// </summary>
-    private void LogUiHeartbeatNoResponseIfNeeded(int aliveUiProcesses)
-    {
-        if (aliveUiProcesses <= 0)
-        {
-            return;
-        }
-
-        if (ShouldLogUiHealthRepeated(ref _uiHealthState.LastHeartbeatNoResponseLogAt, 3f))
-        {
-            LogWarning("UI health check: UI process exists but UDP heartbeat did not respond.");
-        }
     }
 
     /// <summary>
@@ -1246,20 +987,17 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         if (_backendState.IsBackendStartupInProgress)
         {
-            LogInfo("UI health check restart skipped: backend startup is in progress.");
             return false;
         }
 
         float restartCooldown = Mathf.Max(1f, uiHealthCheckRestartCooldownSeconds);
         if (Time.realtimeSinceStartup - s_lastUiHealthRestartAt < restartCooldown)
         {
-            LogInfo("UI health check restart skipped: restart cooldown is active.");
             return false;
         }
 
         if (IsUiHealthy())
         {
-            LogInfo("UI health check restart skipped: UDP heartbeat responded during restart decision.");
             _uiHealthState.ConsecutiveSuccesses = Mathf.Max(1, _uiHealthState.ConsecutiveSuccesses);
             _uiHealthState.ConsecutiveMisses = 0;
             return false;
@@ -1274,7 +1012,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     private void HandleFailedUiHeartbeat(int aliveUiProcesses)
     {
         _uiHealthState.ConsecutiveSuccesses = 0;
-        LogUiHeartbeatNoResponseIfNeeded(aliveUiProcesses);
 
         if (HandlePendingUiLaunchValidation())
         {
@@ -1282,14 +1019,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         }
 
         _uiHealthState.ConsecutiveMisses++;
-        LogWarning($"UI health check miss {_uiHealthState.ConsecutiveMisses}/{Mathf.Max(1, uiHealthCheckMissThreshold)}.");
 
-        if (ShouldLogUiHealthRepeated(ref _uiHealthState.LastHealthDetailLogAt, 5f))
-        {
-            LogInfo($"UI health detail. uiLaunchAttempts={_uiProcessState.LaunchAttemptCount}, detectedUiProcesses={aliveUiProcesses}, pendingValidation={_uiHealthState.IsPendingLaunchValidation}, consecutiveMisses={_uiHealthState.ConsecutiveMisses}");
-        }
-
-        if (_uiHealthState.ConsecutiveMisses < Mathf.Max(1, uiHealthCheckMissThreshold))
+        if (_uiHealthState.ConsecutiveMisses < Mathf.Max(1, healthCheckMissThreshold))
         {
             return;
         }
@@ -1300,7 +1031,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             return;
         }
 
-        LogWarning("UI health check failed threshold. Restarting UI process.");
         if (StartUiProcess("health-check"))
         {
             s_lastUiHealthRestartAt = Time.realtimeSinceStartup;
@@ -1315,7 +1045,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     {
         while (!ShouldExitUiHealthCheckLoop())
         {
-            float interval = Mathf.Max(0.2f, uiHealthCheckIntervalSeconds);
+            float interval = Mathf.Max(0.2f, healthCheckInterval);
             yield return new WaitForSeconds(interval);
 
             if (ShouldExitUiHealthCheckLoop())
@@ -1355,19 +1085,16 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         {
             if (s_uiStartInProgress)
             {
-                LogInfo("UI start skipped: launch is already in progress (global lock).");
                 return false;
             }
 
             if (now - s_lastUiLaunchRequestedAt < 2.0f)
             {
-                LogInfo("UI start skipped: launch cooldown is active (global lock).");
                 return false;
             }
 
             if (IsUiHealthy())
             {
-                LogInfo("UI start skipped: UDP heartbeat already responds.");
                 return false;
             }
 
@@ -1397,7 +1124,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     {
         if (IsSingleBinaryUiLaunchMode())
         {
-            LogInfo("[BackendManager] UI duplicate collapse skipped in single-binary mode.");
             return true;
         }
 
@@ -1475,15 +1201,12 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             int remaining = GetAliveUiProcessCount();
             if (remaining <= 1)
             {
-                LogWarning($"UI duplicate collapse completed. keptPid={keepPid}, killed={killed}, remaining={remaining}.");
                 return true;
             }
 
-            LogWarning($"UI duplicate collapse incomplete. keptPid={keepPid}, killed={killed}, remaining={remaining}.");
             return false;
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"UI duplicate collapse failed: {ex.GetType().Name}:{ex.Message}");
             return false;
         }
     }
@@ -1504,7 +1227,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         string resolvedExecutable = ResolveUiLaunchExecutablePath(projectRoot);
         if (string.IsNullOrWhiteSpace(resolvedExecutable))
         {
-            LogWarning($"UI executable not found: {Constant.UIProcessExecutablePath}");
             lock (s_uiLaunchSync)
             {
                 s_uiStartInProgress = false;
@@ -1524,19 +1246,14 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             CreateNoWindow = false
         };
 
-        LogInfo($"UI start requested. reason={reason}, attempt={currentAttempt}, file={startInfo.FileName}, args={startInfo.Arguments}, cwd={startInfo.WorkingDirectory}");
-
         try
         {
             if (TryCreateUiProcess(startInfo, out string successMessage))
             {
                 MarkUiLaunchValidationPending();
-                LogInfo(successMessage);
                 return true;
             }
 
-            LogWarning(
-                $"UI start failed. file={startInfo.FileName}, args={startInfo.Arguments}, cwd={startInfo.WorkingDirectory}, exists={File.Exists(startInfo.FileName)}");
             return false;
         }
         finally
@@ -1567,7 +1284,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
             if (!TryCreateNativeProcess(startInfo, startupInfo, out var process, out int lastError))
             {
-                LogWarning($"CreateProcess failed. error={lastError}, file={startInfo.FileName}, args={startInfo.Arguments}, cwd={startInfo.WorkingDirectory}");
                 return false;
             }
 
@@ -1575,9 +1291,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             successMessage = $"UI process started (native CreateProcess): {startInfo.FileName} {startInfo.Arguments}";
             TryConfigureExternalUiTaskbarVisibility(_uiProcess);
             return true;
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"CreateProcess exception: {ex.GetType().Name}:{ex.Message}");
             return false;
         }
 #else
@@ -1593,7 +1308,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         if (process == null)
         {
-            LogWarning("UI taskbar config skipped: process handle is null.");
             return;
         }
 
@@ -1606,7 +1320,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         try
         {
             const int maxAttempts = 20;
-            LogInfo($"UI taskbar config requested. pid={process.Id}, appId={appId}");
+
             for (int i = 0; i < maxAttempts; i++)
             {
                 IntPtr hwnd = IntPtr.Zero;
@@ -1624,23 +1338,15 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                     bool appIdApplied = TrySetWindowAppUserModelId(hwnd, appId);
                     bool hideApplied = TryHideWindowTaskbarIcon(hwnd);
 
-                    if (appIdApplied && hideApplied)
-                    {
-                        LogInfo($"UI taskbar config applied. appId={appIdApplied}, hidden={hideApplied}");
-                    } else
-                    {
-                        LogWarning($"UI taskbar config failed. appId={appIdApplied}, hidden={hideApplied}");
-                    }
                     return;
                 }
 
                 Thread.Sleep(100);
             }
 
-            LogWarning($"UI taskbar config skipped: main window handle not found within {maxAttempts * 100}ms.");
         } catch (Exception ex)
         {
-            LogWarning($"UI taskbar config exception: {ex.GetType().Name}:{ex.Message}");
+
         }
 #endif
     }
@@ -1759,13 +1465,11 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     {
         if (IsOllamaServerReachable())
         {
-            LogInfo($"Ollama start skipped: already reachable at {Constant.BackendHost}:{Constant.OllamaHealthPort}");
             return;
         }
 
         if (IsProcessAlive(_ollamaProcess))
         {
-            LogInfo($"Ollama start skipped: existing launched process is alive (pid={_ollamaProcess.Id})");
             return;
         }
 
@@ -1832,7 +1536,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         string resolvedExecutable = ResolveExecutablePath(executableNameOrPath, workingDirectory);
         if (string.IsNullOrWhiteSpace(resolvedExecutable))
         {
-            LogWarning($"{name} executable not found: {executableNameOrPath}. workingDir={workingDirectory}");
             return false;
         }
 
@@ -1859,11 +1562,9 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             {
                 if (TryCreateDependencyProcess(name, startInfo, out process, out string successMessage))
                 {
-                    LogInfo(successMessage);
                     return true;
                 }
 
-                LogWarning($"{name} Process.Start returned null.");
                 return false;
             }
 
@@ -1871,21 +1572,17 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
             TryAssignProcessToJob(process);
 
-            LogInfo($"{name} process started: {startInfo.FileName} {startInfo.Arguments}");
             return true;
         } catch (Win32Exception ex)
         {
             if (TryCreateDependencyProcess(name, startInfo, out process, out string nativeSuccessMessage))
             {
-                LogInfo(nativeSuccessMessage);
                 return true;
             }
 
-            LogWarning($"{name} start failed (Win32): {ex.Message}. file={startInfo.FileName}, args={startInfo.Arguments}, cwd={startInfo.WorkingDirectory}");
             return false;
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"{name} start failed: {ex.Message}");
             return false;
         }
     }
@@ -1908,15 +1605,13 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
             if (!TryCreateNativeProcess(startInfo, startupInfo, out process, out int lastError))
             {
-                LogWarning($"{name} native CreateProcess failed. error={lastError}, file={startInfo.FileName}, args={startInfo.Arguments}, cwd={startInfo.WorkingDirectory}");
                 return false;
             }
 
             successMessage = $"{name} process started (native CreateProcess): {startInfo.FileName} {startInfo.Arguments}";
             return true;
-        } catch (Exception ex)
+        } catch
         {
-            LogWarning($"{name} native CreateProcess exception: {ex.GetType().Name}:{ex.Message}");
             return false;
         }
 #else
@@ -2141,33 +1836,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     }
 
     /// <summary>
-    /// 情報ログをプロセスタグ付きで出力します。
-    /// </summary>
-    private static void LogInfo(string message)
-    {
-        string normalized = NormalizeBackendLogMessage(message);
-        Log.Info($"[BackendManager] [{ProcessTypeTag}] {normalized}");
-    }
-
-    /// <summary>
-    /// 警告ログをプロセスタグ付きで出力します。
-    /// </summary>
-    private static void LogWarning(string message)
-    {
-        string normalized = NormalizeBackendLogMessage(message);
-        Log.Warning($"[BackendManager] [{ProcessTypeTag}] {normalized}");
-    }
-
-    /// <summary>
-    /// エラーログをプロセスタグ付きで出力します。
-    /// </summary>
-    private static void LogError(string message)
-    {
-        string normalized = NormalizeBackendLogMessage(message);
-        Log.Error($"[BackendManager] [{ProcessTypeTag}] {normalized}");
-    }
-
-    /// <summary>
     /// 追跡中または探索したUIプロセスからメインウィンドウハンドル取得を試行します。
     /// </summary>
     public bool TryGetUiWindowHandle(out IntPtr uiWindowHandle)
@@ -2175,15 +1843,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         uiWindowHandle = IntPtr.Zero;
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-        if (_isUiProcess)
-        {
-            LogInfo("ZOrder direct UI handle lookup skipped in UI process.");
-            return false;
-        }
-
         if (TryGetWindowHandle(_uiProcess, out uiWindowHandle))
         {
-            LogInfo($"ZOrder direct UI handle resolved from tracked process. hwnd=0x{uiWindowHandle.ToInt64():X}");
             return true;
         }
 
@@ -2199,12 +1860,10 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             {
                 pid = -1;
             }
-            LogInfo($"ZOrder direct UI handle resolved by process scan. pid={pid}, hwnd=0x{uiWindowHandle.ToInt64():X}");
+
             return true;
         }
 #endif
-
-        LogWarning("ZOrder direct UI handle resolution failed.");
 
         return false;
     }
@@ -2217,19 +1876,17 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         if (!TryGetUiWindowHandle(out var uiWindowHandle))
         {
-            LogWarning("ZOrder direct UI re-front skipped: UI window handle unavailable.");
             return false;
         }
 
         IntPtr currentWindowHandle = WindowsAPI.GetCurrentWindowHandle();
         if (currentWindowHandle == IntPtr.Zero || currentWindowHandle == uiWindowHandle)
         {
-            LogWarning($"ZOrder direct UI re-front skipped. current=0x{currentWindowHandle.ToInt64():X}, ui=0x{uiWindowHandle.ToInt64():X}");
             return false;
         }
 
-        bool placed = NativeWindowApi.PlaceAboveWindow(uiWindowHandle, currentWindowHandle);
-        LogInfo($"ZOrder direct UI re-front place-above. ui=0x{uiWindowHandle.ToInt64():X}, current=0x{currentWindowHandle.ToInt64():X}, success={placed}");
+        bool placed = WindowsAPI.PlaceAboveWindow(uiWindowHandle, currentWindowHandle);
+
         return placed;
 #else
         return false;
@@ -2317,10 +1974,8 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                     }
                 }
             }
-        }
-        catch (Exception ex)
+        } catch
         {
-            LogWarning($"[BackendManager] Failed to enumerate UI processes: {ex.GetType().Name}:{ex.Message}");
         }
 
         return alivePids.Count;
@@ -2631,22 +2286,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     }
 
     /// <summary>
-    /// 一定間隔内の重複ログ出力を抑制する判定を行います。
-    /// </summary>
-    private static bool ShouldLogUiHealthRepeated(ref float lastLoggedAt, float minIntervalSeconds)
-    {
-        float now = Time.realtimeSinceStartup;
-        float interval = Mathf.Max(0.1f, minIntervalSeconds);
-        if (lastLoggedAt > 0f && now - lastLoggedAt < interval)
-        {
-            return false;
-        }
-
-        lastLoggedAt = now;
-        return true;
-    }
-
-    /// <summary>
     /// UDP ping/pong によるUI応答性ヘルスチェックを実行します。
     /// </summary>
     private bool IsUiHealthy()
@@ -2679,10 +2318,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
                 string response = Encoding.UTF8.GetString(responseBytes).Trim();
                 bool isHealthy = string.Equals(response, expectedPong, StringComparison.Ordinal);
-                if (isHealthy && hasRetriedAfterConnectionReset)
-                {
-                    LogInfo("UI health check recovered within ConnectionReset grace period.");
-                }
 
                 return isHealthy;
             }
@@ -2694,10 +2329,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                 }
 
                 hasRetriedAfterConnectionReset = true;
-                if (ShouldLogUiHealthRepeated(ref _uiHealthState.LastConnectionResetGraceLogAt, 1f))
-                {
-                    LogWarning($"UI health check hit ConnectionReset. Waiting up to {connectionResetGraceSeconds:0.###}s before treating UI as unavailable.");
-                }
 
                 if (postResetWaitMs > 0)
                 {
@@ -2729,7 +2360,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void StartUiHealthCheckResponderIfNeeded()
     {
-        if (!_isUiProcess || _uiHealthCheckResponderRunning)
+        if (_uiHealthCheckResponderRunning)
         {
             return;
         }
@@ -2737,7 +2368,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         string host = string.IsNullOrWhiteSpace(uiHealthCheckUdpHost) ? "127.0.0.1" : uiHealthCheckUdpHost.Trim();
         int port = Mathf.Max(1, uiHealthCheckUdpPort);
         int timeout = Mathf.Max(50, uiHealthCheckUdpTimeoutMs);
-        LogInfo($"Starting UI UDP responder. host={host}, port={port}, timeoutMs={timeout}, openMenuMessage={uiOpenMenuMessage}");
 
         try
         {
@@ -2751,13 +2381,10 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                 Name = "UIHealthCheckResponder"
             };
             _uiHealthCheckResponderThread.Start();
-            LogInfo($"UI health-check UDP responder started. endpoint={host}:{port}");
-        }
-        catch (Exception ex)
+        } catch
         {
             _uiHealthCheckResponderRunning = false;
             _uiHealthCheckResponder = null;
-            LogWarning($"[BackendManager] UI health-check UDP responder failed to start: {ex.Message}");
         }
     }
 
@@ -2817,7 +2444,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         byte[] forceTopmostAckBytes = Encoding.UTF8.GetBytes(forceTopmostAck);
         byte[] openMenuAckBytes = Encoding.UTF8.GetBytes(openMenuAck);
         byte[] loadingAckBytes = Encoding.UTF8.GetBytes(loadingAck);
-        LogInfo($"UI UDP responder loop active. ping={ping}, forceTopmost={forceTopmost}, openMenu={openMenu}, loadingShow={loadingShow}, loadingHide={loadingHide}");
 
         while (_uiHealthCheckResponderRunning)
         {
@@ -2831,31 +2457,28 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                 }
 
                 string request = Encoding.UTF8.GetString(requestBytes).Trim();
-
-                if (string.Equals(request, forceTopmost, StringComparison.Ordinal))
-                {
-                    LogInfo($"[BackendManager] UI force-topmost UDP received. from={remote.Address}:{remote.Port}, message={request}");
+                bool isForceTopmostMessage = string.Equals(request, forceTopmost, StringComparison.Ordinal);
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
-                    bool topmostApplied = ForceUiWindowFront();
-                    LogInfo($"[BackendManager] UI force-topmost UDP processed. success={topmostApplied}");
+                if (!isForceTopmostMessage)
+                {
+                    ForceUiWindowFront();
+                }
+#endif
 
-                    if (!topmostApplied && enforceUiTopmost && ShouldLogUiHealthRepeated(ref _uiProcessState.LastTopmostEnforceLogAt, 2f))
-                    {
-                        LogWarning("[BackendManager] UI force-topmost request received but topmost apply failed.");
-                    }
+                if (isForceTopmostMessage)
+                {
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+                    bool topmostApplied = ForceUiWindowFront();
 #endif
                     _uiHealthCheckResponder?.Send(forceTopmostAckBytes, forceTopmostAckBytes.Length, remote);
-                    LogInfo($"[BackendManager] UI force-topmost UDP ack sent. to={remote.Address}:{remote.Port}, message={forceTopmostAck}");
                     continue;
                 }
 
                 if (string.Equals(request, openMenu, StringComparison.Ordinal))
                 {
-                    LogInfo($"UI open-menu request accepted. Scheduling main-thread dialog open. from={remote.Address}:{remote.Port}");
                     _uiMenuOpenRequested = true;
                     _uiHealthCheckResponder?.Send(openMenuAckBytes, openMenuAckBytes.Length, remote);
-                    LogInfo($"UI open-menu UDP ack sent. to={remote.Address}:{remote.Port}, message={openMenuAck}");
                     continue;
                 }
 
@@ -2865,7 +2488,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                     bool visible = string.Equals(request, loadingShow, StringComparison.Ordinal);
                     _uiLoadingVisibilityRequest = visible ? 1 : 0;
                     _uiHealthCheckResponder?.Send(loadingAckBytes, loadingAckBytes.Length, remote);
-                    LogInfo($"UI loading UDP request accepted. visible={visible}, from={remote.Address}:{remote.Port}, ack={loadingAck}");
                     continue;
                 }
 
@@ -2882,72 +2504,39 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                 {
                     continue;
                 }
-
-                if (_uiHealthCheckResponderRunning)
-                {
-                    LogWarning($"[BackendManager] UI health-check responder socket error: {ex.SocketErrorCode}");
-                }
             }
             catch (ObjectDisposedException)
             {
                 break;
-            }
-            catch (Exception ex)
-            {
-                if (_uiHealthCheckResponderRunning)
-                {
-                    LogWarning($"[BackendManager] UI health-check responder exception: {ex.GetType().Name}:{ex.Message}");
-                }
             }
         }
     }
 
     private void OpenMenuDialogOnUiProcess()
     {
-        if (!_isUiProcess)
-        {
-            LogWarning("OpenMenuDialogOnUiProcess called in non-UI process.");
-            return;
-        }
-
         if (uiMenuDialog == null)
         {
-            LogInfo("Resolving MenuDialog by scene search.");
             uiMenuDialog = FindFirstObjectByType<MenuDialog>();
         }
 
         if (uiMenuDialog == null)
         {
             string sceneName = SceneManager.GetActiveScene().name;
-            LogWarning($"UI menu open skipped: MenuDialog is not found. activeScene={sceneName}");
             return;
         }
 
-        LogInfo($"Opening MenuDialog. object={uiMenuDialog.name}, activeInHierarchy={uiMenuDialog.gameObject.activeInHierarchy}");
         uiMenuDialog.Show();
-        LogInfo("UI menu opened by bridge request.");
     }
 
     private void ApplyUiLoadingIndicatorVisible(bool visible, bool logOnMissing)
     {
-        if (!_isUiProcess)
-        {
-            return;
-        }
-
         if (uiLoadingIndicatorObject == null)
         {
-            if (logOnMissing)
-            {
-                LogWarning("UI loading indicator object is not assigned.");
-            }
-
             return;
         }
 
         if (!visible && IsBackendManagerRootOrAncestor(uiLoadingIndicatorObject))
         {
-            LogWarning("UI loading indicator hide skipped because target is BackendManager itself or an ancestor.");
             return;
         }
 
@@ -2957,7 +2546,6 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         }
 
         uiLoadingIndicatorObject.SetActive(visible);
-        LogInfo($"UI loading indicator active={visible}.");
     }
 
     private bool IsBackendManagerRootOrAncestor(GameObject target)
@@ -3016,16 +2604,16 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         {
             bool topmost = WindowsAPI.SetCurrentWindowTopmost(true);
             bool brought = WindowsAPI.BringCurrentWindowToFront();
-            IntPtr foreground = NativeWindowApi.GetForegroundWindowHandle();
-            bool foregroundMatched = NativeWindowApi.AreSameRootOwnerWindow(currentWindowHandle, foreground);
+            IntPtr foreground = WindowsAPI.GetForegroundWindowHandle();
+            bool foregroundMatched = WindowsAPI.AreSameRootOwnerWindow(currentWindowHandle, foreground);
             return topmost || brought || foregroundMatched;
         }
 
         // Keep topmost after force-front requests; releasing immediately often cancels the intended z-order.
         bool raised = WindowsAPI.SetCurrentWindowTopmost(true);
         bool broughtOnce = WindowsAPI.BringCurrentWindowToFront();
-        IntPtr currentForeground = NativeWindowApi.GetForegroundWindowHandle();
-        bool foregroundMatchedNow = NativeWindowApi.AreSameRootOwnerWindow(currentWindowHandle, currentForeground);
+        IntPtr currentForeground = WindowsAPI.GetForegroundWindowHandle();
+        bool foregroundMatchedNow = WindowsAPI.AreSameRootOwnerWindow(currentWindowHandle, currentForeground);
         return raised || broughtOnce || foregroundMatchedNow;
 #else
         return false;
@@ -3077,13 +2665,10 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                 return;
             }
 
-            if (TryKillProcessTree(process))
-            {
-                LogInfo($"[BackendManager] {label} process stopped.");
-            }
-        } catch (Exception ex)
+            TryKillProcessTree(process);
+
+        } catch
         {
-            LogWarning($"[BackendManager] {label} stop failed: {ex.Message}");
         } finally
         {
             process = null;

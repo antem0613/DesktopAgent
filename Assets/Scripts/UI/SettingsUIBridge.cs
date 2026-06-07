@@ -140,6 +140,21 @@ public sealed class SettingsUIBridge : MonoBehaviour
     }
 
     /// <summary>
+    /// STTManagerの入力モードを切り替えます。
+    /// </summary>
+    public void SetRecognitionInputMode(int index)
+    {
+        var sttManager = FindFirstObjectByType<STTManager>();
+        if (sttManager == null)
+        {
+            Log.Warning("[SettingsUIBridge] STTManager not found.");
+            return;
+        }
+
+        sttManager.SetRecognitionInputMode(index);
+    }
+
+    /// <summary>
     /// 即時保存がOFFのときに手動保存するための公開メソッドです。
     /// </summary>
     public void SaveNow()

@@ -8,6 +8,7 @@ using TMPro;
 using Unity.Logging;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using Whisper;
 using Whisper.Utils;
 
@@ -27,6 +28,7 @@ public class STTManager : MonoBehaviour
     {
         AlwaysListening = 0,
         PushToTalk = 1,
+        TextInput = 2,
     }
 
     [Header("Dependencies")]
@@ -36,6 +38,9 @@ public class STTManager : MonoBehaviour
     [SerializeField] private GameObject micIconObject;
     [SerializeField] private TMP_Text recognizedText;
     [SerializeField] private GameObject recognizedVisibilityObject;
+    [SerializeField] private TMP_InputField textInputField;
+    [SerializeField] private GameObject textInputVisibilityObject;
+    [SerializeField] private Button textInputSubmitButton;
 
     [Header("Run")]
     [SerializeField] private RecognitionInputMode recognitionInputMode = RecognitionInputMode.AlwaysListening;
@@ -144,9 +149,12 @@ public class STTManager : MonoBehaviour
     private int _suppressedDropCount;
 
     private Coroutine _recognizedTextHideCoroutine;
+    private Coroutine _textInputHideCoroutine;
     private InputAction _pushToTalkAction;
     private bool _ownsPushToTalkAction;
     private bool _isPttShortcutOverrideActive;
+    private bool _isTextInputMarked;
+    private bool _isTextInputSubmitting;
     private bool _isUiProcess;
     private bool _lastShouldRecordState;
     private bool _hasLastShouldTracked;
@@ -168,7 +176,10 @@ public class STTManager : MonoBehaviour
     {
         _isUiProcess = IsUiProcess();
         ApplySettings();
+        ResolveOptionalUiDependencies();
         SetupPushToTalkAction();
+        RegisterTextInputCallbacks();
+        ClearAndHideTextInput(false);
     }
 
     /// <summary>
@@ -186,6 +197,7 @@ public class STTManager : MonoBehaviour
     {
         DisposePushToTalkAction();
         _isPttHeld = false;
+        CancelTextInputHide();
     }
 
     /// <summary>
@@ -204,6 +216,7 @@ public class STTManager : MonoBehaviour
         try
         {
             UpdatePttState();
+            UpdateTextInputSubmitState();
             UpdateRecordingState();
             DrainRecognizedQueue();
             UpdateMicUi();
@@ -262,6 +275,8 @@ public class STTManager : MonoBehaviour
     {
         DisablePushToTalkAction();
         DisposePushToTalkAction();
+        UnregisterTextInputCallbacks();
+        CancelTextInputHide();
         StopSTT();
     }
 
@@ -325,6 +340,7 @@ public class STTManager : MonoBehaviour
         _isPttFlushInFlight = false;
         _pttFlushRequestVersion = 0;
         ResetDropLog();
+        ClearAndHideTextInput(false);
 
         if (_stream != null)
         {
@@ -465,6 +481,24 @@ public class STTManager : MonoBehaviour
         }
 
         return true;
+    }
+
+    private void ResolveOptionalUiDependencies()
+    {
+        if (micIcon == null && micIconObject != null)
+        {
+            micIcon = micIconObject.GetComponent<SwitchMicrophoneIcon>();
+        }
+
+        if (textInputField == null)
+        {
+            textInputField = GetComponentInChildren<TMP_InputField>(true);
+        }
+
+        if (textInputVisibilityObject == null && textInputField != null)
+        {
+            textInputVisibilityObject = textInputField.gameObject;
+        }
     }
 
     /// <summary>
@@ -609,6 +643,12 @@ public class STTManager : MonoBehaviour
     /// </summary>
     private void OnPushToTalkStarted(InputAction.CallbackContext _)
     {
+        if (recognitionInputMode == RecognitionInputMode.TextInput)
+        {
+            HandleTextInputShortcutTriggered();
+            return;
+        }
+
         if (recognitionInputMode != RecognitionInputMode.PushToTalk)
         {
             return;
@@ -844,6 +884,7 @@ public class STTManager : MonoBehaviour
         if (recognitionInputMode != RecognitionInputMode.PushToTalk)
         {
             _isPttHeld = false;
+            EndPttFinalize();
         }
 
         if (shouldBlockInput)
@@ -1912,9 +1953,15 @@ public class STTManager : MonoBehaviour
         bool isInitialized = whisperManager != null && whisperManager.IsLoaded;
         bool isRecording = microphoneRecord != null && microphoneRecord.IsRecording;
         bool isBlockedByLlm = ShouldBlockSttInput();
+        bool isTextInputSending = recognitionInputMode == RecognitionInputMode.TextInput && _isTextInputSubmitting;
         bool isFinalizing = recognitionInputMode == RecognitionInputMode.PushToTalk && _isPttFinalizing;
         bool isInputActive = recognitionInputMode == RecognitionInputMode.AlwaysListening || _isPttHeld || isFinalizing;
-        bool shouldShowIconObject = isInitialized && _running && (isInputActive || isBlockedByLlm);
+        bool isTextInputVisible = recognitionInputMode == RecognitionInputMode.TextInput && IsTextInputVisible();
+        bool shouldShowIconObject = isInitialized && _running && (isInputActive || isBlockedByLlm || isTextInputVisible);
+        if (isTextInputSending)
+        {
+            shouldShowIconObject = false;
+        }
         bool canRecognize = isInitialized
                             && _running
                     && isInputActive
@@ -1948,6 +1995,7 @@ public class STTManager : MonoBehaviour
         }
 
         micIcon.SwitchIcon(canRecognize);
+        micIcon.SetTextInputMarkVisible(shouldShowIconObject && _isTextInputMarked);
         _lastMicIconVisible = shouldShowIconObject;
         _lastMicCanRecognize = canRecognize;
         _hasMicUiTracked = true;
@@ -2058,6 +2106,297 @@ public class STTManager : MonoBehaviour
     private bool ShouldBlockSttInput()
     {
         return false;
+    }
+
+    public RecognitionInputMode CurrentRecognitionInputMode => recognitionInputMode;
+
+    public void SetRecognitionInputMode(RecognitionInputMode mode)
+    {
+        if (recognitionInputMode == mode)
+        {
+            return;
+        }
+
+        recognitionInputMode = mode;
+        _isPttHeld = false;
+        _lastPttReleased = -1f;
+        EndPttFinalize();
+
+        if (mode != RecognitionInputMode.TextInput)
+        {
+            ClearAndHideTextInput(false);
+        }
+
+        UpdateRecordingState();
+        UpdateMicUi();
+    }
+
+    public void SetRecognitionInputMode(int mode)
+    {
+        if (!Enum.IsDefined(typeof(RecognitionInputMode), mode))
+        {
+            Log.Warning($"[STT] Unknown recognition input mode: {mode}");
+            return;
+        }
+
+        SetRecognitionInputMode((RecognitionInputMode)mode);
+    }
+
+    private void RegisterTextInputCallbacks()
+    {
+        if (textInputField == null)
+        {
+            return;
+        }
+
+        textInputField.onValueChanged.RemoveListener(OnTextInputValueChanged);
+        textInputField.onSelect.RemoveListener(OnTextInputSelected);
+        textInputField.onValueChanged.AddListener(OnTextInputValueChanged);
+        textInputField.onSelect.AddListener(OnTextInputSelected);
+
+        if (textInputSubmitButton != null)
+        {
+            textInputSubmitButton.onClick.RemoveListener(OnTextInputSubmitButtonClicked);
+            textInputSubmitButton.onClick.AddListener(OnTextInputSubmitButtonClicked);
+        }
+    }
+
+    private void UnregisterTextInputCallbacks()
+    {
+        if (textInputField != null)
+        {
+            textInputField.onValueChanged.RemoveListener(OnTextInputValueChanged);
+            textInputField.onSelect.RemoveListener(OnTextInputSelected);
+        }
+
+        if (textInputSubmitButton != null)
+        {
+            textInputSubmitButton.onClick.RemoveListener(OnTextInputSubmitButtonClicked);
+        }
+    }
+
+    private void UpdateTextInputSubmitState()
+    {
+        if (recognitionInputMode != RecognitionInputMode.TextInput)
+        {
+            return;
+        }
+
+        if (textInputField == null || !IsTextInputVisible() || !textInputField.isFocused)
+        {
+            return;
+        }
+
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null)
+        {
+            return;
+        }
+
+        bool isShiftPressed = keyboard.leftShiftKey.isPressed || keyboard.rightShiftKey.isPressed;
+        if (!isShiftPressed)
+        {
+            return;
+        }
+
+        bool isEnterPressed = keyboard.enterKey.wasPressedThisFrame || keyboard.numpadEnterKey.wasPressedThisFrame;
+        if (!isEnterPressed)
+        {
+            return;
+        }
+
+        OnTextInputSubmitted(textInputField.text);
+    }
+
+    private void OnTextInputSubmitButtonClicked()
+    {
+        if (recognitionInputMode != RecognitionInputMode.TextInput || !IsTextInputVisible())
+        {
+            return;
+        }
+
+        OnTextInputSubmitted(textInputField != null ? textInputField.text : string.Empty);
+    }
+
+    private void HandleTextInputShortcutTriggered()
+    {
+        if (textInputField == null)
+        {
+            Log.Warning("[STT] TextInput mode is active, but TMP_InputField is not assigned.");
+            return;
+        }
+
+        ShowTextInput();
+    }
+
+    private void ShowTextInput()
+    {
+        GameObject visibilityObject = ResolveTextInputVisibility();
+        if (visibilityObject != null && !visibilityObject.activeSelf)
+        {
+            visibilityObject.SetActive(true);
+        }
+
+        _isTextInputSubmitting = false;
+        SetTextInputSubmitButtonVisible(true);
+        _isTextInputMarked = true;
+        CancelTextInputHide();
+        UpdateMicUi();
+        RequestUiFront("text-input");
+        FocusTextInputAsync().Forget();
+    }
+
+    private async UniTaskVoid FocusTextInputAsync()
+    {
+        await UniTask.NextFrame();
+
+        if (textInputField == null || !IsTextInputVisible())
+        {
+            return;
+        }
+
+        textInputField.Select();
+        textInputField.ActivateInputField();
+        textInputField.MoveTextEnd(false);
+    }
+
+    private void OnTextInputSelected(string _)
+    {
+        if (!IsTextInputVisible())
+        {
+            return;
+        }
+
+        CancelTextInputHide();
+    }
+
+    private void OnTextInputValueChanged(string _)
+    {
+        if (!IsTextInputVisible())
+        {
+            return;
+        }
+
+        _isTextInputSubmitting = false;
+        _isTextInputMarked = true;
+        CancelTextInputHide();
+        UpdateMicUi();
+    }
+
+    private void OnTextInputSubmitted(string submittedText)
+    {
+        if (recognitionInputMode != RecognitionInputMode.TextInput)
+        {
+            return;
+        }
+
+        string normalized = submittedText?.Trim();
+        if (string.IsNullOrWhiteSpace(normalized))
+        {
+            _isTextInputSubmitting = false;
+            CancelTextInputHide();
+            FocusTextInputAsync().Forget();
+            return;
+        }
+
+        _isTextInputSubmitting = true;
+        ForwardFinalText(normalized);
+        SetTextInputSubmitButtonVisible(false);
+        _isTextInputMarked = false;
+        UpdateMicUi();
+
+        if (textInputField != null)
+        {
+            textInputField.DeactivateInputField();
+        }
+
+        ScheduleTextInputHide();
+    }
+
+    private GameObject ResolveTextInputVisibility()
+    {
+        if (textInputVisibilityObject != null)
+        {
+            return textInputVisibilityObject;
+        }
+
+        return textInputField != null ? textInputField.gameObject : null;
+    }
+
+    private bool IsTextInputVisible()
+    {
+        GameObject visibilityObject = ResolveTextInputVisibility();
+        return visibilityObject != null && visibilityObject.activeSelf;
+    }
+
+    private void ScheduleTextInputHide()
+    {
+        CancelTextInputHide();
+
+        if (resultHideDelaySec <= 0f)
+        {
+            return;
+        }
+
+        _textInputHideCoroutine = StartCoroutine(DelayedTextInputHide(resultHideDelaySec));
+    }
+
+    private void CancelTextInputHide()
+    {
+        if (_textInputHideCoroutine == null)
+        {
+            return;
+        }
+
+        StopCoroutine(_textInputHideCoroutine);
+        _textInputHideCoroutine = null;
+    }
+
+    private System.Collections.IEnumerator DelayedTextInputHide(float delaySeconds)
+    {
+        yield return new WaitForSeconds(delaySeconds);
+        _textInputHideCoroutine = null;
+        ClearAndHideTextInput();
+    }
+
+    private void ClearAndHideTextInput(bool clearText = true)
+    {
+        CancelTextInputHide();
+
+        if (textInputField != null)
+        {
+            if (clearText)
+            {
+                textInputField.text = string.Empty;
+            }
+
+            textInputField.DeactivateInputField();
+        }
+
+        GameObject visibilityObject = ResolveTextInputVisibility();
+        if (visibilityObject != null && visibilityObject.activeSelf)
+        {
+            visibilityObject.SetActive(false);
+        }
+
+        SetTextInputSubmitButtonVisible(false);
+        _isTextInputSubmitting = false;
+        _isTextInputMarked = false;
+        UpdateMicUi();
+    }
+
+    private void SetTextInputSubmitButtonVisible(bool isVisible)
+    {
+        if (textInputSubmitButton == null)
+        {
+            return;
+        }
+
+        GameObject buttonObject = textInputSubmitButton.gameObject;
+        if (buttonObject != null && buttonObject.activeSelf != isVisible)
+        {
+            buttonObject.SetActive(isVisible);
+        }
     }
 
     /// <summary>

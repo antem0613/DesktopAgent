@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -595,7 +595,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
         if (useWindowTopAsGround)
         {
             IntPtr currentHwnd = WindowsAPI.GetCurrentWindowHandle();
-            var candidateWindows = WindowsExplorerUtility.GetTopLevelWindows();
+            var candidateWindows = WindowsAPI.GetTopLevelWindows();
             for (int i = 0; i < candidateWindows.Count; i++)
             {
                 var info = candidateWindows[i];
@@ -631,7 +631,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
                     continue;
                 }
 
-                bool isMaximized = NativeWindowApi.IsWindowMaximized(info.hWnd) || NativeWindowApi.IsWindowFullscreen(info.hWnd);
+                bool isMaximized = WindowsAPI.IsWindowMaximized(info.hWnd) || WindowsAPI.IsWindowFullscreen(info.hWnd);
 
                 if (centerX < rect.left || centerX > rect.right)
                 {
@@ -794,7 +794,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
 
         if (IsSupportWindowHiddenByFrontWindow(_followingWindowHandle, currentRect))
         {
-            IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
+            IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
             LogLandingZOrderDiagnostic($"followFocus detach reason=hiddenByFront support={FormatHwnd(_followingWindowHandle)} foreground={FormatHwnd(foregroundHwnd)}");
             DetachFromWindowTopSupport();
             return;
@@ -866,7 +866,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
         }
 
         IntPtr currentHwnd = WindowsAPI.GetCurrentWindowHandle();
-        IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
+        IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
         if (foregroundHwnd == IntPtr.Zero || foregroundHwnd == currentHwnd || foregroundHwnd == supportHwnd)
         {
             return false;
@@ -906,8 +906,8 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
         float overlapWidth = Mathf.Max(0f, overlapRight - overlapLeft);
         bool largeOccluder = overlapWidth >= supportWidth * 0.75f;
 
-        bool dominantWindow = NativeWindowApi.IsWindowMaximized(foregroundHwnd)
-                              || NativeWindowApi.IsWindowFullscreen(foregroundHwnd)
+        bool dominantWindow = WindowsAPI.IsWindowMaximized(foregroundHwnd)
+                      || WindowsAPI.IsWindowFullscreen(foregroundHwnd)
                               || largeOccluder;
         if (!dominantWindow)
         {
@@ -942,7 +942,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
             return;
         }
 
-        IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
+        IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
         bool topmostEnabled = false;
 
         if (foregroundHwnd != supportHwnd)
@@ -1021,7 +1021,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
             return false;
         }
 
-        var candidateWindows = WindowsExplorerUtility.GetTopLevelWindows();
+        var candidateWindows = WindowsAPI.GetTopLevelWindows();
         for (int i = 0; i < candidateWindows.Count; i++)
         {
             var info = candidateWindows[i];
@@ -1103,7 +1103,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
         }
 
         actionDecisionManager.SetOnWindowStateForTest(onWindow, LogTag);
-        bool sittingOnWindow = onWindow && actionDecisionManager.CurrentAction == CharacterManager.GroundAction.Sit;
+        bool sittingOnWindow = onWindow && actionDecisionManager.CurrentAction == GroundAction.Sit;
         actionDecisionManager.SetSittingWindowStateForTest(sittingOnWindow, LogTag);
     }
 
@@ -1111,7 +1111,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
     {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         IntPtr currentHwnd = WindowsAPI.GetCurrentWindowHandle();
-        IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
+        IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
         IntPtr targetHwnd = IntPtr.Zero;
         if (groundSurfaceType == GroundSurfaceType.WindowTop)
         {
@@ -1119,7 +1119,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
         }
         else if (groundSurfaceType == GroundSurfaceType.Taskbar)
         {
-            targetHwnd = NativeWindowApi.GetTaskbarHandle();
+            targetHwnd = WindowsAPI.GetTaskbarHandle();
         }
 
         LogLandingZOrderDiagnostic($"landingZOrder begin surface={groundSurfaceType} target={FormatHwnd(targetHwnd)} support={FormatHwnd(supportWindowHandle)} current={FormatHwnd(currentHwnd)} foreground={FormatHwnd(foregroundHwnd)} pinned={_isTopmostPinnedBySupportFocus} followHandle={FormatHwnd(_followingWindowHandle)}");

@@ -100,7 +100,7 @@ public class TestWindowMotionComponent : MonoBehaviour, ITestFeatureComponent
         float scale = Mathf.Max(0.01f, mouseDeltaScaleMultiplier);
         if (applyDpiScaleToMouseDelta)
         {
-            scale *= Mathf.Max(0.01f, WindowsExplorerUtility.GetDPIScale());
+            scale *= Mathf.Max(0.01f, WindowsAPI.GetDPIScale());
         }
 
         return MoveWindowByPixels(mouseDeltaX * scale, mouseDeltaY * scale);

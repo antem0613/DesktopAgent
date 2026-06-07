@@ -73,7 +73,7 @@ public sealed class WindowsTopLevelWindowRectProvider : IWindowRectProvider, IWi
         var windows = new List<WindowRectWithSource>();
 
         // DPI補正（Unity Screen座標に寄せる）
-        float dpiScale = WindowsExplorerUtility.GetDPIScale();
+        float dpiScale = WindowsAPI.GetDPIScale();
         dpiScale = Mathf.Max(0.01f, dpiScale);
 
         // EnumWindowsを使って可視ウィンドウを列挙

@@ -11,15 +11,10 @@ using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.Localization.Settings;
 using Unity.Logging;
 
 public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 {
-    [Header("Animator")]
-    [SerializeField] private bool createAnimatorIfMissing = true;
-    [SerializeField] private bool createGenericAvatarIfMissing = true;
-
     [Header("Startup Order")]
     [SerializeField] private BackendManager backendManager;
     [SerializeField] private float backendPollIntervalSeconds = 0.1f;
@@ -46,7 +41,6 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
     [Header("Window Exclusions")]
     [SerializeField] private float gravityPixelsPerSec2 = 2800f;
     [SerializeField] private float groundedEpsilonPixels = 0.5f;
-    [SerializeField] private float initialFallSpeedPixelsPerSec = 0f;
     [SerializeField] private float maxFallSpeedPixelsPerSec = 6000f;
     [SerializeField] private int supportWindowLookupGraceFrames = 15;
     [SerializeField] private UniWindowMoveHandle uniWindowMoveHandle;
@@ -76,13 +70,6 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
     [Header("Facing")]
     [SerializeField] private float faceLeftYaw = -90f;
     [SerializeField] private float faceRightYaw = 90f;
-
-    public enum GroundAction
-    {
-        Idle = 0,
-        Sit = 1,
-        Walk = 2,
-    }
 
 
     public Animator ModelAnimator => _modelAnimator;
@@ -262,7 +249,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         _animatorSync.SetNextGroundAction(_currentAction);
         _animatorSync.SetShouldGoNext(false);
 
-        _fallSpeedPixelsPerSec = Mathf.Max(0f, initialFallSpeedPixelsPerSec);
+        _fallSpeedPixelsPerSec = 0f;
         IsGrounded = false;
         _wasGroundedLastState = IsGrounded;
         _virtualScreenY = 0f;
@@ -886,12 +873,12 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
             _modelContainer.transform.rotation = Quaternion.Euler(_modelContainer.transform.rotation.eulerAngles);
 
             _modelAnimator = _modelContainer.GetComponentInChildren<Animator>();
-            if (_modelAnimator == null && createAnimatorIfMissing)
+            if (_modelAnimator == null)
             {
                 _modelAnimator = _spawnedModel.AddComponent<Animator>();
             }
 
-            if (_modelAnimator != null && createGenericAvatarIfMissing && _modelAnimator.avatar == null)
+            if (_modelAnimator != null && _modelAnimator.avatar == null)
             {
                 var generatedAvatar = CreateAvatarFromModel(_spawnedModel);
                 if (generatedAvatar != null)
@@ -2072,7 +2059,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         float best = 0f;
 
-        if (NativeWindowApi.TryGetTaskbarRect(out var taskbarRect))
+        if (WindowsAPI.TryGetTaskbarRect(out var taskbarRect))
         {
             float nativeRectY = Mathf.Ceil(taskbarRect.yMax);
             if (nativeRectY > 0f)
@@ -2083,7 +2070,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 
         if (WindowsAPI.TryGetWorkArea(out var workArea))
         {
-            float dpiScale = Mathf.Max(0.01f, WindowsExplorerUtility.GetDPIScale());
+            float dpiScale = Mathf.Max(0.01f, WindowsAPI.GetDPIScale());
 
             float rawY = Mathf.Ceil(Screen.height - workArea.bottom);
             if (rawY > best)
@@ -2259,15 +2246,15 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         IntPtr currentHwnd = WindowsAPI.GetCurrentWindowHandle();
-    IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
-    bool isDominantForeground = foregroundHwnd != IntPtr.Zero
+        IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
+        bool isDominantForeground = foregroundHwnd != IntPtr.Zero
                     && foregroundHwnd != currentHwnd
                     && !IsExcludedWindowFromFullscreenOcclusion(foregroundHwnd)
                     && WindowsAPI.IsWindowVisible(foregroundHwnd)
                     && !WindowsAPI.IsWindowMinimized(foregroundHwnd)
-                    && (NativeWindowApi.IsWindowMaximized(foregroundHwnd) || NativeWindowApi.IsWindowFullscreen(foregroundHwnd));
-    WindowsAPI.RECT foregroundRect = default;
-    if (isDominantForeground)
+                    && (WindowsAPI.IsWindowMaximized(foregroundHwnd) || WindowsAPI.IsWindowFullscreen(foregroundHwnd));
+        WindowsAPI.RECT foregroundRect = default;
+        if (isDominantForeground)
     {
         isDominantForeground = WindowsAPI.GetWindowRect(foregroundHwnd, out foregroundRect);
     }
@@ -2275,7 +2262,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         float bestGap = float.MaxValue;
         bool isFound = false;
 
-        var windows = WindowsExplorerUtility.GetTopLevelWindows();
+        var windows = WindowsAPI.GetTopLevelWindows();
         for (int i = 0; i < windows.Count; i++)
         {
             var info = windows[i];
@@ -2309,7 +2296,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
             }
 
             if (isDominantForeground
-                && !NativeWindowApi.AreSameRootOwnerWindow(foregroundHwnd, hWnd)
+                && !WindowsAPI.AreSameRootOwnerWindow(foregroundHwnd, hWnd)
                 && currentCenterX >= foregroundRect.left
                 && currentCenterX <= foregroundRect.right
                 && foregroundRect.bottom > rect.top)
@@ -2319,7 +2306,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 
             int probeX = Mathf.Clamp(Mathf.RoundToInt(currentCenterX), rect.left + 1, rect.right - 1);
             int probeY = Mathf.Clamp(rect.top + 1, rect.top, rect.bottom - 1);
-            IntPtr topWindowAtProbe = NativeWindowApi.GetWindowFromScreenPoint(probeX, probeY);
+            IntPtr topWindowAtProbe = WindowsAPI.GetWindowFromScreenPoint(probeX, probeY);
 
             if (topWindowAtProbe == currentHwnd)
             {
@@ -2332,7 +2319,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 
             if (topWindowAtProbe != IntPtr.Zero
                 && topWindowAtProbe != currentHwnd
-                && !NativeWindowApi.AreSameRootOwnerWindow(topWindowAtProbe, hWnd))
+                && !WindowsAPI.AreSameRootOwnerWindow(topWindowAtProbe, hWnd))
             {
                 continue;
             }
@@ -2553,7 +2540,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
             IntPtr currentHwnd = WindowsAPI.GetCurrentWindowHandle();
-            IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
+            IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
 
             if (foregroundHwnd != IntPtr.Zero && foregroundHwnd != currentHwnd)
             {
@@ -2642,7 +2629,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
             IntPtr currentHwnd = WindowsAPI.GetCurrentWindowHandle();
-            IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
+            IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
             IntPtr targetHwnd = IntPtr.Zero;
             if (groundSurfaceType == GroundSurfaceType.WindowTop)
             {
@@ -2655,7 +2642,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
                                         && WindowsAPI.IsWindowVisible(foregroundHwnd)
                                         && !WindowsAPI.IsWindowMinimized(foregroundHwnd);
 
-                targetHwnd = canUseForeground ? foregroundHwnd : NativeWindowApi.GetTaskbarHandle();
+                targetHwnd = canUseForeground ? foregroundHwnd : WindowsAPI.GetTaskbarHandle();
                 if (canUseForeground)
                 {
                     Log.Info($"[CharacterManager] ZOrder landing target switched to foreground. target=0x{foregroundHwnd.ToInt64():X}");
@@ -2817,7 +2804,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         }
 
         IntPtr currentHwnd = WindowsAPI.GetCurrentWindowHandle();
-        IntPtr foregroundHwnd = NativeWindowApi.GetForegroundWindowHandle();
+        IntPtr foregroundHwnd = WindowsAPI.GetForegroundWindowHandle();
         if (foregroundHwnd == IntPtr.Zero || foregroundHwnd == currentHwnd || foregroundHwnd == supportHwnd)
         {
             return false;
@@ -2857,8 +2844,8 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
         float overlapWidth = Mathf.Max(0f, overlapRight - overlapLeft);
         bool largeOccluder = overlapWidth >= supportWidth * 0.75f;
 
-        bool dominantWindow = NativeWindowApi.IsWindowMaximized(foregroundHwnd)
-                              || NativeWindowApi.IsWindowFullscreen(foregroundHwnd)
+        bool dominantWindow = WindowsAPI.IsWindowMaximized(foregroundHwnd)
+                      || WindowsAPI.IsWindowFullscreen(foregroundHwnd)
                               || largeOccluder;
         if (!dominantWindow)
         {
@@ -2887,7 +2874,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
             return false;
         }
 
-        var candidateWindows = WindowsExplorerUtility.GetTopLevelWindows();
+        var candidateWindows = WindowsAPI.GetTopLevelWindows();
         for (int i = 0; i < candidateWindows.Count; i++)
         {
             var info = candidateWindows[i];
@@ -3038,7 +3025,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         float scale = Mathf.Max(0.01f, mouseDeltaScaleMultiplier);
-        scale *= Mathf.Max(0.01f, WindowsExplorerUtility.GetDPIScale());
+        scale *= Mathf.Max(0.01f, WindowsAPI.GetDPIScale());
 
         return MoveWindowByPixels(mouseDeltaX * scale, mouseDeltaY * scale);
 #else

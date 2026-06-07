@@ -106,7 +106,7 @@ public class TestGroundHeightSource : MonoBehaviour
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         float best = 0f;
 
-        if (NativeWindowApi.TryGetTaskbarRect(out var taskbarRect))
+        if (WindowsAPI.TryGetTaskbarRect(out var taskbarRect))
         {
             float nativeRectY = Mathf.Ceil(taskbarRect.yMax);
             if (nativeRectY > 0f)
@@ -118,7 +118,7 @@ public class TestGroundHeightSource : MonoBehaviour
 
         if (WindowsAPI.TryGetWorkArea(out var workArea))
         {
-            float dpiScale = Mathf.Max(0.01f, WindowsExplorerUtility.GetDPIScale());
+            float dpiScale = Mathf.Max(0.01f, WindowsAPI.GetDPIScale());
 
             float rawY = Mathf.Ceil(Screen.height - workArea.bottom);
             if (rawY > best)

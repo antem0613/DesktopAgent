@@ -8,8 +8,12 @@ public class SwitchMicrophoneIcon : MonoBehaviour
 {
     [SerializeField] private Sprite microphoneOnIcon;
     [SerializeField] private Sprite microphoneOffIcon;
+    [SerializeField] private Sprite textInputMarkSprite;
 
     [SerializeField] private Image microphoneImage;
+
+    private bool _isMicrophoneOn;
+    private bool _isTextInputMarkVisible;
 
     /// <summary>
     ///  マイクのアイコンを切り替える
@@ -17,6 +21,29 @@ public class SwitchMicrophoneIcon : MonoBehaviour
     /// <param name="isMicrophoneOn"></param>
     public void SwitchIcon(bool isMicrophoneOn)
     {
-        microphoneImage.sprite = isMicrophoneOn ? microphoneOnIcon : microphoneOffIcon;
+        _isMicrophoneOn = isMicrophoneOn;
+        RefreshSprite();
+    }
+
+    public void SetTextInputMarkVisible(bool isVisible)
+    {
+        _isTextInputMarkVisible = isVisible;
+        RefreshSprite();
+    }
+
+    private void RefreshSprite()
+    {
+        if (microphoneImage == null)
+        {
+            return;
+        }
+
+        if (_isTextInputMarkVisible && textInputMarkSprite != null)
+        {
+            microphoneImage.sprite = textInputMarkSprite;
+            return;
+        }
+
+        microphoneImage.sprite = _isMicrophoneOn ? microphoneOnIcon : microphoneOffIcon;
     }
 }

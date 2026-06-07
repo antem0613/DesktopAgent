@@ -16,8 +16,8 @@
 
     public const string UIProcessExecutablePath = "UI/DesktopAgentUI.exe";
     public const string UIProcessName = "DesktopAgentUI";
-    public const string CharacterStartupSceneName = "Test";
-    public const string UIStartupSceneName = "Test UI";
+    public const string CharacterStartupSceneName = "Character";
+    public const string UIStartupSceneName = "UI";
     public const int UIHealthCheckUdpPort = 38181;
     public const string UIHealthCheckPingMessage = "desktopagent-ui-ping";
     public const string UIHealthCheckPongMessage = "desktopagent-ui-pong";
