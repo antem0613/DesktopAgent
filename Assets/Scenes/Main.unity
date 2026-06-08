@@ -198,6 +198,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &159724809
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 159724811}
+  - component: {fileID: 159724810}
+  m_Layer: 0
+  m_Name: CompanionController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &159724810
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159724809}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17de204d5f307514aa232841b9abbc73, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CompanionController
+--- !u!4 &159724811
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 159724809}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &736886059 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 2616442091882492992, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
@@ -593,30 +637,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackendManager
   appUserModelId: DesktopAgent.UI
-  uiHealthCheckIntervalSeconds: 2
-  uiHealthCheckStartupGraceSeconds: 3
-  uiHealthCheckSuccessThreshold: 1
-  uiHealthCheckMissThreshold: 2
-  uiHealthCheckInitialValidationTimeoutSeconds: 12
-  autoRestartUiProcessOnHealthCheckFailure: 1
-  uiHealthCheckRestartCooldownSeconds: 8
-  uiHealthCheckUdpHost: 127.0.0.1
-  uiHealthCheckUdpPort: 38181
-  uiHealthCheckUdpTimeoutMs: 180
-  uiHealthCheckConnectionResetGraceSeconds: 0.6
-  uiHealthCheckPingMessage: desktopagent-ui-ping
-  uiHealthCheckPongMessage: desktopagent-ui-pong
-  uiForceTopmostMessage: desktopagent-ui-force-topmost
-  uiForceTopmostAckMessage: desktopagent-ui-force-topmost-ack
-  uiOpenMenuMessage: desktopagent-ui-open-menu
-  uiOpenMenuAckMessage: desktopagent-ui-open-menu-ack
-  uiMenuDialog: {fileID: 1081980837}
-  uiLoadingShowMessage: desktopagent-ui-loading-show
-  uiLoadingHideMessage: desktopagent-ui-loading-hide
-  uiLoadingAckMessage: desktopagent-ui-loading-ack
-  uiLoadingIndicatorObject: {fileID: 1429398786}
-  enforceUiTopmost: 0
-  uiTopmostEnforceIntervalSeconds: 0.1
+  menuDialog: {fileID: 0}
+  loadingIndicator: {fileID: 0}
+  topmostEnforceInterval: 1
 --- !u!4 &873881036
 Transform:
   m_ObjectHideFlags: 0
@@ -626,7 +649,7 @@ Transform:
   m_GameObject: {fileID: 873881034}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 461.00595, y: 371.72568, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1594,17 +1617,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 31629c56f6f83234a90f6296f902f9c0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1081980837 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 8092120687019963323, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
-  m_PrefabInstance: {fileID: 1081980832}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 736886059}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ae9dd34775a14a408cc7a9970d713bca, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::MenuDialog
 --- !u!114 &1081980845
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1961,3 +1973,4 @@ SceneRoots:
   - {fileID: 1046527345}
   - {fileID: 114685657}
   - {fileID: 873881036}
+  - {fileID: 159724811}

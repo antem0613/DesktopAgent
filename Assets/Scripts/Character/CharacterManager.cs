@@ -2598,8 +2598,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
             try
             {
                 var backendManager = FindFirstObjectByType<BackendManager>();
-                if (backendManager != null
-                    && backendManager.TryRaiseUiWindow())
+                if (backendManager != null)
                 {
                     _owner.LogUiFrontRequestIfChanged("direct", reason);
                     return;

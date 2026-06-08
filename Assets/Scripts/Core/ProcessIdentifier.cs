@@ -101,7 +101,6 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
             case "Main":
                 if (!TryAcquireMutex("DesktopAgent_Main"))
                 {
-                    UnityEngine.Debug.LogError("Failed to acquire mutex for main process. Another instance might be running.");
                     Application.Quit();
                 }
                 _processType = ProcessType.Main;
@@ -224,7 +223,7 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
             out PROCESS_INFORMATION pi);
 
             return true;
-        } catch (Exception ex)
+        } catch
         {
             return false;
         }
