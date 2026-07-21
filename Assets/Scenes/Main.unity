@@ -638,7 +638,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BackendManager
   appUserModelId: DesktopAgent.UI
   menuDialog: {fileID: 0}
-  loadingIndicator: {fileID: 0}
+  loadingIndicator: {fileID: 1429398786}
   topmostEnforceInterval: 1
 --- !u!4 &873881036
 Transform:

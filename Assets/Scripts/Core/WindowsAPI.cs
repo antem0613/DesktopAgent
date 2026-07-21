@@ -278,6 +278,24 @@ public static class WindowsAPI
             SWP_NOZORDER | SWP_NOACTIVATE);
     }
 
+    public static bool TryMoveCurrentWindowToPrimaryDisplay()
+    {
+        IntPtr hWnd = GetCurrentWindowHandle();
+        if (hWnd == IntPtr.Zero)
+        {
+            return false;
+        }
+
+        if (!TryGetPrimaryDisplayWorkArea(out RECT workArea))
+        {
+            return false;
+        }
+
+        int width = Math.Max(1, workArea.right - workArea.left);
+        int height = Math.Max(1, workArea.bottom - workArea.top);
+        return SetCurrentWindowRect(workArea.left, workArea.top, width, height);
+    }
+
     public static bool MoveCurrentWindowBy(int deltaX, int deltaY)
     {
         IntPtr hWnd = GetCurrentWindowHandle();
@@ -509,6 +527,12 @@ public static class WindowsAPI
         workRect = ToScreenRect(info.rcWork);
         deviceString = info.szDevice ?? string.Empty;
         return true;
+    }
+
+    public static bool TryGetPrimaryDisplayWorkArea(out RECT workArea)
+    {
+        workArea = default;
+        return SystemParametersInfo(SPI_GETWORKAREA, 0, out workArea, 0);
     }
 
     public static List<string> GetAllMonitorDeviceStrings()
