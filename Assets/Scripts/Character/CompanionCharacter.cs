@@ -19,6 +19,8 @@ public enum GroundAction
 
 public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 {
+    const string LogPrefix = "[CompanionCharacter]";
+
     //重みと行動の範囲をもった行動定義
     [SerializeField] ActionState idleAction = new ActionState(1f, 1.5f, 3.5f);
     [SerializeField] ActionState sitAction = new ActionState(1f, 2.0f, 4.5f);
@@ -58,6 +60,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     GameObject _modelContainer;
     GameObject _spawnedModel;
     bool _isAnimatorInitialized;
+    bool _isCharacterStartupInitialized;
     bool _isTimerActive;
     bool _hasPendingAction;
     bool _isWaitingLanding;
@@ -194,31 +197,50 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     {
         base.Awake();
         _cancellationTokenSource = new CancellationTokenSource();
+        UnityEngine.Debug.Log($"{LogPrefix} Awake");
     }
 
     void Start()
     {
-        //キャラクターをスポーンさせる
-        Spawn();
+        UnityEngine.Debug.Log($"{LogPrefix} Start");
+        ResetCharacterRuntimeState();
 
-        InitializeAnimatorSync();
+        bool shouldSpawnDefault = ShouldSpawnDefaultCharacter();
+        UnityEngine.Debug.Log($"{LogPrefix} ShouldSpawnDefaultCharacter={shouldSpawnDefault}");
 
-        CaptureFrontYaw();
+        if (shouldSpawnDefault)
+        {
+            Spawn();
+        }
+    }
 
-        RegisterInputEvents();
+    bool ShouldSpawnDefaultCharacter()
+    {
+        var processIdentifier = ProcessIdentifier.Instance;
 
+        if (processIdentifier == null)
+        {
+            UnityEngine.Debug.LogWarning($"{LogPrefix} ProcessIdentifier is null. Default character spawn will be used.");
+            return true;
+        }
+
+        return processIdentifier.OptionVal == 0;
+    }
+
+    void ResetCharacterRuntimeState()
+    {
         _lastScrollFrame = -1;
         _hasScrollPending = false;
         _hasRightClickPending = false;
-
         _pendingScroll = 0f;
         _pendingScreenPosition = Vector2.zero;
         _pendingRightClickPosition = Vector2.zero;
         _isWindowResizeReady = false;
-        
+
         _currentAction = GroundAction.Idle;
+        _pendingAction = GroundAction.Idle;
         _hasPendingAction = false;
-        _isWaitingLanding= false;
+        _isWaitingLanding = false;
         _isTimerActive = false;
         _currentActionLimit = 0f;
         _isWalkRequested = false;
@@ -228,30 +250,22 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         _offsetPosition = Vector3.zero;
         _lastYOffset = 0f;
 
-        _animatorSync.SetFalling(false);
-        _animatorSync.SetDragging(false);
-        _animatorSync.SetNextGroundAction(_currentAction);
-        _animatorSync.SetShouldGoNext(false);
-
         _fallSpeed = 0f;
         IsGrounded = false;
         _virtualScreenY = 0f;
         _hasVirtualScreenY = false;
         _fallRuntime.IsGravityPaused = false;
         _fallRuntime.IsDragDriven = false;
+        _fallRuntime.HasFollowingWindow = false;
         _lastGroundSurfaceType = GroundSurfaceType.None;
         _followWindow = IntPtr.Zero;
         _lastFollowWindowRect = default;
-        _fallRuntime.HasFollowingWindow = false;
         _windowOffsetX = 0f;
         _wasSupportFocused = false;
         _lastFocusedHwnd = IntPtr.Zero;
         _zOrderRuntime.IsTopmostSupport = false;
+        _zOrderRuntime.IsTopmostDrag = false;
         _supportFailFrames = 0;
-
-        SetDraggingState(false);
-        SyncOnWindowState(false);
-        SetFallingState(false);
 
         _isWalkActive = false;
         _isWaitingTransition = false;
@@ -259,6 +273,30 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         _hasYawCaptured = false;
         _frontYaw = 0f;
         _blockedMoveFrames = 0;
+        _isCharacterStartupInitialized = false;
+        _isAnimatorInitialized = false;
+    }
+
+    void InitializeCharacterStartupState()
+    {
+        if (_isCharacterStartupInitialized || _animatorSync == null)
+        {
+            return;
+        }
+
+        CaptureFrontYaw();
+        RegisterInputEvents();
+
+        _animatorSync.SetFalling(false);
+        _animatorSync.SetDragging(false);
+        _animatorSync.SetNextGroundAction(_currentAction);
+        _animatorSync.SetShouldGoNext(false);
+
+        SetDraggingState(false);
+        SyncOnWindowState(false);
+        SetFallingState(false);
+
+        _isCharacterStartupInitialized = true;
     }
 
     ///<summary>
@@ -270,7 +308,13 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     bool Spawn()
     {
         //すでにスポーン中なら離脱
-        if (_isSpawning) return false;
+        if (_isSpawning)
+        {
+            UnityEngine.Debug.Log($"{LogPrefix} Spawn skipped because spawning is already in progress.");
+            return false;
+        }
+
+        UnityEngine.Debug.Log($"{LogPrefix} Spawn requested.");
 
         //非同期でスポーン処理を開始
         SpawnAsync().Forget();
@@ -283,18 +327,24 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     async UniTaskVoid SpawnAsync()
     {
         _isSpawning = true;
+        UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync started.");
 
         try
         {
             if (!TryResolveReferences())
             {
+                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync aborted. Failed to resolve references.");
                 return;
             }
 
             ClearCharacter();
 
             var loadedModelInfo = await LoadCharacterModel.LoadModel(_cancellationTokenSource.Token);
-            if (loadedModelInfo == null || loadedModelInfo.Model == null) return;
+            if (loadedModelInfo == null || loadedModelInfo.Model == null)
+            {
+                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync aborted. Model load returned null.");
+                return;
+            }
 
             _spawnedModel = loadedModelInfo.Model;
             _spawnedModel.name = _spawnedModel.name + "_Model";
@@ -325,14 +375,22 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
                 if (generatedAvatar != null)
                 {
                     _modelAnimator.avatar = generatedAvatar;
+                    UnityEngine.Debug.Log($"{LogPrefix} Generated avatar assigned: {generatedAvatar.name}");
                 }
             }
 
+            UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync completed. model={_spawnedModel.name}");
+
         } catch (OperationCanceledException)
         {
+            UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync canceled.");
+        } catch (Exception ex)
+        {
+            UnityEngine.Debug.LogError($"{LogPrefix} SpawnAsync failed: {ex}");
         } finally
         {
             _isSpawning = false;
+            UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync finished. isSpawning={_isSpawning}");
         }
     }
 
@@ -437,6 +495,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             if (!_isAnimatorInitialized) return;
         }
 
+        InitializeCharacterStartupState();
+
         ActionDecisionUpdate();
 
         WalkUpdate();
@@ -459,11 +519,14 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         if (ModelAnimator == null)
         {
             _animatorSync = null;
+            UnityEngine.Debug.LogWarning($"{LogPrefix} InitializeAnimatorSync failed. ModelAnimator is null.");
 
             return false;
         }
 
         LoadVRM.UpdateAnimationController(ModelAnimator);
+        _animatorSync = new AnimatorSync(ModelAnimator);
+        UnityEngine.Debug.Log($"{LogPrefix} AnimatorSync initialized.");
 
         _isAnimatorInitialized = true;
 
@@ -1430,6 +1493,19 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             _hasScrollPending = false;
             _pendingScroll = 0f;
             _pendingScreenPosition = Vector2.zero;
+
+            if (Mathf.Approximately(scroll, 0f))
+            {
+                var mouse = Mouse.current;
+
+                if (mouse == null) return;
+
+                scroll = mouse.scroll.ReadValue().y;
+
+                if (Mathf.Approximately(scroll, 0f)) return;
+
+                screenPosition = mouse.position.ReadValue();
+            }
         } 
         else
         {
@@ -1446,7 +1522,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
         if (!IsPointerOnCharacter(screenPosition)) return;
 
-        float notch = scroll / 120f;
+        float notch = scroll / 120f * scrollMultiplier;
 
         if (Mathf.Approximately(notch, 0f))
         {
@@ -1572,12 +1648,14 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
     public void OnApplicationQuit()
     {
+        UnityEngine.Debug.Log($"{LogPrefix} OnApplicationQuit");
         _cancellationTokenSource?.Cancel();
         UnregisterInputEvents();
     }
 
     void OnDestroy()
     {
+        UnityEngine.Debug.Log($"{LogPrefix} OnDestroy");
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = null;
@@ -1889,7 +1967,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
         if (mouse == null) return;
 
-        _pendingScroll = context.ReadValue<Vector2>().y;
+        _pendingScroll = mouse.scroll.ReadValue().y;
         _pendingScreenPosition = mouse.position.ReadValue();
         _hasScrollPending = true;
     }
@@ -2263,19 +2341,55 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     {
         if (Application.isEditor)
         {
-            return MoveTransform(deltaX, deltaY);
+            bool movedInEditor = MoveTransform(deltaX, deltaY);
+
+            if (movedInEditor)
+            {
+                UpdateFallingStateFromWindowMove(deltaY);
+            }
+
+            return movedInEditor;
         }
 
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
         int dx = Mathf.RoundToInt(deltaX);
         int dy = Mathf.RoundToInt(-deltaY);
-        
-        if (dx == 0 && dy == 0) return true;
 
-        return WindowsAPI.MoveCurrentWindowBy(dx, dy);
+        if (dx == 0 && dy == 0)
+        {
+            UpdateFallingStateFromWindowMove(0f);
+            return true;
+        }
+
+        bool moved = WindowsAPI.MoveCurrentWindowBy(dx, dy);
+
+        if (moved)
+        {
+            float appliedDeltaY = -dy;
+            UpdateFallingStateFromWindowMove(appliedDeltaY);
+        }
+
+        return moved;
+
 #else
         return false;
 #endif
+    }
+
+    /// <summary>
+    /// 実際のウィンドウ移動量に応じて落下状態を同期する。
+    /// 下方向への移動が発生したときのみ落下状態をtrueにする。
+    /// </summary>
+    /// <param name="appliedDeltaY">実際に適用されたY方向移動量</param>
+    void UpdateFallingStateFromWindowMove(float appliedDeltaY)
+    {
+        if (_animatorSync == null || IsDragging)
+        {
+            return;
+        }
+
+        bool isMovingDown = appliedDeltaY < -0.001f;
+        SetFallingState(isMovingDown);
     }
 
     /// <summary>

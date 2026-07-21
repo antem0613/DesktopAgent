@@ -25,7 +25,7 @@ Direct3D:
 [Physics::Module] Threading Mode: Multi-Threaded
 <RI> Initializing input.
 Using Windows.Gaming.Input
-UnloadTime: 0.369400 ms
+UnloadTime: 0.509300 ms
 [ProcessIdentifier] Awake. args=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -52,6 +52,34 @@ UnityEngine.Debug:Log(Object)
 ProcessIdentifier:TryAcquireLockFile(String)
 ProcessIdentifier:Awake()
 
+[ProcessIdentifier] Main lock file acquired in no-arg startup. Starting character process.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:Awake()
+
+[ProcessIdentifier] TryStartCharacterProcess called optionVal=0, currentType=Main
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+ProcessIdentifier:Awake()
+
+[ProcessIdentifier] Launching character process. file=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe, cwd=F:\DesktopAgent\build\DesktopAgent, args=-logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+ProcessIdentifier:Awake()
+
+[ProcessIdentifier] CreateProcess result=True, commandLine="F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe" -logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0, pid=162684
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryCreateProcess(ProcessStartInfo)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+ProcessIdentifier:Awake()
+
 [ProcessIdentifier] ProcessType=Main. Loading scene=Main
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -59,7 +87,7 @@ UnityEngine.Debug:Log(Object)
 ProcessIdentifier:Awake()
 
 Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 0.032300 ms
+UnloadTime: 0.036000 ms
 primary color loaded : RGBA(1.000, 1.000, 1.000, 1.000)
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -95,7 +123,14 @@ System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start(TStateMachine&)
 Whisper.WhisperManager:Awake()
 
 Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 5599.
-Total: 2.107800 ms (FindLiveObjects: 0.207300 ms CreateObjectMapping: 0.071100 ms MarkObjects: 1.810200 ms  DeleteObjects: 0.018900 ms)
+Total: 3.102800 ms (FindLiveObjects: 0.295700 ms CreateObjectMapping: 0.106100 ms MarkObjects: 2.664900 ms  DeleteObjects: 0.035900 ms)
+
+[ProcessIdentifier][MainWindowPlacement] Moved main window to primary display on attempt=1.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+<PlaceMainWindowOnPrimaryDisplayRoutine>d__26:MoveNext()
+UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
 Trying to load Whisper model from buffer...
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
@@ -119,7 +154,7 @@ UnityEngine.Rendering.RenderPipelineAsset:InternalCreatePipeline()
 UnityEngine.Rendering.RenderPipelineManager:TryPrepareRenderPipeline(RenderPipelineAsset)
 UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal(RenderPipelineAsset, IntPtr, Object)
 
-[2026/07/21 06:49:54.856] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
+[2026/07/21 09:36:42.369] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
 ApplicationSettings:LoadSettings()
 ApplicationSettings:.ctor()
 System.Reflection.RuntimeConstructorInfo:InternalInvoke(Object, Object[], Boolean)
@@ -130,16 +165,16 @@ ShortcutBindingService:LoadFromSettings()
 ShortcutBindingService:GetShortcuts()
 ShortcutBindingPanel:BuildList()
 
-[2026/07/21 06:49:55.313] INFO | [STT] Applied VAD settings. mic.useVad=True, whisper.useVad=True, vadThd=1, vadFreqThd=100, vadLastSec=1.25, vadContextSec=30, vadUpdateRateSec=0.1
+[2026/07/21 09:36:42.845] INFO | [STT] Applied VAD settings. mic.useVad=True, whisper.useVad=True, vadThd=1, vadFreqThd=100, vadLastSec=1.25, vadContextSec=30, vadUpdateRateSec=0.1
 STTManager:ApplyMicSensitivity()
 <StartSTTAsync>d__117:MoveNext()
-STTManager:Start()
+STTManager:StartSTT()
 
-[2026/07/21 06:49:55.313] INFO | [STT] Startup microphone device: default, frequency=16000
+[2026/07/21 09:36:42.845] INFO | [STT] Startup microphone device: default, frequency=16000
 <StartSTTAsync>d__117:MoveNext()
-STTManager:Start()
+STTManager:StartSTT()
 
-Whisper model is loaded, total time: 192 ms.
+Whisper model is loaded, total time: 195 ms.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
@@ -151,7 +186,7 @@ System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
 System.Threading.Tasks.Task:ExecuteEntry(Boolean)
 System.Threading.ThreadPoolWorkQueue:Dispatch()
 
-[2026/07/21 06:49:55.571] INFO | [STT] Whisper STT test started. mode=TextInput, micRecording=False
+[2026/07/21 09:36:43.141] INFO | [STT] Whisper STT test started. mode=TextInput, micRecording=False
 <StartSTTAsync>d__117:MoveNext()
 Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
 <CreateStreamAsync>d__156:MoveNext()
@@ -173,7 +208,7 @@ UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 ProcessIdentifier:OnApplicationQuit()
 
-[2026/07/21 06:50:09.867] INFO | [STT] Whisper STT stopped.
+[2026/07/21 09:37:08.998] INFO | [STT] Whisper STT stopped.
 STTManager:StopSTT()
 
 [Physics::Module] Cleanup current backend.

@@ -6,6 +6,7 @@
     "com.dbrizov.naughtyattributes": "https://github.com/dbrizov/NaughtyAttributes.git#upm",
     "com.frozenstorminteractive.assimp.macos": "4.1.0",
     "com.frozenstorminteractive.assimp.windows": "4.1.0",
+    "com.github-glitchenzo.nugetforunity": "https://github.com/GlitchEnzo/NuGetForUnity.git?path=/src/NuGetForUnity",
     "com.hecomi.ulipsync": "https://github.com/hecomi/uLipSync.git#upm",
     "com.kirurobo.uniwinc": "https://github.com/kirurobo/UniWindowController.git#upm",
     "com.unity.burst": "1.8.25",
