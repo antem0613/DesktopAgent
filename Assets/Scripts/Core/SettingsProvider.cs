@@ -428,7 +428,7 @@ public class SettingsProvider : Singleton<SettingsProvider>
     [Serializable]
     private class CharacterSection
     {
-        public string modelPath = "default.vrm";
+        public string modelPath = Constant.DefaultVrmFileName;
         public float scale = 3f;
         public float positionX;
         public float positionY;

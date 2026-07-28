@@ -8,9 +8,10 @@ using UnityEngine;
 public class CharacterSettings
 {
     /// <summary>
-    /// モデルのパス
+    /// キャラクタープレハブの Resources 相対パス（例: "DefaultModel/DefaultModel"）。
+    /// 旧形式（.vrm ファイルパス）が保存されている場合はスポーン時にデフォルトへフォールバックする。
     /// </summary>
-    public string ModelPath { get; set; } = "default.vrm";
+    public string ModelPath { get; set; } = Constant.DefaultVrmFileName;
 
     /// <summary>
     /// モデルのスケール（0.1 ～ 10.0）

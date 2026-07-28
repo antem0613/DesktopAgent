@@ -1,47 +1,34 @@
-﻿using System.IO;
-using System.Threading;
+﻿using System.Threading;
 using UnityEngine;
 using Cysharp.Threading.Tasks;
-using SFB;
 using TMPro;
 using Unity.Logging;
 using UnityEngine.UI;
 
+// サムネイル取得用 VRM メタロード: 後から実装するためコメントアウト保持
+// using System.IO;
+// using SFB;
+
 /// <summary>
-/// モデルの追加と選択ダイアログ
+/// キャラクター選択ダイアログ。
+/// Resources/Characters/ 以下の CompanionDescripter 付きプレハブを列挙して表示する。
 /// </summary>
 public class SelectModelDialog : DialogBase
 {
-    /// <summary>
-    /// ModelInfoのPrefab
-    /// </summary>
-    [SerializeField] private ModelInfo modelInfoPrefab;
+    private const string LogPrefix = "[SelectModelDialog]";
 
-    /// <summary>
-    /// ScrollViewのContent
-    /// </summary>
+    /// <summary>Resources 内のキャラクターフォルダパス</summary>
+    private const string CharactersResourcePath = "Characters";
+
+    [SerializeField] private ModelInfo modelInfoPrefab;
     [SerializeField] private Transform contentTransform;
 
-    /// <summary>
-    /// モデル追加のInputField
-    /// </summary>
+    // SDK インポート UI: 後から実装するためコメントアウト保持
     [SerializeField] private TMP_InputField addModelPathInputField;
-
-    /// <summary>
-    /// モデル追加のButton
-    /// </summary>
     [SerializeField] private Button addModelButton;
-
-    /// <summary>
-    /// モデルのパスを開くButton
-    /// </summary>
     [SerializeField] private Button openModelPathButton;
 
-    /// <summary>
-    /// 現在ロード中または表示中のモデル
-    /// </summary>
     private ModelInfo _currentModel;
-
     private CancellationTokenSource _cancellationTokenSource;
 
     private protected override void Awake()
@@ -52,159 +39,198 @@ public class SelectModelDialog : DialogBase
 
     private async void Start()
     {
-        await AddDefaultModelList();
-        // モデルリストをロード
-        LoadModelListAsync().Forget();
+        AddDefaultModelEntry();
+        await LoadCharacterListAsync();
 
-        addModelButton.onClick.AddListener(AddModelFromPath);
-        openModelPathButton.onClick.AddListener(OpenFileBrowser);
+        // SDK インポートボタン: 後から実装するためスタブを登録
+        if (addModelButton != null) addModelButton.onClick.AddListener(OnAddModelButtonClicked);
+        if (openModelPathButton != null) openModelPathButton.onClick.AddListener(OnOpenPathButtonClicked);
     }
 
     /// <summary>
-    /// ファイルブラウザを開く
+    /// 現在選択中のキャラクタープレハブをリスト先頭に表示する。
+    /// プレハブや CompanionDescripter が見つからなくても中断しない。
     /// </summary>
-    private void OpenFileBrowser()
+    private void AddDefaultModelEntry()
     {
-        // 拡張子フィルターを設定（VRM ファイルのみ）
-        var extensions = new[]
+        string currentPath = ApplicationSettings.Instance?.Character?.ModelPath;
+        if (string.IsNullOrWhiteSpace(currentPath))
         {
-                new ExtensionFilter("VRM Files", "vrm"),
-                new ExtensionFilter("All Files", "*"),
-            };
+            currentPath = Constant.DefaultVrmFileName;
+        }
 
-        // 非同期でファイル選択ダイアログを開く
-        StandaloneFileBrowser.OpenFilePanelAsync("Open VRM File", "", extensions, false, (string[] paths) =>
+        GameObject prefab = Resources.Load<GameObject>(currentPath);
+        if (prefab == null)
         {
-            if (paths.Length > 0)
-            {
-                string selectedPath = paths[0];
-                Debug.Log("Selected file: " + selectedPath);
+            Log.Warning($"{LogPrefix} Default prefab not found at '{currentPath}'. Trying fallback.");
+            prefab = Resources.Load<GameObject>(Constant.DefaultVrmFileName);
+        }
 
-                // 選択したファイルパスを InputField に設定
-                addModelPathInputField.text = selectedPath;
-            }
-        });
-    }
-
-    /// <summary>
-    /// 外部パスからモデルを追加する
-    /// </summary>
-    private async void AddModelFromPath()
-    {
-        string path = addModelPathInputField.text;
-        if (string.IsNullOrEmpty(path))
+        if (prefab == null)
         {
-            Log.Error("Path is empty.");
+            Log.Warning($"{LogPrefix} No default character prefab found. Skipping default entry.");
             return;
         }
 
-        await AddModel(path);
+        var descriptr = prefab.GetComponent<CompanionDescripter>();
+        string displayName = descriptr != null ? descriptr.CharacterName : prefab.name;
 
-        addModelPathInputField.text = string.Empty; ;
-    }
-
-    /// <summary>
-    /// モデルリストを非同期でロードし、表示する
-    /// </summary>
-    private async UniTaskVoid LoadModelListAsync()
-    {
-        // StreamingAssetsフォルダ内のVRMファイルを取得
-        string streamingAssetsPath = Application.streamingAssetsPath;
-        string[] vrmFiles = Directory.GetFiles(streamingAssetsPath, "*.vrm", SearchOption.AllDirectories);
-
-        foreach (string vrmFile in vrmFiles)
-        {
-            await AddModel(vrmFile);
-        }
-    }
-
-    /// <summary>
-    /// モデルを追加する
-    /// </summary>
-    private async UniTask AddModel(string filePath)
-    {
-        // 非同期でメタデータを読み込むタスクを開始
-        var loadMetaTask = LoadVRM.LoadVrmMetaAsync(filePath);
-
-        // メインスレッドでModelInfoアイテムを生成
-        await UniTask.SwitchToMainThread();
+        // サムネイル: 後から実装
+        // Texture2D thumbnail = descriptr?.Thumbnail;
 
         var item = Instantiate(modelInfoPrefab, contentTransform);
-
-        item.Initialize("モデル情報を取得中...", null, () => OnModelSelected(item, filePath).Forget());
-
-        // 他の処理を続行し、メタデータの読み込みを待つ
-        var (modelName, thumbnail) = await loadMetaTask;
-
-        // メインスレッドでUIを更新
-        await UniTask.SwitchToMainThread();
-
-        // モデル情報を更新
-        item.UpdateModelInfo(modelName, thumbnail);
-
-        // 各ファイルの処理間で待機して、他の処理を行えるようにする
-        await UniTask.Yield();
-    }
-
-    /// <summary>
-    /// デフォルトのモデルリストを追加
-    /// </summary>
-    private async UniTask AddDefaultModelList()
-    {
-        // デフォルトのモデルリストを追加
-        await UniTask.SwitchToMainThread();
-        var item = Instantiate(modelInfoPrefab, contentTransform);
-        item.Initialize(CharacterManager.Instance.CurrentVrmInfo.ModelName,
-            CharacterManager.Instance.CurrentVrmInfo.ThumbnailTexture,
-            () => OnModelSelected(item).Forget());
+        string capturedPath = currentPath;
+        item.Initialize(displayName, null, () => OnModelSelected(item, capturedPath));
         _currentModel = item;
         _currentModel.SetSelected(true);
     }
 
     /// <summary>
-    /// モデルが選択されたときの処理
+    /// Resources/Characters/ 以下の CompanionDescripter 付きプレハブを列挙してリストに追加する。
     /// </summary>
-    /// <param name="modelInfo"></param>
-    /// <param name="path">選択されたモデルのパス</param>
-    private async UniTaskVoid OnModelSelected(ModelInfo modelInfo, string path = null)
+    private async UniTask LoadCharacterListAsync()
     {
-        // 選択中のモデルの場合は、処理をスキップ
-        if (modelInfo == _currentModel)
+        GameObject[] prefabs = null;
+        try
         {
+            prefabs = Resources.LoadAll<GameObject>(CharactersResourcePath);
+        } catch (System.Exception ex)
+        {
+            Log.Warning($"{LogPrefix} Failed to load character prefabs from Resources: {ex.Message}");
             return;
         }
+
+        if (prefabs == null || prefabs.Length == 0) return;
+
+        foreach (var prefab in prefabs)
+        {
+            if (prefab == null) continue;
+
+            var descriptr = prefab.GetComponent<CompanionDescripter>();
+            if (descriptr == null) continue;
+
+            await UniTask.SwitchToMainThread();
+
+            string resourcePath = $"{CharactersResourcePath}/{prefab.name}";
+            string displayName = descriptr.CharacterName;
+
+            // サムネイル: 後から実装
+            // Texture2D thumbnail = descriptr.Thumbnail;
+
+            var item = Instantiate(modelInfoPrefab, contentTransform);
+            string capturedPath = resourcePath;
+            item.Initialize(displayName, null, () => OnModelSelected(item, capturedPath));
+
+            // サムネイル更新: 後から実装
+            // item.UpdateModelInfo(displayName, thumbnail);
+
+            await UniTask.Yield();
+        }
+    }
+
+    /// <summary>
+    /// モデルが選択されたときの処理。キャラクタープロセスを新規起動する。
+    /// </summary>
+    private void OnModelSelected(ModelInfo modelInfo, string prefabPath = null)
+    {
+        if (modelInfo == _currentModel) return;
 
         modelInfo.SetSelected(true);
         _currentModel?.SetSelected(false);
         _currentModel = modelInfo;
 
-        LoadedVRMInfo model;
-        // 指定されたモデルをロード
-        if (path == null)
-        {
-            var defaultModel = await LoadVRM.LoadDefaultModel();
+        if (string.IsNullOrEmpty(prefabPath)) return;
 
-            model = new LoadedVRMInfo(defaultModel.gameObject, defaultModel.Vrm.Meta.Name, defaultModel.Vrm.Meta.Thumbnail);
-        } else
+        var controller = CompanionController.Instance;
+        if (controller == null)
         {
-            model = await LoadVRM.LoadModelAsync(path, _cancellationTokenSource.Token);
+            Log.Warning($"{LogPrefix} CompanionController not available. Cannot spawn character.");
+            return;
         }
 
-        if (model != null)
+        bool success = controller.SpawnCharacter(prefabPath);
+        if (!success)
         {
-            // CharacterManagerにモデルを渡す
-            Log.Debug("Model loaded: " + model.Model.name);
-            //CharacterManager.Instance.OnModelLoaded(model.Model, true);
-        } else
-        {
-            Log.Error($"Failed to load Model: {path}");
+            Log.Warning($"{LogPrefix} Failed to spawn character: {prefabPath}");
         }
     }
 
+    /// <summary>
+    /// モデル追加ボタン。SDK 未実装のためスタブ。
+    /// </summary>
+    private void OnAddModelButtonClicked()
+    {
+        // TODO: SDK による外部キャラクターインポート実装時に対応
+        Log.Info($"{LogPrefix} Add model: not yet implemented (pending SDK).");
+    }
+
+    /// <summary>
+    /// ファイルブラウザを開くボタン。SDK 未実装のためスタブ。
+    /// </summary>
+    private void OnOpenPathButtonClicked()
+    {
+        // TODO: SDK による外部キャラクターインポート実装時に対応
+        Log.Info($"{LogPrefix} Open file browser: not yet implemented (pending SDK).");
+    }
+
+    // --- 以下: VRM ファイルベースの旧実装（サムネイル等の参照のためコメントアウト保持） ---
+
+    // private async UniTask AddModel(string filePath)
+    // {
+    //     var loadMetaTask = LoadVRM.LoadVrmMetaAsync(filePath);
+    //     await UniTask.SwitchToMainThread();
+    //     var item = Instantiate(modelInfoPrefab, contentTransform);
+    //     item.Initialize("モデル情報を取得中...", null, () => OnModelSelectedLegacy(item, filePath).Forget());
+    //     var (modelName, thumbnail) = await loadMetaTask;
+    //     await UniTask.SwitchToMainThread();
+    //     item.UpdateModelInfo(modelName, thumbnail);
+    //     await UniTask.Yield();
+    // }
+
+    // private async UniTaskVoid OnModelSelectedLegacy(ModelInfo modelInfo, string path = null)
+    // {
+    //     if (modelInfo == _currentModel) return;
+    //     modelInfo.SetSelected(true);
+    //     _currentModel?.SetSelected(false);
+    //     _currentModel = modelInfo;
+    //     LoadedVRMInfo model;
+    //     if (path == null)
+    //     {
+    //         var defaultModel = await LoadVRM.LoadDefaultModel();
+    //         model = new LoadedVRMInfo(defaultModel.gameObject, defaultModel.Vrm.Meta.Name, defaultModel.Vrm.Meta.Thumbnail);
+    //     }
+    //     else
+    //     {
+    //         model = await LoadVRM.LoadModelAsync(path, _cancellationTokenSource.Token);
+    //     }
+    //     if (model != null)
+    //     {
+    //         Log.Debug("Model loaded: " + model.Model.name);
+    //         //CharacterManager.Instance.OnModelLoaded(model.Model, true);
+    //     }
+    //     else
+    //     {
+    //         Log.Error($"Failed to load Model: {path}");
+    //     }
+    // }
+
+    // private void OpenFileBrowserLegacy()
+    // {
+    //     var extensions = new[]
+    //     {
+    //         new ExtensionFilter("VRM Files", "vrm"),
+    //         new ExtensionFilter("All Files", "*"),
+    //     };
+    //     StandaloneFileBrowser.OpenFilePanelAsync("Open VRM File", "", extensions, false, (string[] paths) =>
+    //     {
+    //         if (paths.Length > 0) addModelPathInputField.text = paths[0];
+    //     });
+    // }
+
     private void OnDestroy()
     {
-        openModelPathButton.onClick.RemoveAllListeners();
-        addModelButton.onClick.RemoveAllListeners();
+        if (openModelPathButton != null) openModelPathButton.onClick.RemoveAllListeners();
+        if (addModelButton != null) addModelButton.onClick.RemoveAllListeners();
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
     }

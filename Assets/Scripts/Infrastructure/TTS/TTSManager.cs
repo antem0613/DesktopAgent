@@ -21,6 +21,7 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
     [SerializeField] private float bubbleHideDelaySec = 3f;
 
     private bool _isUiProcess;
+    private bool _isCharacterProcess;
     private bool _loggedSettings;
     private int _lastHealthTimeoutMs;
     private float _lastStartupWaitSec;
@@ -32,7 +33,8 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
     {
         base.Awake();
         _isUiProcess = IsUiProcess();
-        Log.Info($"[TtsCoeiroinkTest] Awake completed. IsUiProcess={_isUiProcess}");
+        _isCharacterProcess = IsCharacterProcess();
+        Log.Info($"[TtsCoeiroinkTest] Awake completed. IsUiProcess={_isUiProcess}, IsCharacterProcess={_isCharacterProcess}");
         ApplySettings();
     }
 
@@ -159,21 +161,16 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
 
     private bool IsCharacterSpawnCompleted()
     {
+        if (_isCharacterProcess)
+        {
+            // キャラクタープロセスでは CompanionCharacter を参照する（CompanionController は存在しない）
+            var companion = CompanionCharacter.Instance;
+            return companion != null && companion.HasSpawnedCharacter;
+        }
+
         // メインプロセスでは CompanionController を参照する
         var controller = CompanionController.Instance;
-        if (controller != null)
-        {
-            return controller.IsAnyCharacterSpawned;
-        }
-
-        // キャラクタープロセスでは CompanionCharacter を参照する
-        var companion = CompanionCharacter.Instance;
-        if (companion != null)
-        {
-            return companion.HasSpawnedCharacter;
-        }
-
-        return false;
+        return controller != null && controller.IsAnyCharacterSpawned;
     }
 
     /// <summary>
@@ -311,6 +308,27 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
     }
 
     /// <summary>
+    /// コマンドライン引数を確認し、このプロセスがキャラクタープロセスかを判定します。
+    /// </summary>
+    private static bool IsCharacterProcess()
+    {
+        try
+        {
+            var args = Environment.GetCommandLineArgs();
+            if (args == null) return false;
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] != null && args[i].StartsWith(Constant.CharacterProcessArgumentPrefix, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        } catch
+        {
+            return false;
+        }
+        return false;
+    }
+
+    /// <summary>
     /// コマンドライン引数を確認し、このプロセスがUIプロセス実行かを判定します。
     /// </summary>
     private static bool IsUiProcess()
@@ -340,9 +358,12 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
 
     /// <summary>
     /// エンジン未起動時のみ BackendManager 経由でバックエンド起動を要求します。
+    /// キャラクタープロセスにはバックエンド管理機能がないためスキップします。
     /// </summary>
     private void TryStartEngine()
     {
+        if (_isCharacterProcess) return;
+
         if (IsEngineAlive())
         {
             return;

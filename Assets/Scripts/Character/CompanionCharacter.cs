@@ -111,10 +111,11 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     bool _hasLoggedAnimatorMissing;
 
     // WebSocket character state publisher
-    private const int CHARACTER_STATE_PORT = Constant.CharacterStateWebSocketPort; // character 0
+    private const int CHARACTER_STATE_PORT = Constant.CharacterStateWebSocketPort;
     private const string CHARACTER_STATE_PATH = Constant.CharacterStateWebSocketPath;
-    private const string CHARACTER_ID = "0";
     private const int CHARACTER_SPAWN_NOTIFICATION_RETRY_COUNT = 1;
+    // optionVal から初期化するため定数ではなくフィールドとして保持する
+    private string _characterId = "0";
     private const float CHARACTER_SPAWN_NOTIFICATION_RETRY_INTERVAL_SECONDS = 0.5f;
     float _walkTargetX;
     int _blockedMoveFrames;
@@ -216,15 +217,15 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     {
         UnityEngine.Debug.Log($"{LogPrefix} Start");
         ResetCharacterRuntimeState();
+        // キャラクター識別子を ProcessIdentifier.OptionVal から取得する
+        _characterId = (ProcessIdentifier.Instance?.OptionVal ?? 0).ToString();
+        UnityEngine.Debug.Log($"{LogPrefix} Start: characterId={_characterId}");
         InitializeCharacterStatePublisher();
 
         bool shouldSpawnDefault = ShouldSpawnDefaultCharacter();
         UnityEngine.Debug.Log($"{LogPrefix} ShouldSpawnDefaultCharacter={shouldSpawnDefault}");
 
-        if (shouldSpawnDefault)
-        {
-            Spawn();
-        }
+        Spawn();
     }
 
     bool ShouldSpawnDefaultCharacter()
@@ -352,20 +353,24 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
             ClearCharacter();
 
-            var loadedModelInfo = await LoadCharacterModel.LoadModel(_cancellationTokenSource.Token);
-            if (loadedModelInfo == null || loadedModelInfo.Model == null)
+            // ProcessIdentifier.OptionVal に対応するプレハブを検索する
+            int optionVal = ProcessIdentifier.Instance?.OptionVal ?? 0;
+            var prefab = FindCharacterPrefab(optionVal);
+
+            if (prefab == null)
             {
-                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync aborted. Model load returned null.");
+                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync aborted. No character prefab available for optionVal={optionVal}.");
                 return;
             }
 
-            _spawnedModel = loadedModelInfo.Model;
-            _spawnedModel.name = _spawnedModel.name + "_Model";
+            UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync: using prefab '{prefab.name}' for optionVal={optionVal}.");
 
-            _modelContainer = new GameObject("ModelContainer");
+            // プレハブを Instantiate してコンテナとする
+            await UniTask.Yield();
+            _modelContainer = Instantiate(prefab);
+            _modelContainer.name = "ModelContainer";
             _modelContainer.transform.SetParent(null, false);
-
-            _spawnedModel.transform.SetParent(_modelContainer.transform, false);
+            _spawnedModel = _modelContainer;
 
             var cameraPosition = new Vector3(_targetCamera.transform.position.x, 0, _targetCamera.transform.position.z);
             _modelContainer.transform.LookAt(cameraPosition, Vector3.up);
@@ -375,24 +380,25 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
             _modelContainer.transform.rotation = Quaternion.Euler(_modelContainer.transform.rotation.eulerAngles);
 
-            _modelAnimator = _modelContainer.GetComponentInChildren<Animator>();
-
+            // Animator はプレハブルートにアタッチ済みの前提。なければ子孯をフォールバック検索する。
+            _modelAnimator = _modelContainer.GetComponent<Animator>();
             if (_modelAnimator == null)
             {
-                _modelAnimator = _spawnedModel.AddComponent<Animator>();
-            }
-
-            if (_modelAnimator.avatar == null)
-            {
-                var generatedAvatar = CreateAvatarFromModel(_spawnedModel);
-                if (generatedAvatar != null)
+                _modelAnimator = _modelContainer.GetComponentInChildren<Animator>();
+                if (_modelAnimator != null)
                 {
-                    _modelAnimator.avatar = generatedAvatar;
-                    UnityEngine.Debug.Log($"{LogPrefix} Generated avatar assigned: {generatedAvatar.name}");
+                    UnityEngine.Debug.LogWarning($"{LogPrefix} Animator found in child, not prefab root. Consider attaching to root.");
                 }
             }
 
-            UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync completed. model={_spawnedModel.name}");
+            if (_modelAnimator == null)
+            {
+                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync: Animator not found in prefab '{prefab.name}' (optionVal={optionVal}).");
+            }
+
+            var descriptr = _modelContainer.GetComponent<CompanionDescripter>();
+            string charName = descriptr != null ? descriptr.CharacterName : _modelContainer.name;
+            UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync completed. character={charName}");
 
         } catch (OperationCanceledException)
         {
@@ -406,6 +412,36 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync finished. isSpawning={_isSpawning}");
             StartCoroutine(PublishCharacterSpawnCompletedRepeatedly());
         }
+    }
+
+    /// <summary>
+    /// optionVal に対応するキャラクタープレハブを Resources から検索する。
+    /// Resources/Characters/ 以下の GameObject で CompanionDescripter.CharacterId が一致するものを優先する。
+    /// 見つからない場合はデフォルトモデルにフォールバックする。
+    /// </summary>
+    private static GameObject FindCharacterPrefab(int optionVal)
+    {
+        // Resources/Characters/ から CharacterId が一致するプレハブを検索する
+        var prefabs = Resources.LoadAll<GameObject>("Characters");
+        for (int i = 0; i < prefabs.Length; i++)
+        {
+            var desc = prefabs[i].GetComponent<CompanionDescripter>();
+            if (desc != null && desc.CharacterId == optionVal)
+            {
+                return prefabs[i];
+            }
+        }
+
+        // デフォルトキャラクター(optionVal=0)はデフォルトフォルダにある
+        if (optionVal == 0)
+        {
+            var defaultPrefab = Resources.Load<GameObject>(Constant.DefaultVrmFileName);
+            if (defaultPrefab != null) return defaultPrefab;
+        }
+
+        // 最終フォールバック: デフォルトモデル
+        UnityEngine.Debug.LogWarning($"{LogPrefix} FindCharacterPrefab: no prefab found for optionVal={optionVal}. Falling back to default.");
+        return Resources.Load<GameObject>(Constant.DefaultVrmFileName);
     }
 
     /// <summary>
@@ -544,7 +580,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             return false;
         }
 
-        LoadVRM.UpdateAnimationController(ModelAnimator);
+        // AnimationController はプレハブに事前設定済みのため動的注入不要
         _animatorSync = new AnimatorSync(ModelAnimator);
         UnityEngine.Debug.Log($"{LogPrefix} AnimatorSync initialized.");
 
@@ -2461,7 +2497,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             {
                 schemaVersion = "1.0",
                 messageType = "CharacterSpawnCompleted",
-                characterId = CHARACTER_ID,
+                characterId = _characterId,
                 timestampUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
                 status = "spawned"
             };

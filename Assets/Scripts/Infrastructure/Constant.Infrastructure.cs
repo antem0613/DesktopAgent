@@ -2,6 +2,8 @@
 {
     public const string BackendHost = "127.0.0.1";
     public const string UIProcessArgument = "--ui";
+    /// <summary>キャラクタープロセス起動時の引数プレフィックス（例: Chara=0）。</summary>
+    public const string CharacterProcessArgumentPrefix = "Chara=";
     public const string BackendExecutable = "python";
     public const string BackendArguments = "-m app.server";
 
