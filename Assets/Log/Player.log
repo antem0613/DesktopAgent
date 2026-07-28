@@ -25,7 +25,7 @@ Direct3D:
 [Physics::Module] Threading Mode: Multi-Threaded
 <RI> Initializing input.
 Using Windows.Gaming.Input
-UnloadTime: 0.509300 ms
+UnloadTime: 0.301900 ms
 [ProcessIdentifier] Awake. args=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -52,32 +52,10 @@ UnityEngine.Debug:Log(Object)
 ProcessIdentifier:TryAcquireLockFile(String)
 ProcessIdentifier:Awake()
 
-[ProcessIdentifier] Main lock file acquired in no-arg startup. Starting character process.
+[ProcessIdentifier] Main lock file acquired in no-arg startup. Default character optionVal set to 0. CompanionController will start the process.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
-ProcessIdentifier:Awake()
-
-[ProcessIdentifier] TryStartCharacterProcess called optionVal=0, currentType=Main
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-ProcessIdentifier:TryStartCharacterProcess(Int32)
-ProcessIdentifier:Awake()
-
-[ProcessIdentifier] Launching character process. file=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe, cwd=F:\DesktopAgent\build\DesktopAgent, args=-logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-ProcessIdentifier:TryStartCharacterProcess(Int32)
-ProcessIdentifier:Awake()
-
-[ProcessIdentifier] CreateProcess result=True, commandLine="F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe" -logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0, pid=162684
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-ProcessIdentifier:TryCreateProcess(ProcessStartInfo)
-ProcessIdentifier:TryStartCharacterProcess(Int32)
 ProcessIdentifier:Awake()
 
 [ProcessIdentifier] ProcessType=Main. Loading scene=Main
@@ -87,7 +65,20 @@ UnityEngine.Debug:Log(Object)
 ProcessIdentifier:Awake()
 
 Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 0.036000 ms
+UnloadTime: 0.056700 ms
+[BackendManager] Initializing WebSocket character state server.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:Awake()
+
+[BackendManager] WebSocket IPC server listening at ws://127.0.0.1:5700/character-state
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:InitializeCharacterStateServer()
+BackendManager:Awake()
+
 primary color loaded : RGBA(1.000, 1.000, 1.000, 1.000)
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -111,6 +102,7 @@ ThemeColorBinding:OnEnable()
 
 Trying to load Whisper model from F:/DesktopAgent/build/DesktopAgent/DesktopAgent_Data/StreamingAssets\Whisper/ggml-tiny.bin...
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 Whisper.<InitFromFileAsync>d__27:MoveNext()
@@ -123,17 +115,57 @@ System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start(TStateMachine&)
 Whisper.WhisperManager:Awake()
 
 Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 5599.
-Total: 3.102800 ms (FindLiveObjects: 0.295700 ms CreateObjectMapping: 0.106100 ms MarkObjects: 2.664900 ms  DeleteObjects: 0.035900 ms)
+Total: 2.226800 ms (FindLiveObjects: 0.253100 ms CreateObjectMapping: 0.086400 ms MarkObjects: 1.871600 ms  DeleteObjects: 0.015600 ms)
 
-[ProcessIdentifier][MainWindowPlacement] Moved main window to primary display on attempt=1.
+[BackendManager] Subscribed to CompanionController.OnCharacterSpawnCompleted.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
-<PlaceMainWindowOnPrimaryDisplayRoutine>d__26:MoveNext()
+
+[ProcessIdentifier] TryStartCharacterProcess called optionVal=0, currentType=Main
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+CompanionController:Start()
+
+[ProcessIdentifier] Launching character process. file=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe, cwd=F:\DesktopAgent\build\DesktopAgent, args=-logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0 -monitor 1
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+CompanionController:Start()
+
+[ProcessIdentifier] CreateProcess result=True, commandLine="F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe" -logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0 -monitor 1, pid=95248
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryCreateProcess(ProcessStartInfo)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+CompanionController:Start()
+
+[BackendManager] Character state WebSocket polling is active.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:Update()
+
+[ProcessIdentifier][WindowPlacement] Moved window to primary display on attempt=1. processType=Main
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+<PlaceMainWindowOnPrimaryDisplayRoutine>d__32:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
 Trying to load Whisper model from buffer...
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 Whisper.WhisperWrapper:InitFromBuffer(Byte[], WhisperContextParams)
@@ -146,6 +178,7 @@ System.Threading.ThreadPoolWorkQueue:Dispatch()
 
 RenderGraph is now enabled.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 UnityEngine.Rendering.Universal.UniversalRenderPipeline:.ctor(UniversalRenderPipelineAsset)
@@ -154,7 +187,9 @@ UnityEngine.Rendering.RenderPipelineAsset:InternalCreatePipeline()
 UnityEngine.Rendering.RenderPipelineManager:TryPrepareRenderPipeline(RenderPipelineAsset)
 UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal(RenderPipelineAsset, IntPtr, Object)
 
-[2026/07/21 09:36:42.369] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
+[2026/07/28 03:12:13.519] INFO | [CompanionController] Awake.
+
+[2026/07/28 03:12:13.542] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
 ApplicationSettings:LoadSettings()
 ApplicationSettings:.ctor()
 System.Reflection.RuntimeConstructorInfo:InternalInvoke(Object, Object[], Boolean)
@@ -165,17 +200,28 @@ ShortcutBindingService:LoadFromSettings()
 ShortcutBindingService:GetShortcuts()
 ShortcutBindingPanel:BuildList()
 
-[2026/07/21 09:36:42.845] INFO | [STT] Applied VAD settings. mic.useVad=True, whisper.useVad=True, vadThd=1, vadFreqThd=100, vadLastSec=1.25, vadContextSec=30, vadUpdateRateSec=0.1
+[2026/07/28 03:12:14.024] INFO | [CompanionController] Start.
+CompanionController:Start()
+
+[2026/07/28 03:12:14.024] INFO | [CompanionController] TryStartDefaultCharacterProcess: starting default character process. optionVal=0
+CompanionController:Start()
+
+[2026/07/28 03:12:14.027] INFO | [CompanionController] TryStartDefaultCharacterProcess: result=True, optionVal=0
+CompanionController:Start()
+
+[2026/07/28 03:12:14.042] INFO | [STT] Applied VAD settings. mic.useVad=True, whisper.useVad=True, vadThd=1, vadFreqThd=100, vadLastSec=1.25, vadContextSec=30, vadUpdateRateSec=0.1
 STTManager:ApplyMicSensitivity()
 <StartSTTAsync>d__117:MoveNext()
 STTManager:StartSTT()
 
-[2026/07/21 09:36:42.845] INFO | [STT] Startup microphone device: default, frequency=16000
+[2026/07/28 03:12:14.042] INFO | [STT] Startup microphone device: default, frequency=16000
+STTManager:LogMicDevice()
 <StartSTTAsync>d__117:MoveNext()
 STTManager:StartSTT()
 
-Whisper model is loaded, total time: 195 ms.
+Whisper model is loaded, total time: 185 ms.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 Whisper.WhisperWrapper:InitFromBuffer(Byte[], WhisperContextParams)
@@ -186,7 +232,7 @@ System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
 System.Threading.Tasks.Task:ExecuteEntry(Boolean)
 System.Threading.ThreadPoolWorkQueue:Dispatch()
 
-[2026/07/21 09:36:43.141] INFO | [STT] Whisper STT test started. mode=TextInput, micRecording=False
+[2026/07/28 03:12:14.314] INFO | [STT] Whisper STT test started. mode=TextInput, micRecording=False
 <StartSTTAsync>d__117:MoveNext()
 Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
 <CreateStreamAsync>d__156:MoveNext()
@@ -202,14 +248,84 @@ System.Threading.Tasks.Task:ExecuteEntry(Boolean)
 UnityEngine.WorkRequest:Invoke()
 UnityEngine.UnitySynchronizationContext:Exec()
 
+[BackendManager] Character state WebSocket client connected.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+WebSocketSharp.WebSocket:open()
+WebSocketSharp.WebSocket:InternalAccept()
+WebSocketSharp.Server.WebSocketBehavior:Start(WebSocketContext, WebSocketSessionManager)
+WebSocketSharp.Server.WebSocketServer:processRequest(TcpListenerWebSocketContext)
+WebSocketSharp.Server.<>c__DisplayClass70_0:<receiveRequest>b__0(Object)
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.QueueUserWorkItemCallback:System.Threading.IThreadPoolWorkItem.ExecuteWorkItem()
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[BackendManager] Character state WebSocket client closed. code=1005, reason=
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+CharacterStateWebSocketBehavior:OnClose(CloseEventArgs)
+WebSocketSharp.Server.WebSocketBehavior:onClose(Object, CloseEventArgs)
+WebSocketSharp.Ext:Emit(EventHandler`1, Object, TEventArgs)
+WebSocketSharp.WebSocket:close(PayloadData, Boolean, Boolean, Boolean)
+WebSocketSharp.WebSocket:processReceivedFrame(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass176_0:<startReceiving>b__1(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass83_0:<ReadFrameAsync>b__2(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass48_0:<ReadBytesAsync>b__0(IAsyncResult)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[BackendManager] Received raw character state message: {"schemaVersion":"1.0","messageType":"CharacterSpawnCompleted","characterId":"0","timestampUnixMs":1785208335863,"status":"spawned"}
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:Update()
+
+[BackendManager] OnCharacterSpawnCompleted: characterId=0. Hiding loading indicator.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:OnCharacterSpawnCompleted(Int32)
+CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[2026/07/28 03:12:15.872] INFO | [CompanionController] HandleCharacterStateMessage: messageType=CharacterSpawnCompleted, characterId=0
+CompanionController:HandleCharacterStateMessage(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[2026/07/28 03:12:15.873] INFO | [CompanionController] HandleCharacterSpawnCompleted: new character registered. characterId=0
+CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[2026/07/28 03:12:15.873] INFO | [CompanionController] HandleCharacterSpawnCompleted: completed. characterId=0, status=spawned
+CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
 [ProcessIdentifier] Releasing file lock and quitting. path=C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLocks\DesktopAgent_Main.lock
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 ProcessIdentifier:OnApplicationQuit()
 
-[2026/07/21 09:37:08.998] INFO | [STT] Whisper STT stopped.
+[2026/07/28 03:12:26.470] INFO | [STT] Whisper STT stopped.
 STTManager:StopSTT()
+
+[BackendManager] Character state WebSocket server stopped.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:CleanupNetMQ()
+BackendManager:OnDestroy()
 
 [Physics::Module] Cleanup current backend.
 [Physics::Module] Id: 0xf2b8ea05

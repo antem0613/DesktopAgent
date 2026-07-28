@@ -9,6 +9,7 @@ using Unity.Logging;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using WebSocketSharp;
 using Whisper;
 using Whisper.Utils;
 
@@ -1879,7 +1880,7 @@ public class STTManager : MonoBehaviour
     }
 
     /// <summary>
-    /// 確定テキストをUDPでキャラクタープロセスへ転送します。
+    /// 確定テキストをWebSocketでキャラクタープロセスへ転送します。
     /// </summary>
     private void ForwardFinalText(string recognizedText)
     {
@@ -1893,12 +1894,6 @@ public class STTManager : MonoBehaviour
             return;
         }
 
-        if (mainProcessUdpPort <= 0)
-        {
-            Log.Warning($"[STT] Character process forwarding skipped: invalid UDP port ({mainProcessUdpPort}).");
-            return;
-        }
-
         try
         {
             var payload = new SttForwardMessage
@@ -1909,13 +1904,22 @@ public class STTManager : MonoBehaviour
             };
 
             string json = JsonUtility.ToJson(payload);
-            byte[] bytes = Encoding.UTF8.GetBytes(json);
-            using var client = new UdpClient();
-            client.Send(bytes, bytes.Length, mainProcessUdpHost, mainProcessUdpPort);
+            string endpoint = $"ws://{Constant.BackendHost}:{Constant.CharacterLlmBridgeWebSocketPort}{Constant.CharacterLlmBridgeWebSocketPath}";
+            using var webSocket = new WebSocket(endpoint);
+            webSocket.Connect();
+
+            if (!webSocket.IsAlive)
+            {
+                Log.Warning($"[STT] Character process forwarding skipped: WebSocket is not connected. endpoint={endpoint}");
+                return;
+            }
+
+            webSocket.Send(json);
+            webSocket.Close();
 
             if (logForwarding)
             {
-                Log.Info($"[STT] Forwarded final recognized text to character process. host={mainProcessUdpHost}, port={mainProcessUdpPort}, text='{recognizedText}'");
+                Log.Info($"[STT] Forwarded final recognized text to character process. endpoint={endpoint}, text='{recognizedText}'");
             }
         }
         catch (Exception ex)

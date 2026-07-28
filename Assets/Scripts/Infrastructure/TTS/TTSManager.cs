@@ -142,7 +142,7 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
 
         while (elapsed < timeout)
         {
-            if (CharacterManager.Instance.ModelContainer != null)
+            if (IsCharacterSpawnCompleted())
             {
                 Log.Info($"[TtsCoeiroinkTest] Character spawn confirmed. Start test TTS. elapsed={elapsed:0.##}s");
                 PlayTestTts();
@@ -155,6 +155,25 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
 
         Log.Warning($"[TtsCoeiroinkTest] Character spawn wait timed out ({timeout:0.##}s). Play test TTS anyway.");
         PlayTestTts();
+    }
+
+    private bool IsCharacterSpawnCompleted()
+    {
+        // メインプロセスでは CompanionController を参照する
+        var controller = CompanionController.Instance;
+        if (controller != null)
+        {
+            return controller.IsAnyCharacterSpawned;
+        }
+
+        // キャラクタープロセスでは CompanionCharacter を参照する
+        var companion = CompanionCharacter.Instance;
+        if (companion != null)
+        {
+            return companion.HasSpawnedCharacter;
+        }
+
+        return false;
     }
 
     /// <summary>

@@ -3,12 +3,14 @@ using Kirurobo;
 using System;
 using System.Diagnostics;
 using System.Net.Sockets;
+using System.Collections;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using WebSocketSharp;
 
 public enum GroundAction
 {
@@ -106,6 +108,14 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     bool _isWaitingTransition;
     float _frontYaw;
     float _walkCurrentX;
+    bool _hasLoggedAnimatorMissing;
+
+    // WebSocket character state publisher
+    private const int CHARACTER_STATE_PORT = Constant.CharacterStateWebSocketPort; // character 0
+    private const string CHARACTER_STATE_PATH = Constant.CharacterStateWebSocketPath;
+    private const string CHARACTER_ID = "0";
+    private const int CHARACTER_SPAWN_NOTIFICATION_RETRY_COUNT = 1;
+    private const float CHARACTER_SPAWN_NOTIFICATION_RETRY_INTERVAL_SECONDS = 0.5f;
     float _walkTargetX;
     int _blockedMoveFrames;
     int _lastFacingDir;
@@ -117,6 +127,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     public bool IsFalling => _animatorSync != null && _animatorSync.GetBool(Constant.AnimatorIsFalling);
     public bool IsOnWindow => _animatorSync != null && _animatorSync.GetBool(Constant.AnimatorIsOnWindow);
     public bool IsGrounded { get; private set; }
+    public bool HasSpawnedCharacter => _modelContainer != null;
+    private string CharacterStateWebSocketUrl => $"ws://127.0.0.1:{CHARACTER_STATE_PORT}{CHARACTER_STATE_PATH}";
 
     /// <summary>
     /// 行動の重みと継続する限度をもったクラス
@@ -204,6 +216,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     {
         UnityEngine.Debug.Log($"{LogPrefix} Start");
         ResetCharacterRuntimeState();
+        InitializeCharacterStatePublisher();
 
         bool shouldSpawnDefault = ShouldSpawnDefaultCharacter();
         UnityEngine.Debug.Log($"{LogPrefix} ShouldSpawnDefaultCharacter={shouldSpawnDefault}");
@@ -391,6 +404,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         {
             _isSpawning = false;
             UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync finished. isSpawning={_isSpawning}");
+            StartCoroutine(PublishCharacterSpawnCompletedRepeatedly());
         }
     }
 
@@ -519,7 +533,13 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         if (ModelAnimator == null)
         {
             _animatorSync = null;
-            UnityEngine.Debug.LogWarning($"{LogPrefix} InitializeAnimatorSync failed. ModelAnimator is null.");
+
+            // モデル生成前のフレームでは警告を抑制し、生成完了後の異常のみ1回だけ通知する。
+            if (!_isSpawning && _modelContainer != null && !_hasLoggedAnimatorMissing)
+            {
+                UnityEngine.Debug.LogWarning($"{LogPrefix} InitializeAnimatorSync failed. ModelAnimator is null.");
+                _hasLoggedAnimatorMissing = true;
+            }
 
             return false;
         }
@@ -527,6 +547,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         LoadVRM.UpdateAnimationController(ModelAnimator);
         _animatorSync = new AnimatorSync(ModelAnimator);
         UnityEngine.Debug.Log($"{LogPrefix} AnimatorSync initialized.");
+
+        _hasLoggedAnimatorMissing = false;
 
         _isAnimatorInitialized = true;
 
@@ -594,6 +616,11 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     /// <returns>初期化に成功した場合はtrue</returns>
     bool TryInitOffsetTarget()
     {
+        if (ModelContainer == null)
+        {
+            return false;
+        }
+
         Transform resolved = ModelContainer.transform;
 
         if (resolved == null) return false;
@@ -1550,7 +1577,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     }
 
     ///<summary>
-    /// 右クリック入力があった場合にUIのメニューを開くリクエストを送る
+    /// 右クリック入力があった場合にメインプロセスへ設定ダイアログ表示をリクエストする
     /// </summary>
     void RightClickMenuUpdate()
     {
@@ -1560,9 +1587,17 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
         try
         {
-            using var client = new UdpClient();
-            byte[] payload = Encoding.UTF8.GetBytes(Constant.UIOpenMenuMessage);
-            client.Send(payload, payload.Length, Constant.BackendHost, Constant.UIHealthCheckUdpPort);
+            using var webSocket = new WebSocket(CharacterStateWebSocketUrl);
+            webSocket.Connect();
+
+            if (!webSocket.IsAlive)
+            {
+                UnityEngine.Debug.LogWarning($"{LogPrefix} Failed to request settings dialog via WebSocket. endpoint={CharacterStateWebSocketUrl}");
+                return;
+            }
+
+            webSocket.Send(Constant.UIOpenSettingsDialogMessage);
+            webSocket.Close();
         }
         catch
         {
@@ -1659,6 +1694,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = null;
+        CleanupNetMQ();
     }
 
     /// <summary>
@@ -2404,5 +2440,72 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
         var moved = new Vector3(screen.x + deltaX, screen.y + deltaY, screen.z);
         return ScreenSpaceTransformUtility.TrySetScreenPosition(_targetCamera, ModelContainer.transform, moved, screen.z);
+    }
+
+    /// <summary>
+    /// WebSocket送信先の初期化ログを出す。
+    /// </summary>
+    private void InitializeCharacterStatePublisher()
+    {
+        UnityEngine.Debug.Log($"{LogPrefix} Character state WebSocket publisher ready. endpoint={CharacterStateWebSocketUrl}");
+    }
+
+    /// <summary>
+    /// Publish character spawn completed message
+    /// </summary>
+    private void PublishCharacterSpawnCompleted()
+    {
+        try
+        {
+            var message = new CharacterStateMessage
+            {
+                schemaVersion = "1.0",
+                messageType = "CharacterSpawnCompleted",
+                characterId = CHARACTER_ID,
+                timestampUnixMs = System.DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                status = "spawned"
+            };
+
+            string messageJson = UnityEngine.JsonUtility.ToJson(message);
+            using var webSocket = new WebSocket(CharacterStateWebSocketUrl);
+            webSocket.Connect();
+
+            if (!webSocket.IsAlive)
+            {
+                UnityEngine.Debug.LogWarning($"{LogPrefix} Failed to publish CharacterSpawnCompleted. WebSocket is not connected. endpoint={CharacterStateWebSocketUrl}");
+                return;
+            }
+
+            webSocket.Send(messageJson);
+            webSocket.Close();
+            UnityEngine.Debug.Log($"{LogPrefix} Published CharacterSpawnCompleted: {messageJson}");
+        } catch (Exception ex)
+        {
+            UnityEngine.Debug.LogError($"{LogPrefix} Failed to publish message: {ex}");
+        }
+    }
+
+    private IEnumerator PublishCharacterSpawnCompletedRepeatedly()
+    {
+        int retryCount = Mathf.Max(1, CHARACTER_SPAWN_NOTIFICATION_RETRY_COUNT);
+        float retryInterval = Mathf.Max(0.01f, CHARACTER_SPAWN_NOTIFICATION_RETRY_INTERVAL_SECONDS);
+
+        for (int i = 0; i < retryCount; i++)
+        {
+            PublishCharacterSpawnCompleted();
+
+            if (i < retryCount - 1)
+            {
+                yield return new WaitForSecondsRealtime(retryInterval);
+            }
+        }
+    }
+
+    /// <summary>
+    /// Cleanup WebSocket resources
+    /// </summary>
+    private void CleanupNetMQ()
+    {
+        UnityEngine.Debug.Log($"{LogPrefix} Character state WebSocket publisher cleanup completed.");
     }
 }

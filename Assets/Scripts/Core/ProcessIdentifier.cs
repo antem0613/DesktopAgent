@@ -5,6 +5,7 @@ using System.IO;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System;
+using System.Text;
 
 public enum ProcessType
 {
@@ -19,9 +20,11 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
     static FileStream _lockStream;
     static string _lockFilePath;
     const string CharacterArgumentPrefix = "Chara=";
+    const string UnityMonitorArgument = "-monitor";
+    const int PrimaryMonitorIndex = 1;
     const string UnityLogFileArgument = "-logFile";
     const string ProcessLogDirectoryName = "ProcessLogs";
-    const string MainWindowPlacementLogPrefix = "[ProcessIdentifier][MainWindowPlacement]";
+    const string WindowPlacementLogPrefix = "[ProcessIdentifier][WindowPlacement]";
     const string LogPrefix = "[ProcessIdentifier]";
 
     ProcessType _processType;
@@ -30,6 +33,14 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
     public int _optionVal;
 
     public int OptionVal { get => _optionVal; private set => _optionVal = value; }
+
+    private int _defaultCharacterOptionVal = -1;
+
+    /// <summary>
+    /// メインプロセス起動時に CompanionController が生成すべきデフォルトキャラクターの optionVal。
+    /// -1 はデフォルトキャラクター生成不要を示す。
+    /// </summary>
+    public int DefaultCharacterOptionVal => _defaultCharacterOptionVal;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct STARTUPINFO
@@ -101,8 +112,8 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
             }
 
             _processType = ProcessType.Main;
-            UnityEngine.Debug.Log($"{LogPrefix} Main lock file acquired in no-arg startup. Starting character process.");
-            TryStartCharacterProcess(0);
+            _defaultCharacterOptionVal = 0;
+            UnityEngine.Debug.Log($"{LogPrefix} Main lock file acquired in no-arg startup. Default character optionVal set to 0. CompanionController will start the process.");
             ScheduleMainWindowPlacement();
             UnityEngine.Debug.Log($"{LogPrefix} ProcessType=Main. Loading scene={MainSceneName}");
             SceneManager.LoadScene(MainSceneName);
@@ -149,9 +160,8 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
                 if (TryAcquireLockFile("DesktopAgent_Main"))
                 {
                     _processType = ProcessType.Main;
-                    UnityEngine.Debug.Log($"{LogPrefix} Main lock file acquired in Chara mode. Acting as main and starting character process.");
-
-                    TryStartCharacterProcess(optionVal);
+                    _defaultCharacterOptionVal = optionVal;
+                    UnityEngine.Debug.Log($"{LogPrefix} Main lock file acquired in Chara mode. Default character optionVal set to {optionVal}. CompanionController will start the process.");
                     ScheduleMainWindowPlacement();
 
                     UnityEngine.Debug.Log($"{LogPrefix} Loading main scene={MainSceneName}");
@@ -279,7 +289,8 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
             WorkingDirectory = workingDirectory,
             Arguments = BuildLaunchArguments(
                 GetProcessLogFilePath(ProcessType.Character, optionVal),
-                $"{CharacterArgumentPrefix}{Mathf.Max(0, optionVal)}"),
+                $"{CharacterArgumentPrefix}{Mathf.Max(0, optionVal)}",
+                BuildMonitorLaunchArgument(PrimaryMonitorIndex)),
             UseShellExecute = false,
             CreateNoWindow = false
         };
@@ -289,6 +300,11 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
     }
 
     void ScheduleMainWindowPlacement()
+    {
+        ScheduleWindowPlacement();
+    }
+
+    void ScheduleWindowPlacement()
     {
         StartCoroutine(PlaceMainWindowOnPrimaryDisplayRoutine());
     }
@@ -305,7 +321,7 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
             if (WindowsAPI.TryMoveCurrentWindowToPrimaryDisplay())
             {
-                UnityEngine.Debug.Log($"{MainWindowPlacementLogPrefix} Moved main window to primary display on attempt={attempt}.");
+                UnityEngine.Debug.Log($"{WindowPlacementLogPrefix} Moved window to primary display on attempt={attempt}. processType={_processType}");
                 yield break;
             }
 #endif
@@ -313,7 +329,7 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
             yield return new WaitForSeconds(retryDelaySeconds);
         }
 
-        UnityEngine.Debug.LogWarning($"{MainWindowPlacementLogPrefix} Failed to move main window to primary display after {maxAttempts} attempts.");
+        UnityEngine.Debug.LogWarning($"{WindowPlacementLogPrefix} Failed to move window to primary display after {maxAttempts} attempts. processType={_processType}");
     }
 
     string GetStartupArgument(string[] args)
@@ -349,22 +365,58 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
         return null;
     }
 
-    string BuildLaunchArguments(string logFilePath, string startupArgument)
+    string BuildLaunchArguments(string logFilePath, string startupArgument, params string[] extraArguments)
     {
         string quotedLogFilePath = QuoteArgument(logFilePath);
         string quotedStartupArgument = string.IsNullOrWhiteSpace(startupArgument) ? string.Empty : startupArgument.Trim();
+        string joinedExtraArguments = JoinNonEmptyArguments(extraArguments);
 
         if (string.IsNullOrWhiteSpace(quotedLogFilePath))
         {
-            return quotedStartupArgument;
+            return JoinNonEmptyArguments(quotedStartupArgument, joinedExtraArguments);
         }
 
         if (string.IsNullOrWhiteSpace(quotedStartupArgument))
         {
-            return $"{UnityLogFileArgument} {quotedLogFilePath}";
+            return JoinNonEmptyArguments($"{UnityLogFileArgument} {quotedLogFilePath}", joinedExtraArguments);
         }
 
-        return $"{UnityLogFileArgument} {quotedLogFilePath} {quotedStartupArgument}";
+        return JoinNonEmptyArguments($"{UnityLogFileArgument} {quotedLogFilePath}", quotedStartupArgument, joinedExtraArguments);
+    }
+
+    string BuildMonitorLaunchArgument(int monitorIndex)
+    {
+        int resolvedIndex = Mathf.Max(1, monitorIndex);
+        return $"{UnityMonitorArgument} {resolvedIndex}";
+    }
+
+    string JoinNonEmptyArguments(params string[] values)
+    {
+        if (values == null || values.Length == 0)
+        {
+            return string.Empty;
+        }
+
+        var builder = new StringBuilder();
+
+        for (int i = 0; i < values.Length; i++)
+        {
+            string value = values[i]?.Trim();
+
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                continue;
+            }
+
+            if (builder.Length > 0)
+            {
+                builder.Append(' ');
+            }
+
+            builder.Append(value);
+        }
+
+        return builder.ToString();
     }
 
     string GetProcessLogFilePath(ProcessType processType, int optionVal = 0)

@@ -14,8 +14,6 @@ flowchart TD
         end
 
         BOOTMAIN[起動]-->CHECKBACK{バックエンド起動確認}
-        CHECKBACK -- True --> FRSTSPWN
-        CHECKBACK -- False --> CHECKBACK
         FRSTSPWN[初回キャラスポーン要求] --> CHRCTRL
         BOOTMAIN --> BOOTBACK
 
@@ -23,10 +21,12 @@ flowchart TD
             BOOTBACK[バックエンドサーバー起動<br/>Ollama/Langgraph/Coeiroink] --> HRTBEAT
             HRTBEAT{生存確認} -- True --> HRTBEAT
             HRTBEAT -- False --> BOOTBACK
-            SEND[LLMに送信] -- ZeroMQ --> AGENT[LangGraph]
-            AGENT -- ZeroMQ --> RESP[応答テキスト]
+            SEND[LLMに送信] -- WebSocket --> AGENT[LangGraph]
+            AGENT -- WebSocket --> RESP[応答テキスト]
             RESP --> REQBBL[吹き出し表示要求]
             CHECKBACK{バックエンド起動確認}
+            CHECKBACK -- True --> FRSTSPWN
+            CHECKBACK -- False --> CHECKBACK
         end
 
         CHAT_IN -->|テキスト| TX[入力テキストを UI へ反映]
@@ -68,8 +68,9 @@ flowchart TD
         OP_IN -->|マウススクロール| SCL[ウィンドウサイズ変更]
         end
 
-        REQSTG -- ZeroMQ --> SETTING
-        REQBBL -- ZeroMQ --> BUBBLE[吹き出し表示]
+        REQSTG -- UDP --> SETTING
+        SPAWN_DONE -- WebSocket --> CHECKBACK
+        REQBBL --> BUBBLE[吹き出し表示]
     end
 ```
 
@@ -107,26 +108,26 @@ sequenceDiagram
     par 会話入力
         alt テキスト入力
             U->>UI: テキスト入力
-            UI->>BM: LLMに送信(ZeroMQ)
+            UI->>BM: LLMに送信(WebSocket)
         else 音声入力
             U->>UI: 音声入力
             UI->>STT: 音声データ送信
             STT-->>UI: STT結果
-            UI->>BM: LLMに送信(ZeroMQ)
+            UI->>BM: LLMに送信(WebSocket)
         end
     and 直接操作
         U->>CHAR: ドラッグ/スクロール/右クリック
         alt 右クリック
-            CHAR->>MENU: 設定表示要求(ZeroMQ)
+            CHAR->>MENU: 設定表示要求(WebSocket)
             MENU-->>U: 設定ダイアログ表示
         else ドラッグ/スクロール
             CHAR->>CHAR: 位置/サイズ更新
         end
     end
 
-    BM->>LG: 推論要求(ZeroMQ)
-    LG-->>BM: 応答テキスト(ZeroMQ)
-    BM-->>CHAR: 吹き出し表示要求(ZeroMQ)
+    BM->>LG: 推論要求(WebSocket)
+    LG-->>BM: 応答テキスト(WebSocket)
+    BM-->>CHAR: 吹き出し表示要求(WebSocket)
     BM->>TTS: 音声合成要求
     TTS-->>UI: 音声データ
     UI-->>U: 音声再生

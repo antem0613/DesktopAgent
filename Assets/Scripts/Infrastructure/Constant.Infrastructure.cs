@@ -18,6 +18,10 @@
     public const string UIProcessName = "DesktopAgentUI";
     public const string CharacterStartupSceneName = "Character";
     public const string UIStartupSceneName = "UI";
+    public const int CharacterStateWebSocketPort = 5700;
+    public const string CharacterStateWebSocketPath = "/character-state";
+    public const int CharacterLlmBridgeWebSocketPort = 5800;
+    public const string CharacterLlmBridgeWebSocketPath = "/llm-bridge";
     public const int UIHealthCheckUdpPort = 38181;
     public const string UIHealthCheckPingMessage = "desktopagent-ui-ping";
     public const string UIHealthCheckPongMessage = "desktopagent-ui-pong";
@@ -25,6 +29,7 @@
     public const string UIForceTopmostAckMessage = "desktopagent-ui-force-topmost-ack";
     public const string UIOpenMenuMessage = "desktopagent-ui-open-menu";
     public const string UIOpenMenuAckMessage = "desktopagent-ui-open-menu-ack";
+    public const string UIOpenSettingsDialogMessage = "desktopagent-ui-open-settings-dialog";
     public const string UILoadingShowMessage = "desktopagent-ui-loading-show";
     public const string UILoadingHideMessage = "desktopagent-ui-loading-hide";
     public const string UILoadingAckMessage = "desktopagent-ui-loading-ack";

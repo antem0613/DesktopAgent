@@ -59,6 +59,7 @@ public class CharacterSpeechBubbleUI : MonoBehaviour
     private float _nextEstimatedOffsetUpdateTime;
     private BubbleScreenEdge? _lastLoggedResolvedEdge;
     private BubbleScreenEdge _lastResolvedHorizontalEdge = BubbleScreenEdge.Left;
+    private CharacterManager _cachedCharacterManager;
 
     private void Awake()
     {
@@ -755,7 +756,7 @@ public class CharacterSpeechBubbleUI : MonoBehaviour
             return false;
         }
 
-        var characterManager = CharacterManager.Instance;
+        var characterManager = ResolveCharacterManager();
         if (characterManager == null || characterManager.ModelContainer == null)
         {
             return false;
@@ -866,6 +867,18 @@ public class CharacterSpeechBubbleUI : MonoBehaviour
 
         screenRect = Rect.MinMaxRect(minX, minY, maxX, maxY);
         return true;
+    }
+
+    private CharacterManager ResolveCharacterManager()
+    {
+        if (_cachedCharacterManager != null)
+        {
+            return _cachedCharacterManager;
+        }
+
+        // Instance getterを通すと未生成時に警告ログが出るため、UI側では静かに探索する。
+        _cachedCharacterManager = FindFirstObjectByType<CharacterManager>();
+        return _cachedCharacterManager;
     }
 
     private bool TryGetCharacterAnchorWorldPosition(GameObject modelContainer, out Vector3 worldPosition)

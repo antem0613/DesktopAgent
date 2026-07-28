@@ -541,7 +541,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7813720120788891699, guid: 694a04de324bf7b48807d303477122f5, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -23.299988
+      value: -23.300049
       objectReference: {fileID: 0}
     - target: {fileID: 7813720120788891699, guid: 694a04de324bf7b48807d303477122f5, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -554,6 +554,10 @@ PrefabInstance:
     - target: {fileID: 8229125471974904304, guid: 694a04de324bf7b48807d303477122f5, type: 3}
       propertyPath: m_margin.z
       value: 0.929718
+      objectReference: {fileID: 0}
+    - target: {fileID: 8866248512172627871, guid: 694a04de324bf7b48807d303477122f5, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -23.300049
       objectReference: {fileID: 0}
     - target: {fileID: 9008236733560762337, guid: 694a04de324bf7b48807d303477122f5, type: 3}
       propertyPath: echo
@@ -637,7 +641,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::BackendManager
   appUserModelId: DesktopAgent.UI
-  menuDialog: {fileID: 0}
+  menuDialog: {fileID: 1081980846}
   loadingIndicator: {fileID: 1429398786}
   topmostEnforceInterval: 1
 --- !u!4 &873881036
@@ -1128,8 +1132,16 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3656815414862235642, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: color.a
+      value: 0.45490196
+      objectReference: {fileID: 0}
+    - target: {fileID: 3656815414862235642, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
       propertyPath: m_Enabled
       value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3656815414862235642, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+      propertyPath: modifiedFromInspector
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3965415218965998363, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
       propertyPath: m_AnchorMax.y
@@ -1630,7 +1642,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.38431373}
+  m_Color: {r: 0.735849, g: 0.735849, b: 0.735849, a: 0.7647059}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1647,6 +1659,17 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1.18
+--- !u!114 &1081980846 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8092120687019963323, guid: f00fb4489a5172747b78c774818d8ea7, type: 3}
+  m_PrefabInstance: {fileID: 1081980832}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 736886059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ae9dd34775a14a408cc7a9970d713bca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MenuDialog
 --- !u!1 &1429398786
 GameObject:
   m_ObjectHideFlags: 0

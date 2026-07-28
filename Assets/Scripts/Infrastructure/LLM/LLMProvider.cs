@@ -3,13 +3,13 @@ using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 using System.Threading;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using Cysharp.Threading.Tasks;
 using Newtonsoft.Json;
 using Unity.Logging;
 using UnityEngine;
 using UnityEngine.Networking;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
 public class LLMProvider : MonoBehaviour, IChatProvider
 {
@@ -40,14 +40,10 @@ public class LLMProvider : MonoBehaviour, IChatProvider
     private int pollIntervalMs = 100;
 
     [Header("Bridge Dependencies")]
-    [SerializeField] private CharacterSpeechBubbleUI bubbleUI;
-    [SerializeField] private float bubbleHideDelaySec = 8f;
     [SerializeField] private int maxQueuedMessages = 32;
 
     private readonly ConcurrentQueue<string> _recognizedQueue = new();
-    private UdpClient _udpClient;
-    private CancellationTokenSource _listenCts;
-    private Task _listenTask;
+    private WebSocketServer _bridgeServer;
     private CancellationTokenSource _requestCts;
     private bool _isRunning;
     private bool _isProcessing;
@@ -65,8 +61,6 @@ public class LLMProvider : MonoBehaviour, IChatProvider
     private void Awake()
     {
         _isUiProcess = IsUiProcess();
-
-        ResolveBridge();
         ApplySettings();
     }
 
@@ -116,19 +110,17 @@ public class LLMProvider : MonoBehaviour, IChatProvider
             return;
         }
 
-        ResolveBridge();
         PrewarmBackend();
 
         try
         {
-            IPAddress address = ParseListenAddress(Constant.BackendHost);
-            var endpoint = new IPEndPoint(address, ResolveBackendPort());
-            _udpClient = new UdpClient(endpoint);
-            _udpClient.Client.ReceiveTimeout = 200;
-
-            _listenCts = new CancellationTokenSource();
-            _listenTask = Task.Run(() => ReceiveLoop(_listenCts.Token));
+            _bridgeServer = new WebSocketServer(IPAddress.Loopback, Constant.CharacterLlmBridgeWebSocketPort);
+            _bridgeServer.AddWebSocketService<RecognizedTextWebSocketBehavior>(
+                Constant.CharacterLlmBridgeWebSocketPath,
+                behavior => behavior.Initialize(EnqueueRecognizedPayload));
+            _bridgeServer.Start();
             _isRunning = true;
+            Log.Info($"[LLMProvider] Bridge WebSocket receiver started. endpoint=ws://127.0.0.1:{Constant.CharacterLlmBridgeWebSocketPort}{Constant.CharacterLlmBridgeWebSocketPath}");
         }
         catch (Exception ex)
         {
@@ -142,21 +134,12 @@ public class LLMProvider : MonoBehaviour, IChatProvider
     {
         _isRunning = false;
 
-        if (_listenCts != null)
+        if (_bridgeServer != null)
         {
-            _listenCts.Cancel();
-            _listenCts.Dispose();
-            _listenCts = null;
+            _bridgeServer.Stop();
+            _bridgeServer = null;
         }
 
-        if (_udpClient != null)
-        {
-            _udpClient.Close();
-            _udpClient.Dispose();
-            _udpClient = null;
-        }
-
-        _listenTask = null;
         CancelBridgeRequest();
 
         while (_recognizedQueue.TryDequeue(out _))
@@ -313,65 +296,28 @@ public class LLMProvider : MonoBehaviour, IChatProvider
         }
     }
 
-    private void ReceiveLoop(CancellationToken token)
+    private void EnqueueRecognizedPayload(string payload)
     {
-        while (!token.IsCancellationRequested)
+        if (string.IsNullOrWhiteSpace(payload))
         {
-            try
-            {
-                IPEndPoint remote = null;
-                byte[] bytes = _udpClient.Receive(ref remote);
-                if (bytes == null || bytes.Length == 0)
-                {
-                    continue;
-                }
-
-                string payload = Encoding.UTF8.GetString(bytes);
-                if (string.IsNullOrWhiteSpace(payload))
-                {
-                    continue;
-                }
-
-                string recognizedText = TryExtractRecognized(payload);
-                if (string.IsNullOrWhiteSpace(recognizedText))
-                {
-                    continue;
-                }
-
-                Log.Info($"[LLMProvider][TextFlow] Character process received STT text. remote={remote?.Address}:{remote?.Port}, text='{recognizedText}'");
-
-                if (_recognizedQueue.Count >= Mathf.Max(1, maxQueuedMessages))
-                {
-                    Log.Warning($"[LLMProvider] Bridge queue full. Dropped recognized text: '{recognizedText}'");
-                    continue;
-                }
-
-                _recognizedQueue.Enqueue(recognizedText);
-            }
-            catch (SocketException ex)
-            {
-                if (ex.SocketErrorCode == SocketError.TimedOut)
-                {
-                    continue;
-                }
-
-                if (!token.IsCancellationRequested)
-                {
-                    Log.Warning($"[LLMProvider] Bridge receive loop socket warning: {ex.Message}");
-                }
-            }
-            catch (ObjectDisposedException)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                if (!token.IsCancellationRequested)
-                {
-                    Log.Error($"[LLMProvider] Bridge receive loop error: {ex.Message}");
-                }
-            }
+            return;
         }
+
+        string recognizedText = TryExtractRecognized(payload);
+        if (string.IsNullOrWhiteSpace(recognizedText))
+        {
+            return;
+        }
+
+        Log.Info($"[LLMProvider][TextFlow] Character process received STT text via WebSocket. text='{recognizedText}'");
+
+        if (_recognizedQueue.Count >= Mathf.Max(1, maxQueuedMessages))
+        {
+            Log.Warning($"[LLMProvider] Bridge queue full. Dropped recognized text: '{recognizedText}'");
+            return;
+        }
+
+        _recognizedQueue.Enqueue(recognizedText);
     }
 
     private async UniTaskVoid ProcessRecognizedAsync(string recognizedText)
@@ -423,34 +369,16 @@ public class LLMProvider : MonoBehaviour, IChatProvider
             {
                 Log.Warning("[LLMProvider] Bridge LLM reply was empty.");
             }
-            else if (!_isUiProcess)
+            if (!string.IsNullOrWhiteSpace(aiReply) && !_isUiProcess)
             {
-                if (bubbleUI == null)
+                var controller = CompanionController.Instance;
+                if (controller == null)
                 {
-                    bubbleUI = FindFirstObjectByType<CharacterSpeechBubbleUI>();
-                }
-
-                if (bubbleUI != null)
-                {
-                    bubbleUI.HideThinkingBubble();
-                    bubbleUI.ShowTtsBubble(aiReply, bubbleHideDelaySec);
+                    Log.Warning("[LLMProvider] Bridge LLM->speech forwarding skipped: CompanionController is not available.");
                 }
                 else
                 {
-                    Log.Warning("[LLMProvider] Bridge reply bubble display skipped: CharacterSpeechBubbleUI is not found.");
-                }
-            }
-
-            if (!string.IsNullOrWhiteSpace(aiReply))
-            {
-                var ttsManager = TTSManager.Instance;
-                if (ttsManager == null)
-                {
-                    Log.Warning("[LLMProvider] Bridge LLM->TTS forwarding skipped: TTSManager is not found.");
-                }
-                else
-                {
-                    ttsManager.PlayTts(aiReply);
+                    controller.RequestSpeech(aiReply);
                 }
             }
         }
@@ -491,17 +419,7 @@ public class LLMProvider : MonoBehaviour, IChatProvider
         return payload.Trim();
     }
 
-    private void ResolveBridge()
-    {
-        if (bubbleUI == null)
-        {
-            bubbleUI = GetComponent<CharacterSpeechBubbleUI>();
-            if (bubbleUI == null)
-            {
-                bubbleUI = FindFirstObjectByType<CharacterSpeechBubbleUI>();
-            }
-        }
-    }
+
 
     private int ResolveBackendPort()
     {
@@ -554,19 +472,29 @@ public class LLMProvider : MonoBehaviour, IChatProvider
         _requestCts = null;
     }
 
-    private static IPAddress ParseListenAddress(string host)
+    private sealed class RecognizedTextWebSocketBehavior : WebSocketBehavior
     {
-        if (string.IsNullOrWhiteSpace(host))
+        private Action<string> _onMessageReceived;
+
+        public void Initialize(Action<string> onMessageReceived)
         {
-            return IPAddress.Loopback;
+            _onMessageReceived = onMessageReceived;
         }
 
-        if (IPAddress.TryParse(host, out IPAddress address))
+        protected override void OnMessage(MessageEventArgs e)
         {
-            return address;
+            if (!e.IsText || string.IsNullOrWhiteSpace(e.Data))
+            {
+                return;
+            }
+
+            _onMessageReceived?.Invoke(e.Data);
         }
 
-        return IPAddress.Loopback;
+        protected override void OnError(WebSocketSharp.ErrorEventArgs e)
+        {
+            UnityEngine.Debug.LogWarning($"[LLMProvider] Bridge WebSocket error: {e.Message}");
+        }
     }
 
     private static bool IsUiProcess()

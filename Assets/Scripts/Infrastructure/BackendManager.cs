@@ -9,9 +9,12 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Text;
 using System.Threading;
 using UnityEngine.SceneManagement;
+using WebSocketSharp;
+using WebSocketSharp.Server;
 
 public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 {
@@ -50,9 +53,13 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 #endif
     private static readonly object s_backendStartSync = new object();
     private volatile bool _menuOpenRequested;
-    private volatile int _loadingVisualizeRequest = -1;
     private readonly BackendState _backendState = new();
     private readonly UiProcessState _uiProcessState = new();
+
+    // WebSocket IPC subscription
+    private WebSocketServer _characterStateServer;
+    private readonly ConcurrentQueue<string> _pendingCharacterStateMessages = new();
+    private bool _hasLoggedSubscriberUpdateActive;
 
     // --- Initialization and runtime mode setup ---
     /// <summary>
@@ -86,6 +93,9 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         _uiProcessState.TopmostEnforceCoroutine = StartCoroutine(TopmostEnforcementLoop());
 
+        UnityEngine.Debug.Log("[BackendManager] Initializing WebSocket character state server.");
+        InitializeCharacterStateServer();
+
         ApplySettings();
     }
 
@@ -95,6 +105,26 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     private void Start()
     {
         StartBackend();
+        SubscribeToCompanionController();
+    }
+
+    private void SubscribeToCompanionController()
+    {
+        var controller = CompanionController.Instance;
+        if (controller == null)
+        {
+            UnityEngine.Debug.LogWarning("[BackendManager] CompanionController is not available. Loading indicator will not be updated on character spawn.");
+            return;
+        }
+
+        controller.OnCharacterSpawnCompleted += OnCharacterSpawnCompleted;
+        UnityEngine.Debug.Log("[BackendManager] Subscribed to CompanionController.OnCharacterSpawnCompleted.");
+    }
+
+    private void OnCharacterSpawnCompleted(int characterId)
+    {
+        UnityEngine.Debug.Log($"[BackendManager] OnCharacterSpawnCompleted: characterId={characterId}. Hiding loading indicator.");
+        VisualizeLoadingIndicator(false);
     }
 
     /// <summary>
@@ -289,7 +319,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         }
     }
 
-    private void Update()
+    void Update()
     {
         if (_menuOpenRequested)
         {
@@ -297,15 +327,60 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
             OpenMenuDialog();
         }
 
-        int loadingVisualizeRequest = _loadingVisualizeRequest;
+        TryProcessCharacterStateMessages();
+    }
 
-        if (loadingVisualizeRequest < 0)
+    private void TryProcessCharacterStateMessages()
+    {
+        if (_characterStateServer == null)
         {
             return;
         }
 
-        _loadingVisualizeRequest = -1;
-        VisualizeLoadingIndicator(_loadingVisualizeRequest == 1);
+        if (!_hasLoggedSubscriberUpdateActive)
+        {
+            _hasLoggedSubscriberUpdateActive = true;
+            UnityEngine.Debug.Log("[BackendManager] Character state WebSocket polling is active.");
+        }
+
+        while (_pendingCharacterStateMessages.TryDequeue(out string messageJson))
+        {
+            UnityEngine.Debug.Log($"[BackendManager] Received raw character state message: {messageJson}");
+            ProcessCharacterStateMessage(messageJson);
+        }
+    }
+
+    private void ProcessCharacterStateMessage(string messageJson)
+    {
+        if (string.Equals(messageJson?.Trim(), Constant.UIOpenMenuMessage, StringComparison.Ordinal)
+            || string.Equals(messageJson?.Trim(), Constant.UIOpenSettingsDialogMessage, StringComparison.Ordinal))
+        {
+            UnityEngine.Debug.Log("[BackendManager] Received settings/menu open request via WebSocket.");
+            _menuOpenRequested = true;
+            return;
+        }
+
+        try
+        {
+            var message = UnityEngine.JsonUtility.FromJson<CharacterStateMessage>(messageJson);
+
+            if (message == null)
+            {
+                return;
+            }
+
+            if (string.Equals(message.messageType, Constant.UIOpenMenuMessage, StringComparison.Ordinal)
+                || string.Equals(message.messageType, Constant.UIOpenSettingsDialogMessage, StringComparison.Ordinal))
+            {
+                UnityEngine.Debug.Log("[BackendManager] Received settings/menu open request via WebSocket message envelope.");
+                _menuOpenRequested = true;
+                return;
+            }
+
+            CompanionController.Instance?.HandleCharacterStateMessage(message);
+        } catch
+        {
+        }
     }
 
     private void OpenMenuDialog()
@@ -316,6 +391,82 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         }
 
         menuDialog.Show();
+    }
+
+    private void InitializeCharacterStateServer()
+    {
+        try
+        {
+            _characterStateServer = new WebSocketServer(IPAddress.Loopback, Constant.CharacterStateWebSocketPort);
+            _characterStateServer.AddWebSocketService<CharacterStateWebSocketBehavior>(
+                Constant.CharacterStateWebSocketPath,
+                behavior => behavior.Initialize(EnqueueCharacterStateMessage));
+            _characterStateServer.Start();
+            UnityEngine.Debug.Log($"[BackendManager] WebSocket IPC server listening at ws://127.0.0.1:{Constant.CharacterStateWebSocketPort}{Constant.CharacterStateWebSocketPath}");
+        } catch (Exception ex)
+        {
+            UnityEngine.Debug.LogWarning($"[BackendManager] Failed to initialize character state WebSocket server: {ex.Message}");
+        }
+    }
+
+    private void EnqueueCharacterStateMessage(string messageJson)
+    {
+        if (string.IsNullOrWhiteSpace(messageJson))
+        {
+            return;
+        }
+
+        _pendingCharacterStateMessages.Enqueue(messageJson);
+    }
+
+    private void CleanupNetMQ()
+    {
+        try
+        {
+            if (_characterStateServer != null)
+            {
+                _characterStateServer.Stop();
+                _characterStateServer = null;
+                UnityEngine.Debug.Log("[BackendManager] Character state WebSocket server stopped.");
+            }
+        } catch
+        {
+        }
+    }
+
+    private sealed class CharacterStateWebSocketBehavior : WebSocketBehavior
+    {
+        private Action<string> _onMessageReceived;
+
+        public void Initialize(Action<string> onMessageReceived)
+        {
+            _onMessageReceived = onMessageReceived;
+        }
+
+        protected override void OnOpen()
+        {
+            UnityEngine.Debug.Log("[BackendManager] Character state WebSocket client connected.");
+        }
+
+        protected override void OnMessage(MessageEventArgs e)
+        {
+            if (!e.IsText || string.IsNullOrWhiteSpace(e.Data))
+            {
+                return;
+            }
+
+            _onMessageReceived?.Invoke(e.Data);
+        }
+
+        protected override void OnError(WebSocketSharp.ErrorEventArgs e)
+        {
+            UnityEngine.Debug.LogWarning($"[BackendManager] Character state WebSocket error: {e.Message}");
+        }
+
+        protected override void OnClose(CloseEventArgs e)
+        {
+            UnityEngine.Debug.Log($"[BackendManager] Character state WebSocket client closed. code={e.Code}, reason={e.Reason}");
+        }
     }
 
     private void VisualizeLoadingIndicator(bool visible)
@@ -735,6 +886,13 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// </summary>
     private void OnDestroy()
     {
+        var controller = CompanionController.Instance;
+        if (controller != null)
+        {
+            controller.OnCharacterSpawnCompleted -= OnCharacterSpawnCompleted;
+        }
+
+        CleanupNetMQ();
         TryStopBackendServerOnExit();
     }
 
@@ -1391,5 +1549,18 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         }
 #endif
     }
+}
+
+/// <summary>
+/// Character state message format for NetMQ communication
+/// </summary>
+[System.Serializable]
+public class CharacterStateMessage
+{
+    public string schemaVersion = "1.0";
+    public string messageType;
+    public string characterId;
+    public long timestampUnixMs;
+    public string status;
 }
 

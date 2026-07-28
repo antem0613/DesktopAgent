@@ -1041,7 +1041,7 @@ MonoBehaviour:
   maxFallSpeed: 6000
   supportGraceFrames: 15
   uniWindowMoveHandle: {fileID: 432928768}
-  scrollMultiplier: 1
+  scrollMultiplier: 4
   scrollStep: 0.1
   maxScale: 3
   minScale: 0.3
