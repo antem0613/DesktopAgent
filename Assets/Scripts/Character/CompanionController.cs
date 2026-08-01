@@ -54,16 +54,23 @@ public class CompanionController : SingletonMonoBehaviour<CompanionController>
             return;
         }
 
-        int optionVal = processIdentifier.DefaultCharacterOptionVal;
-        if (optionVal < 0)
+        int characterId = processIdentifier.DefaultCharacterOptionVal;
+        if (characterId < 0)
         {
-            Log.Info($"{LogPrefix} TryStartDefaultCharacterProcess: no default character scheduled (optionVal={optionVal}).");
+            Log.Info($"{LogPrefix} TryStartDefaultCharacterProcess: no default character scheduled (characterId={characterId}).");
             return;
         }
 
-        Log.Info($"{LogPrefix} TryStartDefaultCharacterProcess: starting default character process. optionVal={optionVal}");
-        bool success = processIdentifier.TryStartCharacterProcess(optionVal);
-        Log.Info($"{LogPrefix} TryStartDefaultCharacterProcess: result={success}, optionVal={optionVal}");
+        var entry = CharacterCatalog.FindById(characterId);
+        if (entry == null)
+        {
+            Log.Warning($"{LogPrefix} TryStartDefaultCharacterProcess: no catalog entry for characterId={characterId}.");
+            return;
+        }
+
+        Log.Info($"{LogPrefix} TryStartDefaultCharacterProcess: starting. characterId={characterId}, name={entry.DisplayName}");
+        bool success = processIdentifier.TryStartCharacterProcess(characterId, entry.BundlePath, entry.PrefabName);
+        Log.Info($"{LogPrefix} TryStartDefaultCharacterProcess: result={success}, characterId={characterId}");
     }
 
     private void OnDestroy()
@@ -75,17 +82,11 @@ public class CompanionController : SingletonMonoBehaviour<CompanionController>
     // --- Character Spawn ---
 
     /// <summary>
-    /// 指定プレハブパスのキャラクタープロセスを起動する。
-    /// optionVal にはプレハブの <see cref="CompanionDescripter.CharacterId"/> を使用する。
+    /// 指定 characterId のキャラクタープロセスを起動する。
+    /// CharacterCatalog にエントリが存在しない場合は起動しない。
     /// </summary>
-    public bool SpawnCharacter(string prefabPath)
+    public bool SpawnCharacter(int characterId)
     {
-        if (string.IsNullOrWhiteSpace(prefabPath))
-        {
-            Log.Warning($"{LogPrefix} SpawnCharacter: prefabPath is empty.");
-            return false;
-        }
-
         var processIdentifier = ProcessIdentifier.Instance;
         if (processIdentifier == null)
         {
@@ -93,25 +94,16 @@ public class CompanionController : SingletonMonoBehaviour<CompanionController>
             return false;
         }
 
-        // プレハブから CompanionDescripter を取得し、CharacterId を optionVal として使用する
-        var prefab = Resources.Load<GameObject>(prefabPath);
-        if (prefab == null)
+        var entry = CharacterCatalog.FindById(characterId);
+        if (entry == null)
         {
-            Log.Warning($"{LogPrefix} SpawnCharacter: prefab not found at '{prefabPath}'.");
+            Log.Warning($"{LogPrefix} SpawnCharacter: no catalog entry for characterId={characterId}.");
             return false;
         }
 
-        var descriptr = prefab.GetComponent<CompanionDescripter>();
-        if (descriptr == null)
-        {
-            Log.Warning($"{LogPrefix} SpawnCharacter: CompanionDescripter not found on prefab '{prefabPath}'.");
-            return false;
-        }
-
-        int optionVal = descriptr.CharacterId;
-        Log.Info($"{LogPrefix} SpawnCharacter: starting process. prefabPath={prefabPath}, optionVal={optionVal}");
-        bool success = processIdentifier.TryStartCharacterProcess(optionVal);
-        Log.Info($"{LogPrefix} SpawnCharacter: result={success}, optionVal={optionVal}");
+        Log.Info($"{LogPrefix} SpawnCharacter: starting process. characterId={characterId}, name={entry.DisplayName}");
+        bool success = processIdentifier.TryStartCharacterProcess(characterId, entry.BundlePath, entry.PrefabName);
+        Log.Info($"{LogPrefix} SpawnCharacter: result={success}, characterId={characterId}");
         return success;
     }
 

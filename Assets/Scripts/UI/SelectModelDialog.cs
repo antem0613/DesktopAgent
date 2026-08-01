@@ -17,9 +17,6 @@ public class SelectModelDialog : DialogBase
 {
     private const string LogPrefix = "[SelectModelDialog]";
 
-    /// <summary>Resources 内のキャラクターフォルダパス</summary>
-    private const string CharactersResourcePath = "Characters";
-
     [SerializeField] private ModelInfo modelInfoPrefab;
     [SerializeField] private Transform contentTransform;
 
@@ -48,81 +45,54 @@ public class SelectModelDialog : DialogBase
     }
 
     /// <summary>
-    /// 現在選択中のキャラクタープレハブをリスト先頭に表示する。
-    /// プレハブや CompanionDescripter が見つからなくても中断しない。
+    /// CharacterCatalog から id=0 のデフォルトキャラクターをリスト先頭に表示する。
     /// </summary>
     private void AddDefaultModelEntry()
     {
-        string currentPath = ApplicationSettings.Instance?.Character?.ModelPath;
-        if (string.IsNullOrWhiteSpace(currentPath))
+        var entry = CharacterCatalog.FindById(0);
+        if (entry == null)
         {
-            currentPath = Constant.DefaultVrmFileName;
-        }
-
-        GameObject prefab = Resources.Load<GameObject>(currentPath);
-        if (prefab == null)
-        {
-            Log.Warning($"{LogPrefix} Default prefab not found at '{currentPath}'. Trying fallback.");
-            prefab = Resources.Load<GameObject>(Constant.DefaultVrmFileName);
-        }
-
-        if (prefab == null)
-        {
-            Log.Warning($"{LogPrefix} No default character prefab found. Skipping default entry.");
+            Log.Warning($"{LogPrefix} Default character (id=0) not found in catalog. Skipping default entry.");
             return;
         }
 
-        var descriptr = prefab.GetComponent<CompanionDescripter>();
-        string displayName = descriptr != null ? descriptr.CharacterName : prefab.name;
-
         // サムネイル: 後から実装
-        // Texture2D thumbnail = descriptr?.Thumbnail;
+        // Texture2D thumbnail = null;
 
         var item = Instantiate(modelInfoPrefab, contentTransform);
-        string capturedPath = currentPath;
-        item.Initialize(displayName, null, () => OnModelSelected(item, capturedPath));
+        int capturedId = entry.CharacterId;
+        item.Initialize(entry.DisplayName, null, () => OnModelSelected(item, capturedId));
         _currentModel = item;
         _currentModel.SetSelected(true);
     }
 
     /// <summary>
-    /// Resources/Characters/ 以下の CompanionDescripter 付きプレハブを列挙してリストに追加する。
+    /// CharacterCatalog の全エントリを列挙してリストに追加する。id=0 は AddDefaultModelEntry で追加済みのためスキップする。
+    /// ユーザー追加バンドルの非同期スキャンもここで行う（メインプロセスのみ）。
     /// </summary>
     private async UniTask LoadCharacterListAsync()
     {
-        GameObject[] prefabs = null;
-        try
+        // ユーザー追加バンドルを非同期で検出・初期化する（meta.json がなければ bundle から自動生成）
+        await CharacterCatalog.InitializeUserBundlesAsync(_cancellationTokenSource.Token);
+
+        var entries = CharacterCatalog.Entries;
+
+        if (entries == null || entries.Count == 0) return;
+
+        foreach (var entry in entries)
         {
-            prefabs = Resources.LoadAll<GameObject>(CharactersResourcePath);
-        } catch (System.Exception ex)
-        {
-            Log.Warning($"{LogPrefix} Failed to load character prefabs from Resources: {ex.Message}");
-            return;
-        }
-
-        if (prefabs == null || prefabs.Length == 0) return;
-
-        foreach (var prefab in prefabs)
-        {
-            if (prefab == null) continue;
-
-            var descriptr = prefab.GetComponent<CompanionDescripter>();
-            if (descriptr == null) continue;
-
-            await UniTask.SwitchToMainThread();
-
-            string resourcePath = $"{CharactersResourcePath}/{prefab.name}";
-            string displayName = descriptr.CharacterName;
+            // characterId=0 は AddDefaultModelEntry で追加済み
+            if (entry.CharacterId == 0) continue;
 
             // サムネイル: 後から実装
-            // Texture2D thumbnail = descriptr.Thumbnail;
+            // Texture2D thumbnail = null;
 
             var item = Instantiate(modelInfoPrefab, contentTransform);
-            string capturedPath = resourcePath;
-            item.Initialize(displayName, null, () => OnModelSelected(item, capturedPath));
+            int capturedId = entry.CharacterId;
+            item.Initialize(entry.DisplayName, null, () => OnModelSelected(item, capturedId));
 
             // サムネイル更新: 後から実装
-            // item.UpdateModelInfo(displayName, thumbnail);
+            // item.UpdateModelInfo(entry.DisplayName, thumbnail);
 
             await UniTask.Yield();
         }
@@ -131,15 +101,13 @@ public class SelectModelDialog : DialogBase
     /// <summary>
     /// モデルが選択されたときの処理。キャラクタープロセスを新規起動する。
     /// </summary>
-    private void OnModelSelected(ModelInfo modelInfo, string prefabPath = null)
+    private void OnModelSelected(ModelInfo modelInfo, int characterId)
     {
         if (modelInfo == _currentModel) return;
 
         modelInfo.SetSelected(true);
         _currentModel?.SetSelected(false);
         _currentModel = modelInfo;
-
-        if (string.IsNullOrEmpty(prefabPath)) return;
 
         var controller = CompanionController.Instance;
         if (controller == null)
@@ -148,10 +116,10 @@ public class SelectModelDialog : DialogBase
             return;
         }
 
-        bool success = controller.SpawnCharacter(prefabPath);
+        bool success = controller.SpawnCharacter(characterId);
         if (!success)
         {
-            Log.Warning($"{LogPrefix} Failed to spawn character: {prefabPath}");
+            Log.Warning($"{LogPrefix} Failed to spawn character: id={characterId}");
         }
     }
 

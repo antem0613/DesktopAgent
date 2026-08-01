@@ -4,6 +4,10 @@
     public const string UIProcessArgument = "--ui";
     /// <summary>キャラクタープロセス起動時の引数プレフィックス（例: Chara=0）。</summary>
     public const string CharacterProcessArgumentPrefix = "Chara=";
+    /// <summary>キャラクタープロセスへ渡すバンドルファイルの絶対パス引数のプレフィックス。</summary>
+    public const string CharacterBundlePathArgPrefix = "--charaBundlePath=";
+    /// <summary>キャラクタープロセスへ渡すバンドル内プレハブ名引数のプレフィックス。</summary>
+    public const string CharacterPrefabNameArgPrefix = "--charaPrefabName=";
     public const string BackendExecutable = "python";
     public const string BackendArguments = "-m app.server";
 

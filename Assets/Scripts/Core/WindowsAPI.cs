@@ -99,6 +99,23 @@ public static class WindowsAPI
         MonitorEnumProc lpfnEnum,
         IntPtr dwData);
 
+    [DllImport("user32.dll", SetLastError = true)]
+    private static extern bool RegisterRawInputDevices(
+        [MarshalAs(UnmanagedType.LPArray, SizeParamIndex = 1)] RAWINPUTDEVICE[] pRawInputDevices,
+        uint uiNumDevices,
+        uint cbSize);
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct RAWINPUTDEVICE
+    {
+        public ushort usUsagePage;
+        public ushort usUsage;
+        public uint dwFlags;
+        public IntPtr hwndTarget;
+    }
+
+    private const uint RIDEV_INPUTSINK = 0x00000100;
+
     private const int GWL_EXSTYLE = -20;
     private const int WS_EX_TRANSPARENT = 0x20;
     private const int WS_EX_LAYERED = 0x80000;
@@ -559,6 +576,49 @@ public static class WindowsAPI
         }
 
         return result;
+    }
+
+    // LibUniWinC バインディング：フォーカス不要でウィンドウハンドル取得・背景入力設定
+    [DllImport("LibUniWinC", CallingConvention = CallingConvention.Winapi)]
+    private static extern IntPtr GetWindowHandle();
+
+    [DllImport("LibUniWinC", CallingConvention = CallingConvention.Winapi)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    private static extern bool IsActive();
+
+    /// <summary>
+    /// LibUniWinC が内部で保持しているウィンドウハンドルを取得する。
+    /// UniWindowController がウィンドウをアタッチ済みであれば有効な値を返す。
+    /// </summary>
+    public static IntPtr GetUniWinWindowHandle()
+    {
+        if (!IsActive()) return IntPtr.Zero;
+        return GetWindowHandle();
+    }
+
+    /// <summary>
+    /// マウスのデバイスを RIDEV_INPUTSINK で再登録し、フォーカスなしでも
+    /// WM_INPUT (スクロールを含む) をこのウィンドウに届ける。
+    /// UniWindowController がウィンドウをアタッチした後に呼ぶこと。
+    /// </summary>
+    public static bool RegisterMouseRawInputSink()
+    {
+        IntPtr hwnd = GetUniWinWindowHandle();
+        if (hwnd == IntPtr.Zero) return false;
+
+        var device = new RAWINPUTDEVICE
+        {
+            usUsagePage = 1,   // Generic Desktop Controls
+            usUsage = 2,       // Mouse
+            dwFlags = RIDEV_INPUTSINK,
+            hwndTarget = hwnd,
+        };
+
+        bool ok = RegisterRawInputDevices(
+            new[] { device }, 1,
+            (uint)Marshal.SizeOf<RAWINPUTDEVICE>());
+
+        return ok;
     }
 
     public static bool SetClickThrough(IntPtr hWnd, bool enabled)

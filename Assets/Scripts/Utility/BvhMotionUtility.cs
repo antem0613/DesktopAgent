@@ -114,4 +114,9 @@ public class BvhMotionUtility : IVrm10Animation
     {
         Object.Destroy(_mContext.Root);
     }
+
+    public void SetBoxManMaterial(Material material)
+    {
+        BoxMan.sharedMaterial = material;
+    }
 }

@@ -19,4 +19,10 @@ public partial class Constant
     /// デフォルトのVRMファイル名
     /// </summary>
     public const string DefaultVrmFileName = "DefaultModel/DefaultModel";
+
+    /// <summary>
+    /// キャラクターバンドルのルートディレクトリ名。
+    /// StreamingAssets/{CharactersBundleDirectoryName}/ および persistentDataPath/{CharactersBundleDirectoryName}/ で使用する。
+    /// </summary>
+    public const string CharactersBundleDirectoryName = "Characters";
 }

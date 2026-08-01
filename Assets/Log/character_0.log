@@ -25,7 +25,7 @@ Direct3D:
 [Physics::Module] Threading Mode: Multi-Threaded
 <RI> Initializing input.
 Using Windows.Gaming.Input
-UnloadTime: 0.325900 ms
+UnloadTime: 0.418800 ms
 [ProcessIdentifier] Awake. args=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe, -logFile, C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log, Chara=0, -monitor, 1
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -79,17 +79,24 @@ UnityEngine.Debug:Log(Object)
 ProcessIdentifier:Awake()
 
 Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 0.023300 ms
+UnloadTime: 0.038800 ms
 [CompanionCharacter] Awake
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 
-Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 3988.
-Total: 1.411200 ms (FindLiveObjects: 0.116700 ms CreateObjectMapping: 0.040700 ms MarkObjects: 1.242200 ms  DeleteObjects: 0.011500 ms)
+Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 3989.
+Total: 1.683900 ms (FindLiveObjects: 0.198500 ms CreateObjectMapping: 0.051600 ms MarkObjects: 1.421500 ms  DeleteObjects: 0.012100 ms)
 
 [CompanionCharacter] Start
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+CompanionCharacter:Start()
+
+[CompanionCharacter] Start: characterId=0
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
@@ -125,357 +132,42 @@ UnityEngine.Debug:Log(Object)
 <SpawnAsync>d__107:MoveNext()
 CompanionCharacter:Start()
 
-RenderGraph is now enabled.
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-UnityEngine.Rendering.Universal.UniversalRenderPipeline:.ctor(UniversalRenderPipelineAsset)
-UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset:CreatePipeline()
-UnityEngine.Rendering.RenderPipelineAsset:InternalCreatePipeline()
-UnityEngine.Rendering.RenderPipelineManager:TryPrepareRenderPipeline(RenderPipelineAsset)
-UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal(RenderPipelineAsset, IntPtr, Object)
-
-[2026/07/28 03:12:14.775] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Say'.
-CharacterSpeechBubbleUI:InstantiateBubblePrefab(GameObject, String)
-CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
-CharacterSpeechBubbleUI:Awake()
-
-[2026/07/28 03:12:14.775] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Thought'.
-CharacterSpeechBubbleUI:InstantiateBubblePrefab(GameObject, String)
-CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
-CharacterSpeechBubbleUI:Awake()
-
-[2026/07/28 03:12:14.776] INFO | [CharacterSpeechBubbleUI] Bubble instances initialized (tts='Say', thinking='Thought').
-CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
-CharacterSpeechBubbleUI:Awake()
-
-[2026/07/28 03:12:14.776] INFO | [CharacterSpeechBubbleUI] Initialized on 'BubbleAnchor'.
-
-[2026/07/28 03:12:14.776] INFO | [TtsCoeiroinkTest] Awake completed. IsUiProcess=False
-TTSManager:Awake()
-
-[2026/07/28 03:12:14.777] INFO | [TtsCoeiroinkTest] Settings applied. healthCheckTimeoutMs=200, startupWaitSeconds=4
-TTSManager:ApplySettings()
-TTSManager:Awake()
-
-[2026/07/28 03:12:14.798] INFO | [TtsCoeiroinkTest] Start completed.
-TTSManager:Start()
-
-[2026/07/28 03:12:14.798] INFO | [TtsCoeiroinkTest] Auto test playback started.
-TTSManager:Start()
-
-[2026/07/28 03:12:14.798] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:14.798] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
-ApplicationSettings:LoadSettings()
-ApplicationSettings:.ctor()
-System.Reflection.RuntimeConstructorInfo:InternalInvoke(Object, Object[], Boolean)
-System.RuntimeType:CreateInstanceMono(Boolean, Boolean)
-System.Activator:CreateInstance()
-Singleton`1:get_Instance()
-<LoadModel>d__1:MoveNext()
-LoadCharacterModel:LoadModel(CancellationToken)
-<SpawnAsync>d__107:MoveNext()
-CompanionCharacter:Start()
-
-[2026/07/28 03:12:14.798] INFO | 指定されたモデルパス: Iris.vrm
-<LoadModelAsync>d__1:MoveNext()
-<LoadModel>d__1:MoveNext()
-LoadCharacterModel:LoadModel(CancellationToken)
-<SpawnAsync>d__107:MoveNext()
-CompanionCharacter:Start()
-
-[2026/07/28 03:12:14.798] INFO | 指定されたモデルファイルをロードします: Iris.vrm
-<LoadModelAsync>d__1:MoveNext()
-<LoadModel>d__1:MoveNext()
-LoadCharacterModel:LoadModel(CancellationToken)
-<SpawnAsync>d__107:MoveNext()
-CompanionCharacter:Start()
-
-[2026/07/28 03:12:15.007] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.087] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.205] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.297] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.397] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.496] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.602] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.707] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:15.813] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[CompanionCharacter] SpawnAsync completed. model=VRM1_Model
+[CompanionCharacter] SpawnAsync: using prefab 'DefaultModel' for optionVal=0.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 <SpawnAsync>d__107:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadModel>d__1:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadModelAsync>d__1:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadAndDisplayModel>d__3:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadAndDisplayModelFromPath>d__4:MoveNext()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadPathAsync>d__1:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadAsync>d__4:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<TryLoadingAsVrm10Async>d__5:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadVrm10DataAsync>d__7:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniGLTF.<LoadAsync>d__33:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<FinalizeAsync>d__11:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadConstraintAsync>d__18:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
-UniGLTF.UnityLoopTaskScheduler:Update()
+CompanionCharacter:Start()
+
+[CompanionCharacter] SpawnAsync completed. character=Iris
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+<SpawnAsync>d__107:MoveNext()
+Cysharp.Threading.Tasks.Internal.ContinuationQueue:RunCore()
 
 [CompanionCharacter] SpawnAsync finished. isSpawning=False
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
-UnityEngine.TextCore.Text.TextSettings:get_displayWarnings()
+UnityEngine.Timeline.TimelineClip:get_recordable()
 <SpawnAsync>d__107:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadModel>d__1:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadModelAsync>d__1:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadAndDisplayModel>d__3:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadAndDisplayModelFromPath>d__4:MoveNext()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadPathAsync>d__1:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadAsync>d__4:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<TryLoadingAsVrm10Async>d__5:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadVrm10DataAsync>d__7:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniGLTF.<LoadAsync>d__33:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<FinalizeAsync>d__11:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadConstraintAsync>d__18:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
-UniGLTF.UnityLoopTaskScheduler:Update()
+Cysharp.Threading.Tasks.Internal.ContinuationQueue:RunCore()
 
-[CompanionCharacter] Published CharacterSpawnCompleted: {"schemaVersion":"1.0","messageType":"CharacterSpawnCompleted","characterId":"0","timestampUnixMs":1785208335863,"status":"spawned"}
+[CompanionCharacter] Published CharacterSpawnCompleted: {"schemaVersion":"1.0","messageType":"CharacterSpawnCompleted","characterId":"0","timestampUnixMs":1785251538318,"status":"spawned"}
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 CompanionCharacter:PublishCharacterSpawnCompleted()
-<PublishCharacterSpawnCompletedRepeatedly>d__175:MoveNext()
+<PublishCharacterSpawnCompletedRepeatedly>d__176:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-UnityEngine.TextCore.Text.TextSettings:get_displayWarnings()
+UnityEngine.Timeline.TimelineClip:get_recordable()
 <SpawnAsync>d__107:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadModel>d__1:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadModelAsync>d__1:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadAndDisplayModel>d__3:MoveNext()
-Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
-<LoadAndDisplayModelFromPath>d__4:MoveNext()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadPathAsync>d__1:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadAsync>d__4:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<TryLoadingAsVrm10Async>d__5:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadVrm10DataAsync>d__7:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniGLTF.<LoadAsync>d__33:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<FinalizeAsync>d__11:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadConstraintAsync>d__18:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
-UniGLTF.UnityLoopTaskScheduler:Update()
+Cysharp.Threading.Tasks.Internal.ContinuationQueue:RunCore()
 
 [CompanionCharacter] AnimatorSync initialized.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
@@ -508,98 +200,64 @@ UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:LogWarning(Object)
 SetCharacterYOffset:OnStateEnter(Animator, AnimatorStateInfo, Int32)
 
-[2026/07/28 03:12:15.861] INFO | モデルのロードと表示が完了しました: F:/DesktopAgent/build/DesktopAgent/DesktopAgent_Data/StreamingAssets\Iris.vrm
-<LoadAndDisplayModelFromPath>d__4:MoveNext()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadPathAsync>d__1:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadAsync>d__4:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<TryLoadingAsVrm10Async>d__5:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadVrm10DataAsync>d__7:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniGLTF.<LoadAsync>d__33:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<FinalizeAsync>d__11:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Runtime.CompilerServices.AsyncTaskMethodBuilder`1:SetResult(TResult)
-UniVRM10.<LoadConstraintAsync>d__18:MoveNext()
-System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
-System.Runtime.CompilerServices.MoveNextRunner:Run()
-System.Threading.Tasks.AwaitTaskContinuation:RunCallback(ContextCallback, Object, Task&)
-System.Threading.Tasks.SynchronizationContextAwaitTaskContinuation:Run(Task, Boolean)
-System.Threading.Tasks.Task:FinishContinuations()
-System.Threading.Tasks.Task`1:TrySetResult(TResult)
-System.Threading.Tasks.TaskCompletionSource`1:SetResult(TResult)
-UniGLTF.UnityLoopTaskScheduler:Update()
+RenderGraph is now enabled.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+UnityEngine.Rendering.Universal.UniversalRenderPipeline:.ctor(UniversalRenderPipelineAsset)
+UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset:CreatePipeline()
+UnityEngine.Rendering.RenderPipelineAsset:InternalCreatePipeline()
+UnityEngine.Rendering.RenderPipelineManager:TryPrepareRenderPipeline(RenderPipelineAsset)
+UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal(RenderPipelineAsset, IntPtr, Object)
 
-[2026/07/28 03:12:15.925] INFO | アニメーションコントローラーを設定しました。
-LoadVRM:UpdateAnimationController(Animator)
-CompanionCharacter:Update()
+[2026/07/28 15:12:18.232] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Say'.
+CharacterSpeechBubbleUI:InstantiateBubblePrefab(GameObject, String)
+CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
+CharacterSpeechBubbleUI:Awake()
 
-[2026/07/28 03:12:15.941] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
+[2026/07/28 15:12:18.233] INFO | [CharacterSpeechBubbleUI] Instantiated bubble prefab 'Thought'.
+CharacterSpeechBubbleUI:InstantiateBubblePrefab(GameObject, String)
+CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
+CharacterSpeechBubbleUI:Awake()
+
+[2026/07/28 15:12:18.233] INFO | [CharacterSpeechBubbleUI] Bubble instances initialized (tts='Say', thinking='Thought').
+CharacterSpeechBubbleUI:EnsureBubbleInstances(Boolean)
+CharacterSpeechBubbleUI:Awake()
+
+[2026/07/28 15:12:18.233] INFO | [CharacterSpeechBubbleUI] Initialized on 'BubbleAnchor'.
+
+[2026/07/28 15:12:18.234] INFO | [TtsCoeiroinkTest] Awake completed. IsUiProcess=False, IsCharacterProcess=True
+TTSManager:Awake()
+
+[2026/07/28 15:12:18.235] INFO | [TtsCoeiroinkTest] Settings applied. healthCheckTimeoutMs=200, startupWaitSeconds=4
+TTSManager:ApplySettings()
+TTSManager:Awake()
+
+[2026/07/28 15:12:18.271] INFO | [TtsCoeiroinkTest] Start completed.
+TTSManager:Start()
+
+[2026/07/28 15:12:18.271] INFO | [TtsCoeiroinkTest] Auto test playback started.
+TTSManager:Start()
+
+[2026/07/28 15:12:18.317] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
+ApplicationSettings:LoadSettings()
+ApplicationSettings:.ctor()
+System.Reflection.RuntimeConstructorInfo:InternalInvoke(Object, Object[], Boolean)
+System.RuntimeType:CreateInstanceMono(Boolean, Boolean)
+System.Activator:CreateInstance()
+Singleton`1:get_Instance()
+CompanionCharacter:ApplyCharacterSettings()
+<SpawnAsync>d__107:MoveNext()
+Cysharp.Threading.Tasks.Internal.ContinuationQueue:RunCore()
+
+[2026/07/28 15:12:18.473] INFO | [TtsCoeiroinkTest] Character spawn confirmed. Start test TTS. elapsed=0.1s
+<WaitCharacterSpawn>d__24:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/07/28 03:12:16.037] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:16.137] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:16.242] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:16.343] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
+[2026/07/28 15:12:18.473] INFO | [TtsCoeiroinkTest] PlayTts requested. textLength=5
+TTSManager:PlayTts(String)
+<WaitCharacterSpawn>d__24:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
 SetCharacterYOffset: Manager not ready
@@ -609,433 +267,22 @@ UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:LogWarning(Object)
 SetCharacterYOffset:OnStateExit(Animator, AnimatorStateInfo, Int32)
 
-[2026/07/28 03:12:16.452] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
+[2026/07/28 15:12:26.844] WARNING | [TtsCoeiroinkTest] COEIROINK not reachable after wait. BaseUrl: http://127.0.0.1:50032/v1
+<WaitEngineReady>d__31:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/07/28 03:12:16.552] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
+[2026/07/28 15:12:27.648] INFO | [TtsCoeiroinkTest] request endpoint: http://127.0.0.1:50032/v1/synthesis
+<Synthesize>d__26:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/07/28 03:12:16.658] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
+[2026/07/28 15:12:27.648] INFO | [TtsCoeiroinkTest] request payload: {"text":"よろしくね","speakerUuid":"5e0e0268-9982-11ed-8955-0242ac1c000c","styleId":479653990,"speedScale":1.0,"volumeScale":1.0,"prosodyDetail":[],"pitchScale":0.0,"intonationScale":1.0,"prePhonemeLength":0.1,"postPhonemeLength":0.5,"outputSamplingRate":24000}
+<Synthesize>d__26:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
 
-[2026/07/28 03:12:16.764] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
+Curl error 7: Failed to connect to 127.0.0.1 port 50032 after 2038 ms: Could not connect to server
+[2026/07/28 15:12:29.695] ERROR | [TtsCoeiroinkTest] synthesis failed: 0 Cannot connect to destination host
+<Synthesize>d__26:MoveNext()
 UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:16.869] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:16.975] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.080] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.181] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.287] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.388] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.489] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.593] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.696] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.792] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:17.900] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.003] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.110] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.214] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.319] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.426] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.521] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.620] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.726] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.828] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:18.914] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.021] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.126] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.214] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.315] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.420] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.527] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.624] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.726] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.832] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:19.935] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.027] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.131] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.238] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.326] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.431] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.537] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-Direct3D: detected that using refresh rate causes time drift. Will stop trusting refresh rate until the game window is moved.
-[2026/07/28 03:12:20.636] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.733] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.837] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:20.940] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.027] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.131] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.238] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.326] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.433] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.538] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.626] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.726] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.831] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:21.938] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.043] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.150] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.254] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.360] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.465] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.573] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.678] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.782] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.888] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:22.993] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.099] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.204] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.310] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.415] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.522] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.626] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.732] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.838] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:23.948] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.050] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.156] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.262] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.366] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.472] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.576] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.682] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.787] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.893] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[2026/07/28 03:12:24.999] WARNING | CompanionControllerSingletonMonoBehaviour is nothing
-SingletonMonoBehaviour`1:get_Instance()
-<WaitCharacterSpawn>d__23:MoveNext()
-UnityEngine.SetupCoroutine:InvokeMoveNext(IEnumerator, IntPtr)
-
-[ProcessIdentifier] Releasing file lock and quitting. path=C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLocks\DesktopAgent_Chara_0.lock
-UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
-UnityEngine.Logger:Log(LogType, Object)
-UnityEngine.Debug:Log(Object)
-ProcessIdentifier:OnApplicationQuit()
 
 [CompanionCharacter] OnApplicationQuit
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
@@ -1043,6 +290,13 @@ Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Ob
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 CompanionCharacter:OnApplicationQuit()
+
+[ProcessIdentifier] Releasing file lock and quitting. path=C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLocks\DesktopAgent_Chara_0.lock
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:OnApplicationQuit()
 
 [CompanionCharacter] OnDestroy
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)

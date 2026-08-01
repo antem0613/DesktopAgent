@@ -25,7 +25,7 @@ Direct3D:
 [Physics::Module] Threading Mode: Multi-Threaded
 <RI> Initializing input.
 Using Windows.Gaming.Input
-UnloadTime: 0.301900 ms
+UnloadTime: 0.258400 ms
 [ProcessIdentifier] Awake. args=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -64,8 +64,8 @@ UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 ProcessIdentifier:Awake()
 
+UnloadTime: 0.016300 ms
 Unloading 6 Unused Serialized files (Serialized files now loaded: 0)
-UnloadTime: 0.056700 ms
 [BackendManager] Initializing WebSocket character state server.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 UnityEngine.Logger:Log(LogType, Object)
@@ -114,8 +114,8 @@ Whisper.<Awake>d__42:MoveNext()
 System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start(TStateMachine&)
 Whisper.WhisperManager:Awake()
 
-Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 5599.
-Total: 2.226800 ms (FindLiveObjects: 0.253100 ms CreateObjectMapping: 0.086400 ms MarkObjects: 1.871600 ms  DeleteObjects: 0.015600 ms)
+Unloading 3 unused Assets to reduce memory usage. Loaded Objects now: 5378.
+Total: 2.093700 ms (FindLiveObjects: 0.221900 ms CreateObjectMapping: 0.071200 ms MarkObjects: 1.783300 ms  DeleteObjects: 0.016900 ms)
 
 [BackendManager] Subscribed to CompanionController.OnCharacterSpawnCompleted.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
@@ -139,7 +139,7 @@ UnityEngine.Debug:Log(Object)
 ProcessIdentifier:TryStartCharacterProcess(Int32)
 CompanionController:Start()
 
-[ProcessIdentifier] CreateProcess result=True, commandLine="F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe" -logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0 -monitor 1, pid=95248
+[ProcessIdentifier] CreateProcess result=True, commandLine="F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe" -logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_0.log" Chara=0 -monitor 1, pid=155756
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
@@ -187,9 +187,9 @@ UnityEngine.Rendering.RenderPipelineAsset:InternalCreatePipeline()
 UnityEngine.Rendering.RenderPipelineManager:TryPrepareRenderPipeline(RenderPipelineAsset)
 UnityEngine.Rendering.RenderPipelineManager:DoRenderLoop_Internal(RenderPipelineAsset, IntPtr, Object)
 
-[2026/07/28 03:12:13.519] INFO | [CompanionController] Awake.
+[2026/07/28 15:12:16.847] INFO | [CompanionController] Awake.
 
-[2026/07/28 03:12:13.542] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
+[2026/07/28 15:12:16.886] INFO | 設定ファイル(JSON)を読み込みました: C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\Settings\application_settings.json
 ApplicationSettings:LoadSettings()
 ApplicationSettings:.ctor()
 System.Reflection.RuntimeConstructorInfo:InternalInvoke(Object, Object[], Boolean)
@@ -197,29 +197,35 @@ System.RuntimeType:CreateInstanceMono(Boolean, Boolean)
 System.Activator:CreateInstance()
 Singleton`1:get_Instance()
 ShortcutBindingService:LoadFromSettings()
-ShortcutBindingService:GetShortcuts()
-ShortcutBindingPanel:BuildList()
+STTManager:SetupPushToTalkAction()
+STTManager:Awake()
 
-[2026/07/28 03:12:14.024] INFO | [CompanionController] Start.
+[2026/07/28 15:12:17.474] INFO | [CompanionController] Start.
 CompanionController:Start()
 
-[2026/07/28 03:12:14.024] INFO | [CompanionController] TryStartDefaultCharacterProcess: starting default character process. optionVal=0
+[2026/07/28 15:12:17.475] INFO | [CompanionController] TryStartDefaultCharacterProcess: starting default character process. optionVal=0
 CompanionController:Start()
 
-[2026/07/28 03:12:14.027] INFO | [CompanionController] TryStartDefaultCharacterProcess: result=True, optionVal=0
+[2026/07/28 15:12:17.478] INFO | [CompanionController] TryStartDefaultCharacterProcess: result=True, optionVal=0
 CompanionController:Start()
 
-[2026/07/28 03:12:14.042] INFO | [STT] Applied VAD settings. mic.useVad=True, whisper.useVad=True, vadThd=1, vadFreqThd=100, vadLastSec=1.25, vadContextSec=30, vadUpdateRateSec=0.1
+[2026/07/28 15:12:17.478] WARNING | [SelectModelDialog] Default prefab not found at 'DefaultModel/'. Trying fallback.
+SelectModelDialog:AddDefaultModelEntry()
+<Start>d__10:MoveNext()
+System.Runtime.CompilerServices.AsyncVoidMethodBuilder:Start(TStateMachine&)
+SelectModelDialog:Start()
+
+[2026/07/28 15:12:17.617] INFO | [STT] Applied VAD settings. mic.useVad=True, whisper.useVad=True, vadThd=1, vadFreqThd=100, vadLastSec=1.25, vadContextSec=30, vadUpdateRateSec=0.1
 STTManager:ApplyMicSensitivity()
 <StartSTTAsync>d__117:MoveNext()
 STTManager:StartSTT()
 
-[2026/07/28 03:12:14.042] INFO | [STT] Startup microphone device: default, frequency=16000
+[2026/07/28 15:12:17.617] INFO | [STT] Startup microphone device: default, frequency=16000
 STTManager:LogMicDevice()
 <StartSTTAsync>d__117:MoveNext()
 STTManager:StartSTT()
 
-Whisper model is loaded, total time: 185 ms.
+Whisper model is loaded, total time: 572 ms.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
@@ -232,7 +238,68 @@ System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
 System.Threading.Tasks.Task:ExecuteEntry(Boolean)
 System.Threading.ThreadPoolWorkQueue:Dispatch()
 
-[2026/07/28 03:12:14.314] INFO | [STT] Whisper STT test started. mode=TextInput, micRecording=False
+[BackendManager] Character state WebSocket client connected.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+WebSocketSharp.WebSocket:open()
+WebSocketSharp.WebSocket:InternalAccept()
+WebSocketSharp.Server.WebSocketBehavior:Start(WebSocketContext, WebSocketSessionManager)
+WebSocketSharp.Server.WebSocketServer:processRequest(TcpListenerWebSocketContext)
+WebSocketSharp.Server.<>c__DisplayClass70_0:<receiveRequest>b__0(Object)
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.QueueUserWorkItemCallback:System.Threading.IThreadPoolWorkItem.ExecuteWorkItem()
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[BackendManager] Character state WebSocket client closed. code=1005, reason=
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+CharacterStateWebSocketBehavior:OnClose(CloseEventArgs)
+WebSocketSharp.Server.WebSocketBehavior:onClose(Object, CloseEventArgs)
+WebSocketSharp.Ext:Emit(EventHandler`1, Object, TEventArgs)
+WebSocketSharp.WebSocket:close(PayloadData, Boolean, Boolean, Boolean)
+WebSocketSharp.WebSocket:processReceivedFrame(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass176_0:<startReceiving>b__1(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass83_0:<ReadFrameAsync>b__2(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass48_0:<ReadBytesAsync>b__0(IAsyncResult)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[BackendManager] Received raw character state message: {"schemaVersion":"1.0","messageType":"CharacterSpawnCompleted","characterId":"0","timestampUnixMs":1785251538318,"status":"spawned"}
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:Update()
+
+[BackendManager] OnCharacterSpawnCompleted: characterId=0. Hiding loading indicator.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:OnCharacterSpawnCompleted(Int32)
+CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[2026/07/28 15:12:18.397] INFO | [CompanionController] HandleCharacterStateMessage: messageType=CharacterSpawnCompleted, characterId=0
+CompanionController:HandleCharacterStateMessage(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[2026/07/28 15:12:18.397] INFO | [CompanionController] HandleCharacterSpawnCompleted: new character registered. characterId=0
+CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[2026/07/28 15:12:18.397] INFO | [CompanionController] HandleCharacterSpawnCompleted: completed. characterId=0, status=spawned
+CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[2026/07/28 15:12:18.397] INFO | [STT] Whisper STT test started. mode=TextInput, micRecording=False
 <StartSTTAsync>d__117:MoveNext()
 Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
 <CreateStreamAsync>d__156:MoveNext()
@@ -277,14 +344,124 @@ WebSocketSharp.<>c__DisplayClass83_0:<ReadFrameAsync>b__2(WebSocketFrame)
 WebSocketSharp.<>c__DisplayClass48_0:<ReadBytesAsync>b__0(IAsyncResult)
 System.Threading.ThreadPoolWorkQueue:Dispatch()
 
-[BackendManager] Received raw character state message: {"schemaVersion":"1.0","messageType":"CharacterSpawnCompleted","characterId":"0","timestampUnixMs":1785208335863,"status":"spawned"}
+[BackendManager] Received raw character state message: desktopagent-ui-open-settings-dialog
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 BackendManager:Update()
 
-[BackendManager] OnCharacterSpawnCompleted: characterId=0. Hiding loading indicator.
+[BackendManager] Received settings/menu open request via WebSocket.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:ProcessCharacterStateMessage(String)
+BackendManager:Update()
+
+[ProcessIdentifier] TryStartCharacterProcess called optionVal=1, currentType=Main
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+CompanionController:SpawnCharacter(String)
+SelectModelDialog:OnModelSelected(ModelInfo, String)
+UnityEngine.Events.UnityEvent:Invoke()
+UnityEngine.EventSystems.ExecuteEvents:Execute(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointerButton(ButtonState&, PointerEventData)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointer(PointerModel&)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:Process()
+UnityEngine.EventSystems.EventSystem:Update()
+
+[ProcessIdentifier] Launching character process. file=F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe, cwd=F:\DesktopAgent\build\DesktopAgent, args=-logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_1.log" Chara=1 -monitor 1
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+CompanionController:SpawnCharacter(String)
+SelectModelDialog:OnModelSelected(ModelInfo, String)
+UnityEngine.Events.UnityEvent:Invoke()
+UnityEngine.EventSystems.ExecuteEvents:Execute(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointerButton(ButtonState&, PointerEventData)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointer(PointerModel&)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:Process()
+UnityEngine.EventSystems.EventSystem:Update()
+
+[ProcessIdentifier] CreateProcess result=True, commandLine="F:\DesktopAgent\build\DesktopAgent\DesktopAgent.exe" -logFile "C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLogs\Character_1.log" Chara=1 -monitor 1, pid=123332
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+ProcessIdentifier:TryCreateProcess(ProcessStartInfo)
+ProcessIdentifier:TryStartCharacterProcess(Int32)
+CompanionController:SpawnCharacter(String)
+SelectModelDialog:OnModelSelected(ModelInfo, String)
+UnityEngine.Events.UnityEvent:Invoke()
+UnityEngine.EventSystems.ExecuteEvents:Execute(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointerButton(ButtonState&, PointerEventData)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointer(PointerModel&)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:Process()
+UnityEngine.EventSystems.EventSystem:Update()
+
+[2026/07/28 15:12:25.117] INFO | [CompanionController] SpawnCharacter: starting process. prefabPath=Characters/Lux, optionVal=1
+CompanionController:SpawnCharacter(String)
+SelectModelDialog:OnModelSelected(ModelInfo, String)
+UnityEngine.Events.UnityEvent:Invoke()
+UnityEngine.EventSystems.ExecuteEvents:Execute(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointerButton(ButtonState&, PointerEventData)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointer(PointerModel&)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:Process()
+UnityEngine.EventSystems.EventSystem:Update()
+
+[2026/07/28 15:12:25.121] INFO | [CompanionController] SpawnCharacter: result=True, optionVal=1
+CompanionController:SpawnCharacter(String)
+SelectModelDialog:OnModelSelected(ModelInfo, String)
+UnityEngine.Events.UnityEvent:Invoke()
+UnityEngine.EventSystems.ExecuteEvents:Execute(GameObject, BaseEventData, EventFunction`1)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointerButton(ButtonState&, PointerEventData)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:ProcessPointer(PointerModel&)
+UnityEngine.InputSystem.UI.InputSystemUIInputModule:Process()
+UnityEngine.EventSystems.EventSystem:Update()
+
+[BackendManager] Character state WebSocket client connected.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+WebSocketSharp.WebSocket:open()
+WebSocketSharp.WebSocket:InternalAccept()
+WebSocketSharp.Server.WebSocketBehavior:Start(WebSocketContext, WebSocketSessionManager)
+WebSocketSharp.Server.WebSocketServer:processRequest(TcpListenerWebSocketContext)
+WebSocketSharp.Server.<>c__DisplayClass70_0:<receiveRequest>b__0(Object)
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.QueueUserWorkItemCallback:System.Threading.IThreadPoolWorkItem.ExecuteWorkItem()
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[BackendManager] Character state WebSocket client closed. code=1005, reason=
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+CharacterStateWebSocketBehavior:OnClose(CloseEventArgs)
+WebSocketSharp.Server.WebSocketBehavior:onClose(Object, CloseEventArgs)
+WebSocketSharp.Ext:Emit(EventHandler`1, Object, TEventArgs)
+WebSocketSharp.WebSocket:close(PayloadData, Boolean, Boolean, Boolean)
+WebSocketSharp.WebSocket:processReceivedFrame(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass176_0:<startReceiving>b__1(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass83_0:<ReadFrameAsync>b__2(WebSocketFrame)
+WebSocketSharp.<>c__DisplayClass48_0:<ReadBytesAsync>b__0(IAsyncResult)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[BackendManager] Received raw character state message: {"schemaVersion":"1.0","messageType":"CharacterSpawnCompleted","characterId":"1","timestampUnixMs":1785251545920,"status":"spawned"}
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+BackendManager:Update()
+
+[BackendManager] OnCharacterSpawnCompleted: characterId=1. Hiding loading indicator.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
 Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
@@ -294,20 +471,260 @@ CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
 BackendManager:ProcessCharacterStateMessage(String)
 BackendManager:Update()
 
-[2026/07/28 03:12:15.872] INFO | [CompanionController] HandleCharacterStateMessage: messageType=CharacterSpawnCompleted, characterId=0
+[2026/07/28 15:12:25.928] INFO | [CompanionController] HandleCharacterStateMessage: messageType=CharacterSpawnCompleted, characterId=1
 CompanionController:HandleCharacterStateMessage(CharacterStateMessage)
 BackendManager:ProcessCharacterStateMessage(String)
 BackendManager:Update()
 
-[2026/07/28 03:12:15.873] INFO | [CompanionController] HandleCharacterSpawnCompleted: new character registered. characterId=0
+[2026/07/28 15:12:25.928] INFO | [CompanionController] HandleCharacterSpawnCompleted: new character registered. characterId=1
 CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
 BackendManager:ProcessCharacterStateMessage(String)
 BackendManager:Update()
 
-[2026/07/28 03:12:15.873] INFO | [CompanionController] HandleCharacterSpawnCompleted: completed. characterId=0, status=spawned
+[2026/07/28 15:12:25.928] INFO | [CompanionController] HandleCharacterSpawnCompleted: completed. characterId=1, status=spawned
 CompanionController:HandleCharacterSpawnCompleted(CharacterStateMessage)
 BackendManager:ProcessCharacterStateMessage(String)
 BackendManager:Update()
+
+Inference Whisper on input data...
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Whisper inference finished, total time: 0 ms.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Final text: 
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[2026/07/28 15:12:48.399] WARNING | [STT] Whisper stream restarted. reason=rotation(time=30.0s,segments=0), maxStreamSec=30.0
+<RestartStreamAsync>d__154:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<CreateStreamAsync>d__156:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+Cysharp.Threading.Tasks.WhenAnyLRPromise`1:TryLeftInvokeContinuation(WhenAnyLRPromise`1, Awaiter&)
+Cysharp.Threading.Tasks.<>c:<.ctor>b__2_0(Object)
+Cysharp.Threading.Tasks.UniTaskCompletionSource`1:TrySignalCompletion(UniTaskStatus)
+System.Threading.Tasks.ContinuationTaskFromResultTask`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+UnityEngine.WorkRequest:Invoke()
+UnityEngine.UnitySynchronizationContext:Exec()
+
+Inference Whisper on input data...
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Whisper inference finished, total time: 0 ms.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Final text: 
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[2026/07/28 15:13:18.400] WARNING | [STT] Whisper stream restarted. reason=rotation(time=30.0s,segments=0), maxStreamSec=30.0
+<RestartStreamAsync>d__154:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<CreateStreamAsync>d__156:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+Cysharp.Threading.Tasks.WhenAnyLRPromise`1:TryLeftInvokeContinuation(WhenAnyLRPromise`1, Awaiter&)
+Cysharp.Threading.Tasks.<>c:<.ctor>b__2_0(Object)
+Cysharp.Threading.Tasks.UniTaskCompletionSource`1:TrySignalCompletion(UniTaskStatus)
+System.Threading.Tasks.ContinuationTaskFromResultTask`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+UnityEngine.WorkRequest:Invoke()
+UnityEngine.UnitySynchronizationContext:Exec()
+
+Inference Whisper on input data...
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Whisper inference finished, total time: 0 ms.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Final text: 
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[2026/07/28 15:13:48.403] WARNING | [STT] Whisper stream restarted. reason=rotation(time=30.0s,segments=0), maxStreamSec=30.0
+<RestartStreamAsync>d__154:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<CreateStreamAsync>d__156:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+Cysharp.Threading.Tasks.WhenAnyLRPromise`1:TryLeftInvokeContinuation(WhenAnyLRPromise`1, Awaiter&)
+Cysharp.Threading.Tasks.<>c:<.ctor>b__2_0(Object)
+Cysharp.Threading.Tasks.UniTaskCompletionSource`1:TrySignalCompletion(UniTaskStatus)
+System.Threading.Tasks.ContinuationTaskFromResultTask`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+UnityEngine.WorkRequest:Invoke()
+UnityEngine.UnitySynchronizationContext:Exec()
+
+Inference Whisper on input data...
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Whisper inference finished, total time: 0 ms.
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:InferenceWhisper(Single[], WhisperNativeParams)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+Final text: 
+UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
+Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
+UnityEngine.Logger:Log(LogType, Object)
+UnityEngine.Debug:Log(Object)
+Whisper.WhisperWrapper:GetText(Single[], Int32, Int32, WhisperParams)
+Whisper.<>c__DisplayClass15_0:<GetTextAsync>b__0()
+System.Threading.Tasks.Task`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+System.Threading.ThreadPoolWorkQueue:Dispatch()
+
+[2026/07/28 15:14:18.401] WARNING | [STT] Whisper stream restarted. reason=rotation(time=30.0s,segments=0), maxStreamSec=30.0
+<RestartStreamAsync>d__154:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+<CreateStreamAsync>d__156:MoveNext()
+Cysharp.Threading.Tasks.UniTaskCompletionSourceCore`1:TrySetResult(TResult)
+Cysharp.Threading.Tasks.WhenAnyLRPromise`1:TryLeftInvokeContinuation(WhenAnyLRPromise`1, Awaiter&)
+Cysharp.Threading.Tasks.<>c:<.ctor>b__2_0(Object)
+Cysharp.Threading.Tasks.UniTaskCompletionSource`1:TrySignalCompletion(UniTaskStatus)
+System.Threading.Tasks.ContinuationTaskFromResultTask`1:InnerInvoke()
+System.Threading.Tasks.Task:Execute()
+System.Threading.ExecutionContext:RunInternal(ExecutionContext, ContextCallback, Object, Boolean)
+System.Threading.Tasks.Task:ExecuteWithThreadLocal(Task&)
+System.Threading.Tasks.Task:ExecuteEntry(Boolean)
+UnityEngine.WorkRequest:Invoke()
+UnityEngine.UnitySynchronizationContext:Exec()
 
 [ProcessIdentifier] Releasing file lock and quitting. path=C:/Users/arm04/AppData/LocalLow/jp_antem0613/DesktopAgent\ProcessLocks\DesktopAgent_Main.lock
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
@@ -316,12 +733,11 @@ UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 ProcessIdentifier:OnApplicationQuit()
 
-[2026/07/28 03:12:26.470] INFO | [STT] Whisper STT stopped.
+[2026/07/28 15:14:27.130] INFO | [STT] Whisper STT stopped.
 STTManager:StopSTT()
 
 [BackendManager] Character state WebSocket server stopped.
 UnityEngine.DebugLogHandler:Internal_Log(LogType, LogOption, String, Object)
-Kirurobo.ReadPixelsWarningFilterLogHandler:LogFormat(LogType, Object, String, Object[])
 UnityEngine.Logger:Log(LogType, Object)
 UnityEngine.Debug:Log(Object)
 BackendManager:CleanupNetMQ()

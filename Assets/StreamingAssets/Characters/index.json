@@ -1,0 +1,21 @@
+{
+    "schemaVersion": "1.0",
+    "characters": [
+        {
+            "schemaVersion": "1.0",
+            "characterId": 0,
+            "displayName": "Judy",
+            "folder": "Judy",
+            "bundleFileName": "character.bundle",
+            "prefabName": "Judy"
+        },
+        {
+            "schemaVersion": "1.0",
+            "characterId": 1,
+            "displayName": "Lux",
+            "folder": "Lux",
+            "bundleFileName": "character.bundle",
+            "prefabName": "Lux"
+        }
+    ]
+}

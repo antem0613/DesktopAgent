@@ -42,6 +42,12 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
     /// </summary>
     public int DefaultCharacterOptionVal => _defaultCharacterOptionVal;
 
+    /// <summary>キャラクタープロセスがロードするバンドルファイルの絶対パス。メインプロセスから引数に渡される。</summary>
+    public string BundlePath { get; private set; }
+
+    /// <summary>キャラクタープロセスがロードする AssetBundle 内のプレハブ名。メインプロセスから引数に渡される。</summary>
+    public string PrefabName { get; private set; }
+
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     private struct STARTUPINFO
     {
@@ -173,7 +179,9 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
                 {
                     _processType = ProcessType.Character;
                     OptionVal = optionVal;
-                    UnityEngine.Debug.Log($"{LogPrefix} ProcessType=Character optionVal={OptionVal}. Loading scene={CharacterSceneName}");
+                    BundlePath = GetArgValue(args, Constant.CharacterBundlePathArgPrefix);
+                    PrefabName = GetArgValue(args, Constant.CharacterPrefabNameArgPrefix);
+                    UnityEngine.Debug.Log($"{LogPrefix} ProcessType=Character optionVal={OptionVal}, bundlePath={BundlePath}, prefabName={PrefabName}. Loading scene={CharacterSceneName}");
                     SceneManager.LoadScene(CharacterSceneName);
                     return;
                 } else
@@ -268,7 +276,7 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
         return new string(chars);
     }
 
-    public bool TryStartCharacterProcess(int optionVal = 0)
+    public bool TryStartCharacterProcess(int optionVal, string bundlePath, string prefabName)
     {
         UnityEngine.Debug.Log($"{LogPrefix} TryStartCharacterProcess called optionVal={optionVal}, currentType={ProcessType}");
         if (ProcessType != ProcessType.Main)
@@ -290,6 +298,8 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
             Arguments = BuildLaunchArguments(
                 GetProcessLogFilePath(ProcessType.Character, optionVal),
                 $"{CharacterArgumentPrefix}{Mathf.Max(0, optionVal)}",
+                QuoteArgument($"{Constant.CharacterBundlePathArgPrefix}{bundlePath ?? string.Empty}"),
+                $"{Constant.CharacterPrefabNameArgPrefix}{prefabName ?? string.Empty}",
                 BuildMonitorLaunchArgument(PrimaryMonitorIndex)),
             UseShellExecute = false,
             CreateNoWindow = false
@@ -362,6 +372,22 @@ public class ProcessIdentifier : SingletonMonoBehaviour<ProcessIdentifier>
             return current;
         }
 
+        return null;
+    }
+
+    /// <summary>
+    /// 全引数から prefix で始まる引数の値部分を返す。見つからなければ null。
+    /// </summary>
+    private string GetArgValue(string[] args, string prefix)
+    {
+        if (args == null || string.IsNullOrWhiteSpace(prefix)) return null;
+        for (int i = 0; i < args.Length; i++)
+        {
+            string arg = args[i]?.Trim();
+            if (string.IsNullOrEmpty(arg)) continue;
+            if (arg.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+                return arg.Substring(prefix.Length);
+        }
         return null;
     }
 

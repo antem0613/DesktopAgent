@@ -61,6 +61,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     CancellationTokenSource _cancellationTokenSource;
     GameObject _modelContainer;
     GameObject _spawnedModel;
+    AssetBundle _loadedBundle;
     bool _isAnimatorInitialized;
     bool _isCharacterStartupInitialized;
     bool _isTimerActive;
@@ -96,6 +97,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     bool _hasRightClickPending;
     bool _isInputRegistered;
     bool _isWindowResizeReady;
+    // フォーカスなしマウス入力用の Raw Input 登録フラグ
+    bool _rawInputRegistered;
     float _pendingScroll;
     float _windowResizeAspect = 1f;
     int _lastScrollFrame = -1;
@@ -210,7 +213,20 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     {
         base.Awake();
         _cancellationTokenSource = new CancellationTokenSource();
+        EnableBackgroundInput();
         UnityEngine.Debug.Log($"{LogPrefix} Awake");
+    }
+
+    /// <summary>
+    /// フォーカスがなくてもマウス入力を受け取れるようにする。
+    /// </summary>
+    static void EnableBackgroundInput()
+    {
+        Application.runInBackground = true;
+        // InputSystem.inputsettings.asset で m_BackgroundBehavior=2(IgnoreFocus) を設定済みだが、
+        // ランタイムでも明示的に上書きすることで確実に適用する。
+        InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+        UnityEngine.Debug.Log($"{LogPrefix} EnableBackgroundInput: backgroundBehavior=IgnoreFocus");
     }
 
     void Start()
@@ -353,20 +369,30 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
             ClearCharacter();
 
-            // ProcessIdentifier.OptionVal に対応するプレハブを検索する
+            // バンドルパス・プレハブ名はメインプロセスが起動引数で渡す。キャラクタープロセスはカタログを使わない。
             int optionVal = ProcessIdentifier.Instance?.OptionVal ?? 0;
-            var prefab = FindCharacterPrefab(optionVal);
+            string bundlePath = ProcessIdentifier.Instance?.BundlePath;
+            string prefabName = ProcessIdentifier.Instance?.PrefabName;
 
-            if (prefab == null)
+            if (string.IsNullOrWhiteSpace(bundlePath) || string.IsNullOrWhiteSpace(prefabName))
             {
-                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync aborted. No character prefab available for optionVal={optionVal}.");
+                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync aborted. BundlePath or PrefabName not set in ProcessIdentifier. optionVal={optionVal}");
                 return;
             }
 
-            UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync: using prefab '{prefab.name}' for optionVal={optionVal}.");
+            var (prefab, bundle) = await CharacterBundleLoader.LoadPrefabAsync(
+                bundlePath, prefabName, _cancellationTokenSource.Token);
+
+            if (prefab == null)
+            {
+                UnityEngine.Debug.LogWarning($"{LogPrefix} SpawnAsync aborted. Failed to load prefab for optionVal={optionVal}.");
+                return;
+            }
+
+            _loadedBundle = bundle;
+            UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync: loaded prefab '{prefab.name}' for optionVal={optionVal}.");
 
             // プレハブを Instantiate してコンテナとする
-            await UniTask.Yield();
             _modelContainer = Instantiate(prefab);
             _modelContainer.name = "ModelContainer";
             _modelContainer.transform.SetParent(null, false);
@@ -415,36 +441,6 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     }
 
     /// <summary>
-    /// optionVal に対応するキャラクタープレハブを Resources から検索する。
-    /// Resources/Characters/ 以下の GameObject で CompanionDescripter.CharacterId が一致するものを優先する。
-    /// 見つからない場合はデフォルトモデルにフォールバックする。
-    /// </summary>
-    private static GameObject FindCharacterPrefab(int optionVal)
-    {
-        // Resources/Characters/ から CharacterId が一致するプレハブを検索する
-        var prefabs = Resources.LoadAll<GameObject>("Characters");
-        for (int i = 0; i < prefabs.Length; i++)
-        {
-            var desc = prefabs[i].GetComponent<CompanionDescripter>();
-            if (desc != null && desc.CharacterId == optionVal)
-            {
-                return prefabs[i];
-            }
-        }
-
-        // デフォルトキャラクター(optionVal=0)はデフォルトフォルダにある
-        if (optionVal == 0)
-        {
-            var defaultPrefab = Resources.Load<GameObject>(Constant.DefaultVrmFileName);
-            if (defaultPrefab != null) return defaultPrefab;
-        }
-
-        // 最終フォールバック: デフォルトモデル
-        UnityEngine.Debug.LogWarning($"{LogPrefix} FindCharacterPrefab: no prefab found for optionVal={optionVal}. Falling back to default.");
-        return Resources.Load<GameObject>(Constant.DefaultVrmFileName);
-    }
-
-    /// <summary>
     /// SkinnedMeshRendererをもとにAvatarを生成する。生成に失敗した場合はnullを返す。
     /// </summary>
     /// <param name="model">Avatarを生成するもとになるモデル</param>
@@ -469,10 +465,10 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         }
 
         return null;
-    }    
+    }
 
     ///<summary>
-    /// キャラクターに関連したリソースをnullにする
+    /// キャラクターに関連したリソースを解放する。AssetBundle もアンロードする。
     /// </summary>
     void ClearCharacter()
     {
@@ -484,6 +480,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         _modelContainer = null;
         _spawnedModel = null;
         _modelAnimator = null;
+        _loadedBundle?.Unload(false);
+        _loadedBundle = null;
     }
 
     /// <summary>
@@ -519,7 +517,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             currentRotation.z + characterSettings.RotationZ);
 
         //キャラクターのスケールにあわせてウィンドウサイズを調整
-        TryResizeWindow(configuredScale);
+        TryResizeWindow(configuredScale * 2f);
     }
 
     /// <summary>
@@ -534,6 +532,67 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
         _frontYaw = ModelContainer.transform.rotation.eulerAngles.y;
         _hasYawCaptured = true;
+    }
+
+    /// <summary>
+    /// フォーカスがない間は UniWindowController のクリックスルーを毎フレーム抑制する。
+    /// フォーカスが戻ったらヒットテストを再有効化して通常動作（透明部分ではクリックスルー）に戻す。
+    /// UniWindowController.Update() の後に実行されるよう LateUpdate に配置する。
+    /// </summary>
+    void LateUpdate()
+    {
+        if (Application.isFocused) return;  // フォーカスあり: UWC の通常動作に任せる
+
+        // フォーカスなし: UpdateClickThrough() によるクリックスルー設定を毎フレーム上書きする。
+        // onObject の初期値 false + isTransparent=true の組み合わせで WS_EX_TRANSPARENT が
+        // 設定されてしまい、フォーカスを得る手段が失われるデッドロックを防ぐ。
+        var uwc = UniWindowController.current;
+        if (uwc == null) return;
+
+        // UpdateClickThrough を無効化（次フレーム以降も適用）
+        if (uwc.isHitTestEnabled)
+            uwc.isHitTestEnabled = false;
+
+        // 今フレームの UpdateClickThrough 結果を上書き
+        if (uwc.isClickThrough)
+            uwc.isClickThrough = false;
+
+        // LibUniWinC 経由でウィンドウハンドルを取得し WS_EX_TRANSPARENT も直接クリア
+        var hwnd = WindowsAPI.GetUniWinWindowHandle();
+        if (hwnd != IntPtr.Zero)
+        {
+            WindowsAPI.SetClickThrough(hwnd, false);
+
+            // フォーカスなしでも WM_INPUT (スクロール等) が届くよう RIDEV_INPUTSINK で登録
+            if (!_rawInputRegistered)
+            {
+                _rawInputRegistered = WindowsAPI.RegisterMouseRawInputSink();
+                if (_rawInputRegistered)
+                    UnityEngine.Debug.Log($"{LogPrefix} RegisterMouseRawInputSink succeeded.");
+            }
+        }
+    }
+
+    void OnApplicationFocus(bool focus)
+    {
+        var uwc = UniWindowController.current;
+        if (uwc == null) return;
+
+        if (focus)
+        {
+            // フォーカス取得: ヒットテストを再有効化して透明部分ではクリックスルーする通常動作に戻す
+            if (!uwc.isHitTestEnabled)
+                uwc.isHitTestEnabled = true;
+            UnityEngine.Debug.Log($"{LogPrefix} OnApplicationFocus: gained focus.");
+        } else
+        {
+            // フォーカス喪失: 次の LateUpdate が対処するが、即座にクリックスルーを無効化しておく
+            if (uwc.isHitTestEnabled)
+                uwc.isHitTestEnabled = false;
+            if (uwc.isClickThrough)
+                uwc.isClickThrough = false;
+            UnityEngine.Debug.Log($"{LogPrefix} OnApplicationFocus: lost focus.");
+        }
     }
 
     void Update()
@@ -1602,6 +1661,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
         var appSettings = ApplicationSettings.Instance;
 
+        nextScale *= 2f;
+
         if (appSettings != null && appSettings.Character != null)
         {
             appSettings.Character.Scale = nextScale;
@@ -1730,6 +1791,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         _cancellationTokenSource?.Cancel();
         _cancellationTokenSource?.Dispose();
         _cancellationTokenSource = null;
+        _loadedBundle?.Unload(false);
+        _loadedBundle = null;
         CleanupNetMQ();
     }
 
@@ -1981,7 +2044,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         if (_modelContainer != null)
         {
             _modelContainer.transform.localScale = Vector3.one * nextScale;
-            TryResizeWindow(nextScale);
+            TryResizeWindow(nextScale * 2f);
         }
 
         var appSettings = ApplicationSettings.Instance;
