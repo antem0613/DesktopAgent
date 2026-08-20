@@ -248,7 +248,7 @@ Camera:
   far clip plane: 100
   field of view: 10
   orthographic: 1
-  orthographic size: 2
+  orthographic size: 4
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -688,7 +688,7 @@ MonoBehaviour:
   _isZoomed: 0
   _shouldFitMonitor: 0
   _allowDropFiles: 1
-  isHitTestEnabled: 1
+  isHitTestEnabled: 0
   hitTestType: 1
   opacityThreshold: 0.1
   autoSwitchCameraBackground: 1

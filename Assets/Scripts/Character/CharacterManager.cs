@@ -141,6 +141,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
     private Vector2 _pendingRightClickScreenPosition;
 
     private bool _hasFrontYawCaptured;
+    private bool _alwaysTopmostLocked = true;
     private bool _isWalkActive;
     private bool _isWaitingForActionTransition;
     private float _frontYaw;
@@ -2425,7 +2426,8 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
     // 支持ウィンドウ追従状態を解除する。
     private void ClearSupportingWindowFollowTarget()
     {
-        bool isKeepTopmost = IsGrounded && _lastGroundSurfaceType == GroundSurfaceType.Taskbar;
+        // 常時最前面ロック中でも追従状態のクリア自体は必ず行い、topmost の解除だけ抑止する
+        bool isKeepTopmost = _alwaysTopmostLocked || (IsGrounded && _lastGroundSurfaceType == GroundSurfaceType.Taskbar);
         bool hasFollowState = _followingWindowHandle != IntPtr.Zero
                               || _fallRuntime.HasFollowingWindowRect
                               || Mathf.Abs(_followingWindowOffsetX) > 0.001f
@@ -2471,6 +2473,12 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
     private void EnsureTopmostForTaskbarLanding()
     {
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        if (_alwaysTopmostLocked)
+        {
+            _zOrderRuntime.IsTopmostPinnedBySupport = WindowsAPI.SetCurrentWindowTopmost(true);
+            return;
+        }
+
         if (!IsGrounded || _lastGroundSurfaceType != GroundSurfaceType.Taskbar)
         {
             return;
@@ -2565,6 +2573,13 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
             if (!_owner._zOrderRuntime.IsTopmostPinnedByDrag)
             {
+                return;
+            }
+
+            if (_owner._alwaysTopmostLocked)
+            {
+                _owner._zOrderRuntime.IsTopmostPinnedBySupport = true;
+                _owner._zOrderRuntime.IsTopmostPinnedByDrag = false;
                 return;
             }
 

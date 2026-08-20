@@ -1,6 +1,7 @@
 ﻿#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using UnityEngine;
@@ -119,6 +120,7 @@ public static class WindowsAPI
     private const int GWL_EXSTYLE = -20;
     private const int WS_EX_TRANSPARENT = 0x20;
     private const int WS_EX_LAYERED = 0x80000;
+    private const int WS_EX_TOPMOST = 0x8;
     private const uint GW_HWNDNEXT = 2;
     private const uint GA_ROOTOWNER = 3;
     private const uint MONITOR_DEFAULTTONEAREST = 0x00000002;
@@ -129,6 +131,22 @@ public static class WindowsAPI
     private const uint SWP_NOACTIVATE = 0x0010;
     private static readonly IntPtr HWND_TOPMOST = new IntPtr(-1);
     private static readonly IntPtr HWND_NOTOPMOST = new IntPtr(-2);
+
+    private static readonly IntPtr HKEY_CURRENT_USER = new IntPtr(unchecked((int)0x80000001));
+    private const int KEY_ALL_ACCESS = 0xF003F;
+    private const int REG_SZ = 1;
+
+    [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+    private static extern int RegCreateKeyEx(IntPtr hKey, string lpSubKey, int reserved, string lpClass, int dwOptions, int samDesired, IntPtr lpSecurityAttributes, out IntPtr phkResult, out int lpdwDisposition);
+
+    [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+    private static extern int RegSetValueEx(IntPtr hKey, string lpValueName, int reserved, int dwType, string lpData, int cbData);
+
+    [DllImport("advapi32.dll", CharSet = CharSet.Unicode)]
+    private static extern int RegQueryValueEx(IntPtr hKey, string lpValueName, IntPtr lpReserved, out int lpType, StringBuilder lpData, ref int lpcbData);
+
+    [DllImport("advapi32.dll")]
+    private static extern int RegCloseKey(IntPtr hKey);
 
     public static IntPtr GetNextWindow(IntPtr hWnd)
     {
@@ -246,7 +264,10 @@ public static class WindowsAPI
             return false;
         }
 
-        return SetWindowPos(
+        long exStyleBefore = GetWindowLongPtr(hWnd, GWL_EXSTYLE).ToInt64();
+        bool wasTopmost = (exStyleBefore & WS_EX_TOPMOST) != 0;
+
+        bool result = SetWindowPos(
             hWnd,
             targetHWnd,
             0,
@@ -254,6 +275,14 @@ public static class WindowsAPI
             0,
             0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE);
+
+        // targetHWnd がトップモストでないと、Z順挿入で自ウィンドウのトップモスト属性が暗黙に解除されるため復元する
+        if (result && wasTopmost)
+        {
+            SetCurrentWindowTopmost(true);
+        }
+
+        return result;
     }
 
     public static bool SetCurrentWindowTopmost(bool topmost)
@@ -262,6 +291,14 @@ public static class WindowsAPI
         if (hWnd == IntPtr.Zero)
         {
             return false;
+        }
+
+        // すでに目的の状態なら SetWindowPos を省略して Z オーダーの連続変更を抱えない
+        long exStyle = GetWindowLongPtr(hWnd, GWL_EXSTYLE).ToInt64();
+        bool isCurrentlyTopmost = (exStyle & WS_EX_TOPMOST) != 0;
+        if (isCurrentlyTopmost == topmost)
+        {
+            return true;
         }
 
         IntPtr insertAfter = topmost ? HWND_TOPMOST : HWND_NOTOPMOST;
@@ -619,6 +656,87 @@ public static class WindowsAPI
             (uint)Marshal.SizeOf<RAWINPUTDEVICE>());
 
         return ok;
+    }
+
+    /// <summary>
+    /// 常時最前面かつ連続描画するボーダーレスウィンドウは Windows の
+    /// フルスクリーン最適化(Game Bar)の誤検知対象になり、フォーカスアシストの
+    /// タスクバー表示切り替えを誘発することがあるため、実行ファイル単位で無効化する。
+    /// </summary>
+    public static void DisableFullscreenOptimizations()
+    {
+        try
+        {
+            string exePath = ResolveCurrentExecutablePath();
+            if (string.IsNullOrEmpty(exePath))
+            {
+                UnityEngine.Debug.LogWarning("[WindowsAPI] DisableFullscreenOptimizations: exePath is empty.");
+                return;
+            }
+
+            const string subKey = @"Software\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers";
+            int result = RegCreateKeyEx(HKEY_CURRENT_USER, subKey, 0, null, 0, KEY_ALL_ACCESS, IntPtr.Zero, out IntPtr hKey, out _);
+            if (result != 0 || hKey == IntPtr.Zero)
+            {
+                UnityEngine.Debug.LogWarning($"[WindowsAPI] DisableFullscreenOptimizations: RegCreateKeyEx failed. result={result}");
+                return;
+            }
+
+            try
+            {
+                const string flag = "DISABLEDXMAXIMIZEDWINDOWEDMODE";
+                var buffer = new StringBuilder(1024);
+                int cbData = buffer.Capacity * 2;
+                int queryResult = RegQueryValueEx(hKey, exePath, IntPtr.Zero, out _, buffer, ref cbData);
+                string existing = queryResult == 0 ? buffer.ToString() : string.Empty;
+
+                if (existing.IndexOf(flag, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    UnityEngine.Debug.Log($"[WindowsAPI] DisableFullscreenOptimizations: already set for {exePath}");
+                    return;
+                }
+
+                string updated = string.IsNullOrEmpty(existing) ? $"~ {flag}" : $"{existing} {flag}";
+                int setResult = RegSetValueEx(hKey, exePath, 0, REG_SZ, updated, (updated.Length + 1) * 2);
+                UnityEngine.Debug.Log($"[WindowsAPI] DisableFullscreenOptimizations: set '{updated}' for {exePath}. result={setResult}");
+            } finally
+            {
+                RegCloseKey(hKey);
+            }
+        } catch (Exception ex)
+        {
+            UnityEngine.Debug.LogWarning($"[WindowsAPI] DisableFullscreenOptimizations failed: {ex.Message}");
+        }
+    }
+
+    /// <summary>
+    /// IL2CPPビルドでは Process.MainModule が例外を投げることがあるため、
+    /// まずコマンドライン引数から解決し、ダメなら MainModule を try/catch でフォールバックする。
+    /// </summary>
+    private static string ResolveCurrentExecutablePath()
+    {
+        string[] commandLineArgs = Environment.GetCommandLineArgs();
+        string commandPath = (commandLineArgs != null && commandLineArgs.Length > 0) ? commandLineArgs[0] : string.Empty;
+
+        if (!string.IsNullOrWhiteSpace(commandPath) && System.IO.File.Exists(commandPath))
+        {
+            return commandPath;
+        }
+
+        try
+        {
+            using var current = Process.GetCurrentProcess();
+            string mainModulePath = current.MainModule?.FileName ?? string.Empty;
+            if (!string.IsNullOrWhiteSpace(mainModulePath))
+            {
+                return mainModulePath;
+            }
+        } catch (Exception ex)
+        {
+            UnityEngine.Debug.LogWarning($"[WindowsAPI] ResolveCurrentExecutablePath: Process.MainModule could not be read. reason={ex.Message}");
+        }
+
+        return commandPath;
     }
 
     public static bool SetClickThrough(IntPtr hWnd, bool enabled)

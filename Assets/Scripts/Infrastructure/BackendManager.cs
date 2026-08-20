@@ -71,6 +71,10 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         Application.runInBackground = true;
 
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        WindowsAPI.DisableFullscreenOptimizations();
+#endif
+
         try
         {
             var inputSystemType = Type.GetType("UnityEngine.InputSystem.InputSystem, Unity.InputSystem");

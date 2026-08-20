@@ -82,6 +82,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
     FallRuntimeState _fallRuntime;
     ZOrderRuntimeState _zOrderRuntime;
+    // 常時最前面固定の方針と矛盾しないよう、既存の解除ロジックを無効化するためのガード
+    readonly bool _alwaysTopmostLocked = true;
     bool _hasVirtualScreenY;
     bool _wasSupportFocused;
     float _fallSpeed;
@@ -99,6 +101,14 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     bool _isWindowResizeReady;
     // フォーカスなしマウス入力用の Raw Input 登録フラグ
     bool _rawInputRegistered;
+    float _lastRawInputCheckTime = float.NegativeInfinity;
+    const float RawInputReassertIntervalSeconds = 2f;
+    // 自前の不透明ピクセル判定結果（フォーカス非依存）
+    bool _isPointerOnOpaquePixel;
+    bool _pendingOpaqueReading;
+    int _pendingOpaqueStableFrames;
+    const int OpaqueStableFrameThreshold = 3;
+    Texture2D _clickThroughPixelTexture;
     float _pendingScroll;
     float _windowResizeAspect = 1f;
     int _lastScrollFrame = -1;
@@ -214,7 +224,162 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         base.Awake();
         _cancellationTokenSource = new CancellationTokenSource();
         EnableBackgroundInput();
+#if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
+        WindowsAPI.DisableFullscreenOptimizations();
+#endif
+        StartCoroutine(OpacityHitTestLoop());
         UnityEngine.Debug.Log($"{LogPrefix} Awake");
+    }
+
+    // フォーカス状態やクリックスルーには一切関与せず、背景入力と最前面のみ維持する
+    private void ApplyAlwaysActiveWindowMode()
+    {
+        Application.runInBackground = true;
+
+        // 毎フレーム同じ値を再代入すると InputSystem 内部で再設定処理が走るため、変化時のみ書き込む
+        if (InputSystem.settings.backgroundBehavior != InputSettings.BackgroundBehavior.IgnoreFocus)
+        {
+            InputSystem.settings.backgroundBehavior = InputSettings.BackgroundBehavior.IgnoreFocus;
+        }
+
+        if (WindowsAPI.GetCurrentWindowHandle() != IntPtr.Zero)
+        {
+            WindowsAPI.SetCurrentWindowTopmost(true);
+        }
+
+        var hwnd = WindowsAPI.GetUniWinWindowHandle();
+        if (hwnd == IntPtr.Zero)
+        {
+            return;
+        }
+
+        // 外部要因で上書きされうるため定期的に再アサートするが、毎フレームは行わない
+        if (_rawInputRegistered && Time.unscaledTime - _lastRawInputCheckTime < RawInputReassertIntervalSeconds)
+        {
+            return;
+        }
+
+        _lastRawInputCheckTime = Time.unscaledTime;
+
+        bool registered = WindowsAPI.RegisterMouseRawInputSink();
+        if (registered && !_rawInputRegistered)
+        {
+            _rawInputRegistered = true;
+            UnityEngine.Debug.Log($"{LogPrefix} RegisterMouseRawInputSink succeeded.");
+        }
+    }
+
+    /// <summary>
+    /// UniWindowController 純正のヒットテストはフォーカス依存で判定が凍結するため、
+    /// フォーカスが常に無効である前提で自前判定に置き換える。
+    /// </summary>
+    void UpdateManualClickThrough()
+    {
+        var uwc = UniWindowController.current;
+        if (uwc == null) return;
+
+        if (uwc.isHitTestEnabled)
+        {
+            uwc.isHitTestEnabled = false;
+        }
+
+        // ドラッグ中は UniWindowMoveHandle 自身が isClickThrough を管理するため上書きしない
+        if (uniWindowMoveHandle != null && uniWindowMoveHandle.IsDragging)
+        {
+            return;
+        }
+
+        bool shouldClickThrough = !_isPointerOnOpaquePixel;
+        if (uwc.isClickThrough != shouldClickThrough)
+        {
+            uwc.isClickThrough = shouldClickThrough;
+        }
+    }
+
+    // Mouse.current.position はフォーカスが無いと更新されないため、OSのカーソル座標から算出する
+    // UniWindowController 内部の変換式と同一（ボーダーレス前提でクライアント原点オフセットは0）
+    static Vector2 GetCursorScreenPosition(UniWindowController uwc)
+    {
+        Vector2 globalCursor = UniWindowController.GetCursorPosition();
+        Vector2 winPos = uwc.windowPosition;
+        Vector2 clientSize = uwc.clientSize;
+
+        float scaleX = Screen.width / Mathf.Max(1f, clientSize.x);
+        float scaleY = Screen.height / Mathf.Max(1f, clientSize.y);
+
+        return new Vector2(
+            (globalCursor.x - winPos.x) * scaleX,
+            (globalCursor.y - winPos.y) * scaleY);
+    }
+
+    /// <summary>
+    /// UniWindowController のピクセル判定はフォーカス依存で凍結するため、
+    /// 同じ alpha しきい値判定を自前で WaitForEndOfFrame ループとして実行する。
+    /// </summary>
+    IEnumerator OpacityHitTestLoop()
+    {
+        while (true)
+        {
+            yield return new WaitForEndOfFrame();
+            RecomputeOpacityHit();
+        }
+    }
+
+    void RecomputeOpacityHit()
+    {
+        var uwc = UniWindowController.current;
+        if (uwc == null || uwc.currentCamera == null)
+        {
+            _isPointerOnOpaquePixel = false;
+            return;
+        }
+
+        Vector2 screenPos = GetCursorScreenPosition(uwc);
+        if (screenPos.x < 0f || screenPos.x >= Screen.width || screenPos.y < 0f || screenPos.y >= Screen.height)
+        {
+            _isPointerOnOpaquePixel = false;
+            return;
+        }
+
+        // 透過していないウィンドウは常に不透明扱い
+        if (!uwc.isTransparent)
+        {
+            _isPointerOnOpaquePixel = true;
+            return;
+        }
+
+        if (_clickThroughPixelTexture == null)
+        {
+            _clickThroughPixelTexture = new Texture2D(1, 1, TextureFormat.ARGB32, false);
+        }
+
+        try
+        {
+            _clickThroughPixelTexture.ReadPixels(new Rect(screenPos, Vector2.one), 0, 0);
+            Color color = _clickThroughPixelTexture.GetPixels32()[0];
+            bool rawHit = color.a >= uwc.opacityThreshold;
+
+            // 輪郭のアンチエイリアスで 1 フレームだけ値が揺れると WS_EX_TRANSPARENT が連続で切り替わるため、
+            // 連続して同じ値になったときだけ確定させる
+            if (rawHit == _pendingOpaqueReading)
+            {
+                _pendingOpaqueStableFrames++;
+            }
+            else
+            {
+                _pendingOpaqueReading = rawHit;
+                _pendingOpaqueStableFrames = 1;
+            }
+
+            if (_pendingOpaqueStableFrames >= OpaqueStableFrameThreshold)
+            {
+                _isPointerOnOpaquePixel = rawHit;
+            }
+        }
+        catch (Exception)
+        {
+            // フレーム外 ReadPixels は断続的に発生しうるため、直前の判定を維持する
+        }
     }
 
     /// <summary>
@@ -534,65 +699,11 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         _hasYawCaptured = true;
     }
 
-    /// <summary>
-    /// フォーカスがない間は UniWindowController のクリックスルーを毎フレーム抑制する。
-    /// フォーカスが戻ったらヒットテストを再有効化して通常動作（透明部分ではクリックスルー）に戻す。
-    /// UniWindowController.Update() の後に実行されるよう LateUpdate に配置する。
-    /// </summary>
+    // UniWindowController.Update() の後に実行されるよう LateUpdate に配置する
     void LateUpdate()
     {
-        if (Application.isFocused) return;  // フォーカスあり: UWC の通常動作に任せる
-
-        // フォーカスなし: UpdateClickThrough() によるクリックスルー設定を毎フレーム上書きする。
-        // onObject の初期値 false + isTransparent=true の組み合わせで WS_EX_TRANSPARENT が
-        // 設定されてしまい、フォーカスを得る手段が失われるデッドロックを防ぐ。
-        var uwc = UniWindowController.current;
-        if (uwc == null) return;
-
-        // UpdateClickThrough を無効化（次フレーム以降も適用）
-        if (uwc.isHitTestEnabled)
-            uwc.isHitTestEnabled = false;
-
-        // 今フレームの UpdateClickThrough 結果を上書き
-        if (uwc.isClickThrough)
-            uwc.isClickThrough = false;
-
-        // LibUniWinC 経由でウィンドウハンドルを取得し WS_EX_TRANSPARENT も直接クリア
-        var hwnd = WindowsAPI.GetUniWinWindowHandle();
-        if (hwnd != IntPtr.Zero)
-        {
-            WindowsAPI.SetClickThrough(hwnd, false);
-
-            // フォーカスなしでも WM_INPUT (スクロール等) が届くよう RIDEV_INPUTSINK で登録
-            if (!_rawInputRegistered)
-            {
-                _rawInputRegistered = WindowsAPI.RegisterMouseRawInputSink();
-                if (_rawInputRegistered)
-                    UnityEngine.Debug.Log($"{LogPrefix} RegisterMouseRawInputSink succeeded.");
-            }
-        }
-    }
-
-    void OnApplicationFocus(bool focus)
-    {
-        var uwc = UniWindowController.current;
-        if (uwc == null) return;
-
-        if (focus)
-        {
-            // フォーカス取得: ヒットテストを再有効化して透明部分ではクリックスルーする通常動作に戻す
-            if (!uwc.isHitTestEnabled)
-                uwc.isHitTestEnabled = true;
-            UnityEngine.Debug.Log($"{LogPrefix} OnApplicationFocus: gained focus.");
-        } else
-        {
-            // フォーカス喪失: 次の LateUpdate が対処するが、即座にクリックスルーを無効化しておく
-            if (uwc.isHitTestEnabled)
-                uwc.isHitTestEnabled = false;
-            if (uwc.isClickThrough)
-                uwc.isClickThrough = false;
-            UnityEngine.Debug.Log($"{LogPrefix} OnApplicationFocus: lost focus.");
-        }
+        ApplyAlwaysActiveWindowMode();
+        UpdateManualClickThrough();
     }
 
     void Update()
@@ -968,7 +1079,9 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     /// </summary>
     void FallingUpdate()
     {
-        bool isDraggingUniwindow = uniWindowMoveHandle.IsDragging;
+        // uniWindowMoveHandle はフォーカス喪失時に固まった古いマウス座標で誤ってドラッグ判定することがあるため、
+        // 自前のネイティブカーソル座標ベースの判定で実際にキャラクター上か確認する
+        bool isDraggingUniwindow = uniWindowMoveHandle.IsDragging && _isPointerOnOpaquePixel;
 
         //uniWindowMoveHandleによるドラッグがされてなく、落下の更新がドラッグ状態で行われている場合はドラッグ状態を解除する
         if (_fallRuntime.IsDragDriven && !isDraggingUniwindow)
@@ -2213,7 +2326,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     /// </summary>
     void ClearFollowTarget()
     {
-        bool isKeepTopmost = IsGrounded && _lastGroundSurfaceType == GroundSurfaceType.Taskbar;
+        bool isKeepTopmost = _alwaysTopmostLocked || (IsGrounded && _lastGroundSurfaceType == GroundSurfaceType.Taskbar);
 
         bool hasFollow = _followWindow != IntPtr.Zero || _fallRuntime.HasFollowingWindow;
 
@@ -2278,7 +2391,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             return;
         }
 
-        bool isKeepTopmost = IsGrounded && _lastGroundSurfaceType == GroundSurfaceType.Taskbar;
+        bool isKeepTopmost = _alwaysTopmostLocked || (IsGrounded && _lastGroundSurfaceType == GroundSurfaceType.Taskbar);
         if (isKeepTopmost)
         {
             _zOrderRuntime.IsTopmostSupport = true;
