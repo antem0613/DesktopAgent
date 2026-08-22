@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: d5fa0e1184f4e4e459456e2f7f355faf
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/zz_Common/Shaders/SoftLava.shader
+  uploadId: 966744

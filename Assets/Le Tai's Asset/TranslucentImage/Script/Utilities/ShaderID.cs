@@ -29,8 +29,8 @@ public static class ShaderID
 
     public const           string USE_EDGE_GLINT           = ParaformMaterial.ShaderID.USE_EDGE_GLINT;
     public static readonly int    EDGE_GLINT_DIRECTIONS    = ParaformMaterial.ShaderID.EDGE_GLINT_DIRECTIONS;
-    public static readonly int    EDGE_GLINT1_STRENGTH     = ParaformMaterial.ShaderID.EDGE_GLINT1_STRENGTH;
-    public static readonly int    EDGE_GLINT2_STRENGTH     = ParaformMaterial.ShaderID.EDGE_GLINT2_STRENGTH;
+    public static readonly int    EDGE_GLINT1_COLOR        = ParaformMaterial.ShaderID.EDGE_GLINT1_COLOR;
+    public static readonly int    EDGE_GLINT2_COLOR        = ParaformMaterial.ShaderID.EDGE_GLINT2_COLOR;
     public static readonly int    EDGE_GLINT_WRAP_RAW      = ParaformMaterial.ShaderID.EDGE_GLINT_WRAP_RAW;
     public static readonly int    EDGE_GLINT_SHARPNESS_RAW = ParaformMaterial.ShaderID.EDGE_GLINT_SHARPNESS_RAW;
 }

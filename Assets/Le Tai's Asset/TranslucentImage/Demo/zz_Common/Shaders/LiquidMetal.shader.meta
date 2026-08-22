@@ -1,0 +1,16 @@
+fileFormatVersion: 2
+guid: 4d670b0910ede4d23a4c79cace0974a3
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures: []
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/zz_Common/Shaders/LiquidMetal.shader
+  uploadId: 966744

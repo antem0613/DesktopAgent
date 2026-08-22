@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: f3a2aaf15f0c54c18ae84f20879f6e12
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/zz_Common/Scripts/ParaformMaterialSelector.cs
+  uploadId: 966744

@@ -12,8 +12,27 @@ public partial class TranslucentImage
 {
     public ParaformConfig paraformConfig = ParaformConfig.DEFAULT;
 
-    float etaCache      = 1 / 1.5f;
-    float previousScale = 0;
+    const string PARAFORM_SHADER_NAME = "UI/TranslucentImage-Paraform";
+
+    float  _prevScale = 0;
+    Shader _prevShader;
+    bool   _wasParaform;
+
+    bool IsParaform()
+    {
+        var mat    = material;
+        var shader = mat ? mat.shader : null;
+
+        if (!ReferenceEquals(shader, _prevShader)) // cheaper. don't need null check
+        {
+            _prevShader = shader;
+            // .name allocs. strcmp is not so fast. But shader object ref compare may fail due to asset bundle dup :(
+            // at least this should only run occasionally
+            _wasParaform = shader && shader.name == PARAFORM_SHADER_NAME;
+        }
+
+        return _wasParaform;
+    }
 
     private static float GetMaxRefractionOffset(float minDistance, float eta)
     {
@@ -25,7 +44,13 @@ public partial class TranslucentImage
     [Conditional("LETAI_PARAFORM")]
     private void PadRectForRefraction(ref Rect rect)
     {
-        var   offset = GetMaxRefractionOffset(paraformConfig.Elevation, etaCache);
+        if (!IsParaform())
+            return;
+
+        var etas = material.GetVector(ShaderID.REFRACTIVE_INDEX_RATIOS);
+        var eta  = Mathf.Min(etas.x, Mathf.Min(etas.y, etas.z));
+
+        var   offset = GetMaxRefractionOffset(paraformConfig.Elevation, eta);
         float padX;
         float padY;
 
@@ -49,13 +74,6 @@ public partial class TranslucentImage
     }
 
     [Conditional("LETAI_PARAFORM")]
-    private void CacheEta()
-    {
-        var etas = material.GetVector(ShaderID.REFRACTIVE_INDEX_RATIOS);
-        etaCache = Mathf.Min(etas.x, Mathf.Min(etas.y, etas.z));
-    }
-
-    [Conditional("LETAI_PARAFORM")]
     void SetParaformShaderGlobal()
     {
         if (!canvas) // trigger on undo
@@ -70,10 +88,10 @@ public partial class TranslucentImage
         var localScale = rectTransform.localScale;
         // var scale      = (localScale.x + localScale.y) / 2f;
         var scale = Mathf.Max(localScale.x, localScale.y);
-        if (Mathf.Abs(scale - previousScale) > 1e-5f)
+        if (Mathf.Abs(scale - _prevScale) > 1e-5f)
         {
             SetVerticesDirty();
-            previousScale = scale;
+            _prevScale = scale;
         }
     }
 
@@ -90,30 +108,32 @@ public partial class TranslucentImage
         MaterialUtils.CopyVector(src, dst, ShaderID.REFRACTIVE_INDEX_RATIOS);
 
         MaterialUtils.CopyVector(src, dst, ShaderID.EDGE_GLINT_DIRECTIONS);
-        MaterialUtils.CopyFloat(src, dst, ShaderID.EDGE_GLINT1_STRENGTH);
-        MaterialUtils.CopyFloat(src, dst, ShaderID.EDGE_GLINT2_STRENGTH);
+        MaterialUtils.CopyColor(src, dst, ShaderID.EDGE_GLINT1_COLOR);
+        MaterialUtils.CopyColor(src, dst, ShaderID.EDGE_GLINT2_COLOR);
         MaterialUtils.CopyFloat(src, dst, ShaderID.EDGE_GLINT_WRAP_RAW);
         MaterialUtils.CopyFloat(src, dst, ShaderID.EDGE_GLINT_SHARPNESS_RAW);
     }
 
 #if LETAI_PARAFORM
-    public override bool IsRaycastLocationValid(Vector2 screenPoint, Camera eventCamera)
+    public override bool Raycast(Vector2 screenPoint, Camera eventCamera)
     {
+        if (!base.Raycast(screenPoint, eventCamera))
+            return false;
+
+        if (!IsParaform())
+            return true;
+
         if (!RectTransformUtilityPatch.ScreenPointToLocalPointInRectangle(rectTransform, screenPoint, eventCamera, out var local))
             return false;
 
-        Rect rect = GetPixelAdjustedRect();
-
+        var rect    = rectTransform.rect;
         var padding = raycastPadding;
         rect.xMin += padding.x;
         rect.yMin += padding.y;
         rect.xMax -= padding.z;
         rect.yMax -= padding.w;
 
-        if (!ParaformUtils.IsRaycastLocationValid(paraformConfig, rect, local))
-            return false;
-
-        return base.IsRaycastLocationValid(screenPoint, eventCamera);
+        return ParaformUtils.IsRaycastLocationValid(paraformConfig, rect, local);
     }
 
     protected override void OnDidApplyAnimationProperties()

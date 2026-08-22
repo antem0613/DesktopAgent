@@ -926,8 +926,21 @@ namespace Asset_Cleaner {
 
         class ResultComp : IEqualityComparer<Result> {
             public static ResultComp Instance { get; } = new ResultComp();
-            public bool Equals(Result x, Result y) => GetHashCode(x) == GetHashCode(y);
-            public int GetHashCode(Result obj) => obj.RootGo.GetInstanceID();
+            public bool Equals(Result x, Result y) {
+                if (ReferenceEquals(x, y))
+                    return true;
+                if (x == null || y == null)
+                    return false;
+                return x.RootGo == y.RootGo;
+            }
+
+            public int GetHashCode(Result obj) {
+#if UNITY_6000_5_OR_NEWER
+                return obj.RootGo.GetEntityId().GetHashCode();
+#else
+                return obj.RootGo.GetInstanceID();
+#endif
+            }
         }
 
         static void DrawRowScene(SearchResultGui gui) {

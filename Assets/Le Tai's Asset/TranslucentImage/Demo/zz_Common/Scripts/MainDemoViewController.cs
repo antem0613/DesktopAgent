@@ -21,7 +21,7 @@ public class MainDemoViewController : MonoBehaviour
 
     void Start()
     {
-        source = Shims.FindObjectOfType<TranslucentImageSource>();
+        source = Shims.FindAnyObjectByType<TranslucentImageSource>();
         var colorSchemeManager = GetComponent<ColorSchemeManager>();
 
         BackupValues();

@@ -1,4 +1,4 @@
-﻿Shader "UI/Stripe"
+Shader "UI/Stripe"
 {
     Properties
     {

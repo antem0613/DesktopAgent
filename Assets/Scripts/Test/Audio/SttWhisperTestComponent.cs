@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -407,12 +407,12 @@ public class SttWhisperTestComponent : MonoBehaviour
     {
         if (whisperManager == null)
         {
-            whisperManager = GetComponent<WhisperManager>() ?? FindFirstObjectByType<WhisperManager>();
+            whisperManager = GetComponent<WhisperManager>() ?? FindAnyObjectByType<WhisperManager>();
         }
 
         if (microphoneRecord == null)
         {
-            microphoneRecord = GetComponent<MicrophoneRecord>() ?? FindFirstObjectByType<MicrophoneRecord>();
+            microphoneRecord = GetComponent<MicrophoneRecord>() ?? FindAnyObjectByType<MicrophoneRecord>();
         }
 
         if (whisperManager == null)

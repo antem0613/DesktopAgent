@@ -18,6 +18,7 @@ public class MotionLoader
     /// </summary>
     /// <param name="path"></param>
     /// <returns></returns>
+    /*
     public static async UniTask<IVrm10Animation> LoadMotionsAsync(string path)
     {
         var ext = Path.GetExtension(path).ToLower();
@@ -33,4 +34,5 @@ public class MotionLoader
         RuntimeGltfInstance instance = await loader.LoadAsync(new ImmediateCaller());
         return instance.GetComponent<Vrm10AnimationInstance>();
     }
+    */
 }

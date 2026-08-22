@@ -1,4 +1,4 @@
-using Unity.Logging;
+﻿using Unity.Logging;
 using UnityEngine;
 using uDesktopMascot;
 
@@ -20,7 +20,7 @@ public sealed class ShouldGoNextResetter : StateMachineBehaviour
 
         if (resetOnEnter)
         {
-            var manager = FindFirstObjectByType<CharacterManager>();
+            var manager = FindAnyObjectByType<CharacterManager>();
             if (manager != null)
             {
                 if (!manager.AnimatorIsFalling)
@@ -45,7 +45,7 @@ public sealed class ShouldGoNextResetter : StateMachineBehaviour
     {
         if (!resetOnEnter)
         {
-            var manager = FindFirstObjectByType<CharacterManager>();
+            var manager = FindAnyObjectByType<CharacterManager>();
             if (manager != null)
             {
                 if (!manager.AnimatorIsFalling)
@@ -76,7 +76,7 @@ public sealed class ShouldGoNextResetter : StateMachineBehaviour
 
         if (manager == null)
         {
-            manager = FindFirstObjectByType<TestActionDecisionManager>();
+            manager = FindAnyObjectByType<TestActionDecisionManager>();
         }
 
         return manager;

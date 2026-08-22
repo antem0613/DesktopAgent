@@ -1,4 +1,4 @@
-﻿Shader "UI/Grain"
+Shader "UI/Grain"
 {
     Properties
     {

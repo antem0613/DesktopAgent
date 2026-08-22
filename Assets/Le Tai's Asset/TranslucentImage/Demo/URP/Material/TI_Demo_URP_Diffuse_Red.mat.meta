@@ -1,8 +1,15 @@
 fileFormatVersion: 2
 guid: 1e4ab3ed845f9eb459839145858c2ca4
-timeCreated: 1503822126
-licenseType: Store
 NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/URP/Material/TI_Demo_URP_Diffuse_Red.mat
+  uploadId: 966744

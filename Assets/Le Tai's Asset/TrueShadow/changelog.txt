@@ -1,3 +1,14 @@
+v1.15.2:
+ - Improve compatibility with Unity 6.5.
+ - Fix TMP's shadow not correctly updating when scaled under Camera Space canvases
+
+v1.15.1:
+ - Fix TextMesh Pro shadow not updated when set to empty in certain cases
+
+v1.15:
+- Increase the minimum supported Unity version to 2022.3 in accordant with the store requirements
+- Fix compatibility with Unity 6.5
+
 v1.14:
  - TrueShadowDisableCache now works with multiple True Shadow
  - new ITrueShadowCustomHashProviderV2 interface to make integrating custom UI easier

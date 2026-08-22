@@ -211,7 +211,7 @@ public sealed class ShortcutBindingPanel : MonoBehaviour
             return;
         }
 
-        var sttManager = FindFirstObjectByType<STTManager>();
+        var sttManager = FindAnyObjectByType<STTManager>();
         if (sttManager != null)
         {
             sttManager.RefreshPushToTalkBinding();

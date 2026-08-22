@@ -19,8 +19,8 @@ public static class ParaformMaterial
 
         public const           string USE_EDGE_GLINT           = "_USE_EDGE_GLINT";
         public static readonly int    EDGE_GLINT_DIRECTIONS    = Shader.PropertyToID("_EdgeGlintDirections");
-        public static readonly int    EDGE_GLINT1_STRENGTH     = Shader.PropertyToID("_EdgeGlint1Strength");
-        public static readonly int    EDGE_GLINT2_STRENGTH     = Shader.PropertyToID("_EdgeGlint2Strength");
+        public static readonly int    EDGE_GLINT1_COLOR        = Shader.PropertyToID("_EdgeGlint1Color");
+        public static readonly int    EDGE_GLINT2_COLOR        = Shader.PropertyToID("_EdgeGlint2Color");
         public static readonly int    EDGE_GLINT_WRAP_RAW      = Shader.PropertyToID("_EdgeGlintWrap");
         public static readonly int    EDGE_GLINT_SHARPNESS_RAW = Shader.PropertyToID("_EdgeGlintSharpness");
     }
@@ -103,12 +103,12 @@ public static class ParaformMaterial
 
     public static float GetEdgeGlintWrap(Material material)
     {
-        return EdgeGlintSharpnessFromRaw(material.GetFloat(ShaderID.EDGE_GLINT_WRAP_RAW));
+        return EdgeGlintWrapFromRaw(material.GetFloat(ShaderID.EDGE_GLINT_WRAP_RAW));
     }
 
     public static void SetEdgeGlintWrap(Material material, float edgeGlintWrap)
     {
-        material.SetFloat(ShaderID.EDGE_GLINT_WRAP_RAW, EdgeGlintSharpnessToRaw(edgeGlintWrap));
+        material.SetFloat(ShaderID.EDGE_GLINT_WRAP_RAW, EdgeGlintWrapToRaw(edgeGlintWrap));
     }
 
     public static float EdgeGlintSharpnessToRaw(float edgeGlintSharpness)

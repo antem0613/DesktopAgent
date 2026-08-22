@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: fbc94a6a7c95869409bd6fc2ece3d6b0
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/zz_Common/Scripts/DemoControllerWorldUI.cs
+  uploadId: 966744

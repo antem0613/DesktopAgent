@@ -4,9 +4,9 @@
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="AssetCleaner.csproj" />
   <Project Path="LeTai.TrueShadow.Editor.csproj" />
+  <Project Path="LeTai.Asset.TranslucentImage.csproj" />
   <Project Path="UnityChan.csproj" />
   <Project Path="LeTai.TrueShadow.Demo.csproj" />
-  <Project Path="LeTai.Asset.TranslucentImage.csproj" />
   <Project Path="LeTai.Asset.TranslucentImage.Demo.csproj" />
   <Project Path="LeTai.Common.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />

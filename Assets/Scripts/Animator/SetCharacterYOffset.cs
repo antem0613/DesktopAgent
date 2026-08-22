@@ -9,7 +9,7 @@ public class SetCharacterYOffset : StateMachineBehaviour
 
     override public void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        var manager = FindFirstObjectByType<CharacterManager>();
+        var manager = FindAnyObjectByType<CharacterManager>();
         var testManager = ResolveTestManager(animator);
 
         if (manager == null && testManager == null)
@@ -34,7 +34,7 @@ public class SetCharacterYOffset : StateMachineBehaviour
 
     override public void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        var manager = FindFirstObjectByType<CharacterManager>();
+        var manager = FindAnyObjectByType<CharacterManager>();
         var testManager = ResolveTestManager(animator);
 
         if (manager == null && testManager == null)
@@ -60,7 +60,7 @@ public class SetCharacterYOffset : StateMachineBehaviour
 
     private static TestActionDecisionManager ResolveTestManager(Animator animator)
     {
-        var candidates = FindObjectsByType<TestActionDecisionManager>(FindObjectsSortMode.None);
+        var candidates = FindObjectsByType<TestActionDecisionManager>();
         if (candidates == null || candidates.Length == 0)
         {
             return null;

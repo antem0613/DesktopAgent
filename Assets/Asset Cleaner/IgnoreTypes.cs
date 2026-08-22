@@ -15,10 +15,6 @@ namespace Asset_Cleaner {
                 if (type.IsAssignableFromInverse (typeof (TextAsset))) return true;
             }
             else {
-                // if (type.IsAssignableFromInverse(typeof(MonoScript))) return true;
-#if UNITY_2021_3_OR_NEWER
-                if (type.IsAssignableFromInverse (typeof (ShaderInclude))) return true;
-#endif
                 if (type.IsAssignableFromInverse (typeof (AssemblyDefinitionAsset))) return true;
                 if (type.IsAssignableFromInverse (typeof (AssemblyDefinitionReferenceAsset))) return true;
                 if (type.IsAssignableFromInverse (typeof (PackageManifest))) return true;
@@ -33,18 +29,8 @@ namespace Asset_Cleaner {
                 return true;
             }
 
-            if (type.IsAssignableFromInverse(typeof(Shader))) return true;
-            if (type.IsAssignableFromInverse(typeof(ComputeShader))) return true;
-            if (type.IsAssignableFromInverse(typeof(ShaderVariantCollection))) return true;
-
-#if UNITY_2023_1_OR_NEWER
-			if (type.IsAssignableFromInverse(typeof(UnityEngine.Rendering.RayTracingShader))) return true;
-#elif UNITY_2019_3_OR_NEWER
-            if (type.IsAssignableFromInverse(typeof(UnityEngine.Experimental.Rendering.RayTracingShader))) return true;
-#endif
             if (type.IsAssignableFromInverse(typeof(AssemblyDefinitionAsset))) return true;
             if (type.IsAssignableFromInverse(typeof(UnityEngine.U2D.SpriteAtlas))) return true;
-            if (conf.IgnoreMaterial && type.IsAssignableFromInverse(typeof(Material))) return true;
             if (conf.IgnoreSprite && type.Name.Contains("Texture2D")) return true;
 
             return false;

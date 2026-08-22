@@ -33,5 +33,11 @@ public static class MaterialUtils
     {
         dst.SetVector(id, src.GetVector(id));
     }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void CopyColor(Material src, Material dst, int id)
+    {
+        dst.SetColor(id, src.GetColor(id));
+    }
 }
 }

@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!21 &2100000
+Material:
+  serializedVersion: 8
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TI_Demo_LiquidMetal
+  m_Shader: {fileID: 4800000, guid: 4d670b0910ede4d23a4c79cace0974a3, type: 3}
+  m_Parent: {fileID: 0}
+  m_ModifiedSerializedProperties: 0
+  m_ValidKeywords: []
+  m_InvalidKeywords: []
+  m_LightmapFlags: 4
+  m_EnableInstancingVariants: 0
+  m_DoubleSidedGI: 0
+  m_CustomRenderQueue: -1
+  stringTagMap: {}
+  disabledShaderPasses: []
+  m_LockedProperties: 
+  m_SavedProperties:
+    serializedVersion: 3
+    m_TexEnvs: []
+    m_Ints: []
+    m_Floats:
+    - _Brightness: 0.92
+    - _CellDensity: 14.6
+    - _Distort: 2.64
+    - _FadeLevel: 0.25
+    - _FadeSoftness: 0.025
+    - _FadeWobble: 0.22
+    - _HueOffset: 0.426
+    - _HueRange: 0.3
+    - _LeadThickness: 0
+    - _MaxAlpha: 0.857
+    - _Saturation: 0.882
+    - _Scale: 14.38
+    - _Seed: 13.49
+    - _Speed: 0.2
+    m_Colors:
+    - _ColorA: {r: 0.09999997, g: 0.29999998, b: 0.85, a: 1}
+    - _ColorB: {r: 0.65, g: 0.24999997, b: 0.85, a: 1}
+    - _ColorC: {r: 0.95, g: 0.54999995, b: 0.34999996, a: 1}
+    - _LeadColor: {r: 0.02, g: 0.02, b: 0.03, a: 1}
+  m_BuildTextureStacks: []

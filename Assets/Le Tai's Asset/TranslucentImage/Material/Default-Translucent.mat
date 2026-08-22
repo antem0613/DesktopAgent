@@ -106,7 +106,7 @@ Material:
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _Stencil: 0
-    - _StencilComp: 9
+    - _StencilComp: 8
     - _StencilOp: 0
     - _StencilReadMask: 255
     - _StencilWriteMask: 255
@@ -122,4 +122,3 @@ Material:
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _RefractiveIndexRatios: {r: 0.666666, g: 0.666666, b: 0.666666, a: 0}
   m_BuildTextureStacks: []
-  m_AllowLocking: 1

@@ -86,7 +86,7 @@ fabric.properties
 /[Ll]ogs/
 /[Uu]ser[Ss]ettings/
 
-/Assets/Logs/
+/Assets/Log/
 
 # MemoryCaptures can get excessive in size.
 # They also could contain extremely sensitive data

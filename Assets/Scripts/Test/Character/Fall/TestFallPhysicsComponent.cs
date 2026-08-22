@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using UnityEngine;
@@ -404,7 +404,7 @@ public class TestFallPhysicsComponent : MonoBehaviour, ITestFeatureComponent
 
         if (uniWindowMoveHandle == null)
         {
-            uniWindowMoveHandle = FindFirstObjectByType<UniWindowMoveHandle>();
+            uniWindowMoveHandle = FindAnyObjectByType<UniWindowMoveHandle>();
         }
 
         return targetCamera != null && targetTransform != null;

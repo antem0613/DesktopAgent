@@ -5,7 +5,7 @@ public sealed class ShouldGoNextOnExit : StateMachineBehaviour
 {
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        var manager = FindFirstObjectByType<CharacterManager>();
+        var manager = FindAnyObjectByType<CharacterManager>();
         if (manager != null)
         {
             manager.ApplyPendingGroundAction();
@@ -20,7 +20,7 @@ public sealed class ShouldGoNextOnExit : StateMachineBehaviour
 
         if (testManager == null)
         {
-            testManager = FindFirstObjectByType<TestActionDecisionManager>();
+            testManager = FindAnyObjectByType<TestActionDecisionManager>();
         }
 
         testManager?.ApplyPendingGroundAction();

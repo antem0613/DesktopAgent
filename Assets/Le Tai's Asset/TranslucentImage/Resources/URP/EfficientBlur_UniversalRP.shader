@@ -6,6 +6,11 @@
 
         Pass
         {
+            PackageRequirements
+            {
+                "com.unity.render-pipelines.universal"
+            }
+
             HLSLPROGRAM
             // #pragma enable_d3d11_debug_symbols
 
@@ -22,8 +27,8 @@
 
             #include "interop_urp.hlsl"
 
-            TEXTURE2D_X(_MainTex);
-            SAMPLER(sampler_MainTex);
+            TEXTURE2D_X (_MainTex);
+            SAMPLER (sampler_MainTex);
 
             #include "../Shaders/EfficientBlur.hlsl"
             ENDHLSL

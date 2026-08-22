@@ -113,7 +113,7 @@ public partial class TranslucentImageBlurRenderPass
                     blurAlgorithm.GetNextScratchDescriptor(ref desc);
                     data.scratches[j] = UniversalRenderer.CreateRenderGraphTexture(renderGraph,
                                                                                    desc,
-                                                                                   scratchNames[j] + "--" + i,
+                                                                                   scratchNames[j],
                                                                                    false,
                                                                                    FilterMode.Bilinear,
                                                                                    TextureWrapMode.Clamp);

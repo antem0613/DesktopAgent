@@ -38,7 +38,7 @@ struct VertexOutput
     float4 vertex : SV_POSITION;
     half4  color : COLOR;
     float4 mask : TEXCOORD0;
-    float2 texcoord : TEXCOORD1;
+    float3 texcoord : TEXCOORD1;
     float4 worldPosition : TEXCOORD2;
     float4 screenPos : TEXCOORD3;
     float4 transfer1 : TEXCOORD4;
@@ -63,21 +63,26 @@ void unpackVertexData(VertexInput i, inout VertexOutput o)
 {
     FloatUnpacker upk0 = CreateUnpacker(i.packedData1[0], 8);
     FloatUnpacker upk1 = CreateUnpacker(i.packedData1[1], 10);
+
+    half foregroundOpacity = DequeueNonNegative(upk0, 1);
+
     o.transfer1 = float4(
-        DequeueNonNegative(upk0, 1),
+        upk0.sign ? foregroundOpacity - 2 : foregroundOpacity,
         Dequeue(upk1, -1, 2),
         Dequeue(upk1, -1, 1),
         DequeueNonNegative(upk0, 1)
     );
+
+    o.texcoord.z = upk1.sign ? 1.0 : 0.0;
 }
 
 Appearance createAppearance(float4 transfer1)
 {
     Appearance appearance;
     appearance.foregroundOpacity = transfer1[0];
-    appearance.vibrancy = transfer1[1];
-    appearance.brightness = transfer1[2];
-    appearance.flatten = transfer1[3];
+    appearance.vibrancy          = transfer1[1];
+    appearance.brightness        = transfer1[2];
+    appearance.flatten           = transfer1[3];
     return appearance;
 }
 
@@ -91,12 +96,12 @@ VertexOutput vert(VertexInput IN)
     OUT.worldPosition = IN.vertex;
 
     float4 clipPos = UnityObjectToClipPos(IN.vertex);
-    OUT.vertex = clipPos;
+    OUT.vertex     = clipPos;
 
     float2 pixelSize = clipPos.w;
     pixelSize /= float2(1, 1) * abs(mul((float2x2)UNITY_MATRIX_P, _ScreenParams.xy));
     float4 clampedRect = clamp(_ClipRect, -2e10, 2e10);
-    OUT.mask = float4(IN.vertex.xy * 2 - clampedRect.xy - clampedRect.zw, 0.25 / (0.25 * half2(_UIMaskSoftnessX, _UIMaskSoftnessY) + abs(pixelSize.xy)));
+    OUT.mask           = float4(IN.vertex.xy * 2 - clampedRect.xy - clampedRect.zw, 0.25 / (0.25 * half2(_UIMaskSoftnessX, _UIMaskSoftnessY) + abs(pixelSize.xy)));
 
     if (_UIVertexColorAlwaysGammaSpace && !IsGammaSpace())
     {
@@ -104,7 +109,7 @@ VertexOutput vert(VertexInput IN)
     }
     OUT.color = IN.color;
 
-    OUT.texcoord = IN.texcoord;
+    OUT.texcoord.xy = IN.texcoord;
 
     OUT.screenPos = ComputeNonStereoScreenPos(OUT.vertex);
     #if UNITY_VERSION >= 202120 && UNITY_UV_STARTS_AT_TOP
@@ -122,24 +127,32 @@ void fragSetup(inout VertexOutput IN, out half2 screenPos, out half4 foregroundC
     //Round up the alpha color coming from the interpolator (to 1.0/256.0 steps)
     //The incoming alpha could have numerical instability, which makes it very sensible to
     //HDR color transparency blend, when it blends with the world's texture.
-    const half alphaPrecision = half(0xff);
+    const half alphaPrecision    = half(0xff);
     const half invAlphaPrecision = half(1.0 / alphaPrecision);
-    IN.color.a = round(IN.color.a * alphaPrecision) * invAlphaPrecision;
+    IN.color.a                   = round(IN.color.a * alphaPrecision) * invAlphaPrecision;
 
     UNITY_SETUP_STEREO_EYE_INDEX_POST_VERTEX(IN);
 
-    screenPos = IN.screenPos.xy / IN.screenPos.w;
-    foregroundColor = tex2D(_MainTex, IN.texcoord.xy) + _TextureSampleAdd;
-    foregroundColor *= IN.color;
-
+    screenPos  = IN.screenPos.xy / IN.screenPos.w;
     appearance = createAppearance(IN.transfer1);
+
+    half4 texColor = tex2D(_MainTex, IN.texcoord.xy) + _TextureSampleAdd;
+
+    bool  tintAtFinish = IN.texcoord.z > 0.5;
+    half4 vertexColor  = tintAtFinish ? 1 : IN.color;
+    foregroundColor    = texColor * vertexColor;
+
+    bool texAlphaIsFgOpacity     = appearance.foregroundOpacity < 0;
+    foregroundColor.a            = texAlphaIsFgOpacity ? vertexColor.a : foregroundColor.a;
+    appearance.foregroundOpacity = texAlphaIsFgOpacity
+                                       ? (appearance.foregroundOpacity + 2) * texColor.a
+                                       : appearance.foregroundOpacity;
 }
 
 void fragFinish(VertexOutput IN, half2 screenPos, inout half4 color)
 {
-    // TODO: fix Shadow and Outline tinting somehow
-    // Multiplying last so glints work
-    // color *= IN.color;
+    if (IN.texcoord.z > 0.5)
+        color *= IN.color;
 
     #ifdef UNITY_UI_CLIP_RECT
     half2 m = saturate((_ClipRect.zw - _ClipRect.xy - abs(IN.mask.xy)) * IN.mask.zw);
@@ -157,7 +170,7 @@ void fragFinish(VertexOutput IN, half2 screenPos, inout half4 color)
 
 half3 sampleBackground(float2 screenPos)
 {
-    half2 blurTexcoord = CropUV(screenPos, _CropRegion);
+    half2 blurTexcoord    = CropUV(screenPos, _CropRegion);
     half3 backgroundColor = SAMPLE_SCREEN_TEX(_BlurTex, blurTexcoord).rgb;
     return backgroundColor;
 }

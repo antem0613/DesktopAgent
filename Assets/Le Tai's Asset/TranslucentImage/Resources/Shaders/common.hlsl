@@ -89,9 +89,9 @@ half4 dither(half4 color, float2 coord)
     half  noise = ggr21(coord) * 1. / 255. - .5 / 255.;
     half4 result = color;
 
-    result.rgb = toPerceptual(result);
+    result.rgb = toPerceptual(result.rgb);
     result += noise;
-    result.rgb = fromPerceptual(result);
+    result.rgb = fromPerceptual(result.rgb);
 
     return result;
 }

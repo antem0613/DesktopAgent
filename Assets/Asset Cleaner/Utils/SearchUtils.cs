@@ -56,7 +56,7 @@ namespace Asset_Cleaner {
 							bool Predicate(Object s) {
 								if (!s)
 									return false;
-								return s.GetInstanceID() != arg.Target.GetInstanceID();
+								return !SameEntity(s, arg.Target);
 							}
 
 							break;
@@ -157,7 +157,7 @@ namespace Asset_Cleaner {
 						throw new NotImplementedException();
 				}
 
-				miniTypeThumbnail = data.RootGo.GetInstanceID() == suspect.GetInstanceID()
+				miniTypeThumbnail = SameEntity(data.RootGo, suspect)
 					? null
 					: AssetPreview.GetMiniThumbnail(suspect);
 			}
@@ -413,17 +413,19 @@ namespace Asset_Cleaner {
 			if (!suspect)
 				return false;
 
-			if (target.Target.GetInstanceID() == suspect.GetInstanceID() || target.Main.GetInstanceID() == (suspect).GetInstanceID())
+			if (SameEntity(target.Target, suspect) || SameEntity(target.Main, suspect))
 				return true;
 
 			if (target.SubAssets.TryGet(out var subassets))
 				foreach (var asset in subassets) {
-					if (asset.GetInstanceID() == (suspect).GetInstanceID())
+					if (SameEntity(asset, suspect))
 						return true;
 				}
 
 			return false;
 		}
+
+		static bool SameEntity(Object lhs, Object rhs) => lhs == rhs;
 
 		static string Nicify(SerializedProperty sp, Object o, string transformPath) {
 			//            return sp.propertyPath;

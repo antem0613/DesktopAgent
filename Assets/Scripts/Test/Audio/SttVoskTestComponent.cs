@@ -239,7 +239,7 @@ public class SttVoskTestComponent : MonoBehaviour
             chatProvider = GetComponent<TestLlmProviderComponent>();
             if (chatProvider == null)
             {
-                chatProvider = FindFirstObjectByType<TestLlmProviderComponent>();
+                chatProvider = FindAnyObjectByType<TestLlmProviderComponent>();
             }
         }
 

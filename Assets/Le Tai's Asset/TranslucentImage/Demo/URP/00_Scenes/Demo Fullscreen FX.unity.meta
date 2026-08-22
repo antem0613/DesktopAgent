@@ -1,8 +1,15 @@
 fileFormatVersion: 2
 guid: e1eb1711259585846a184190100a73ef
-timeCreated: 1512620732
-licenseType: Free
 DefaultImporter:
+  externalObjects: {}
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/URP/00_Scenes/Demo Fullscreen
+    FX.unity
+  uploadId: 966744

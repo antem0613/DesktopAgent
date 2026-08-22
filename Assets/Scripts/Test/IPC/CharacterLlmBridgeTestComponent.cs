@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Net;
 using System.Net.Sockets;
@@ -283,7 +283,7 @@ public class CharacterLlmBridgeTestComponent : MonoBehaviour
             {
                 if (characterSpeechBubbleUI == null)
                 {
-                    characterSpeechBubbleUI = FindFirstObjectByType<CharacterSpeechBubbleUI>();
+                    characterSpeechBubbleUI = FindAnyObjectByType<CharacterSpeechBubbleUI>();
                 }
 
                 if (characterSpeechBubbleUI != null)
@@ -302,7 +302,7 @@ public class CharacterLlmBridgeTestComponent : MonoBehaviour
             {
                 if (ttsTestComponent == null)
                 {
-                    ttsTestComponent = FindFirstObjectByType<TtsCoeiroinkTestComponent>();
+                    ttsTestComponent = FindAnyObjectByType<TtsCoeiroinkTestComponent>();
                 }
 
                 if (ttsTestComponent == null)
@@ -370,7 +370,7 @@ public class CharacterLlmBridgeTestComponent : MonoBehaviour
             ttsTestComponent = GetComponent<TtsCoeiroinkTestComponent>();
             if (ttsTestComponent == null)
             {
-                ttsTestComponent = FindFirstObjectByType<TtsCoeiroinkTestComponent>();
+                ttsTestComponent = FindAnyObjectByType<TtsCoeiroinkTestComponent>();
             }
         }
 
@@ -379,7 +379,7 @@ public class CharacterLlmBridgeTestComponent : MonoBehaviour
             characterSpeechBubbleUI = GetComponent<CharacterSpeechBubbleUI>();
             if (characterSpeechBubbleUI == null)
             {
-                characterSpeechBubbleUI = FindFirstObjectByType<CharacterSpeechBubbleUI>();
+                characterSpeechBubbleUI = FindAnyObjectByType<CharacterSpeechBubbleUI>();
             }
         }
 

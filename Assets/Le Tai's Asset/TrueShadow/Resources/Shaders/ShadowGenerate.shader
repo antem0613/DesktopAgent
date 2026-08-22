@@ -1,4 +1,4 @@
-﻿Shader "Hidden/TrueShadow/Generate"
+Shader "Hidden/TrueShadow/Generate"
 {
     Properties
     {

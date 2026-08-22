@@ -1,4 +1,4 @@
-using System.Collections;
+﻿using System.Collections;
 using TMPro;
 using Unity.Logging;
 using UnityEngine;
@@ -877,7 +877,7 @@ public class CharacterSpeechBubbleUI : MonoBehaviour
         }
 
         // Instance getterを通すと未生成時に警告ログが出るため、UI側では静かに探索する。
-        _cachedCharacterManager = FindFirstObjectByType<CharacterManager>();
+        _cachedCharacterManager = FindAnyObjectByType<CharacterManager>();
         return _cachedCharacterManager;
     }
 

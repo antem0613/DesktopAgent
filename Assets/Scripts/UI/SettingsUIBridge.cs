@@ -1,4 +1,4 @@
-using Unity.Logging;
+﻿using Unity.Logging;
 using UnityEngine;
 using UnityEngine.Localization.Settings;
 
@@ -144,7 +144,7 @@ public sealed class SettingsUIBridge : MonoBehaviour
     /// </summary>
     public void SetRecognitionInputMode(int index)
     {
-        var sttManager = FindFirstObjectByType<STTManager>();
+        var sttManager = FindAnyObjectByType<STTManager>();
         if (sttManager == null)
         {
             Log.Warning("[SettingsUIBridge] STTManager not found.");

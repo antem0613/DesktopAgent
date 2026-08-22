@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 using System.Runtime.CompilerServices;
 
 public class TestAnimatorSyncInitializationComponent : MonoBehaviour, ITestFeatureComponent
@@ -132,7 +132,7 @@ public class TestAnimatorSyncInitializationComponent : MonoBehaviour, ITestFeatu
             characterSpawnComponent = GetComponent<TestCharacterSpawnComponent>();
             if (characterSpawnComponent == null)
             {
-                characterSpawnComponent = FindFirstObjectByType<TestCharacterSpawnComponent>();
+                characterSpawnComponent = FindAnyObjectByType<TestCharacterSpawnComponent>();
             }
         }
 

@@ -961,7 +961,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
             backendManager = GetComponent<BackendManager>();
             if (backendManager == null)
             {
-                backendManager = FindFirstObjectByType<BackendManager>();
+                backendManager = FindAnyObjectByType<BackendManager>();
             }
         }
 
@@ -1762,7 +1762,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 
         if (uniWindowMoveHandle == null)
         {
-            uniWindowMoveHandle = FindFirstObjectByType<UniWindowMoveHandle>();
+            uniWindowMoveHandle = FindAnyObjectByType<UniWindowMoveHandle>();
         }
 
         return _targetCamera != null;
@@ -2032,7 +2032,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
     private float GetGroundY()
     {
 #if UNITY_EDITOR
-        var pseudoBars = FindObjectsByType<PseudoTaskbar>(FindObjectsSortMode.None);
+        var pseudoBars = FindObjectsByType<PseudoTaskbar>();
         if (pseudoBars != null && pseudoBars.Length > 0)
         {
             float bestPseudo = 0f;
@@ -2612,7 +2612,7 @@ public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 
             try
             {
-                var backendManager = FindFirstObjectByType<BackendManager>();
+                var backendManager = FindAnyObjectByType<BackendManager>();
                 if (backendManager != null)
                 {
                     _owner.LogUiFrontRequestIfChanged("direct", reason);

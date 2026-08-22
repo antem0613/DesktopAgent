@@ -356,7 +356,7 @@ public class TestCharacterScrollScaleComponent : MonoBehaviour, ITestFeatureComp
             targetCamera = Camera.main;
             if (targetCamera == null)
             {
-                var cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+                var cameras = FindObjectsByType<Camera>();
                 if (cameras != null && cameras.Length > 0)
                 {
                     targetCamera = cameras[0];

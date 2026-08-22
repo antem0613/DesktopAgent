@@ -1,15 +1,13 @@
 fileFormatVersion: 2
 guid: a64ba7d6322a8a345bdafb98666f03ec
-timeCreated: 1475561906
-licenseType: Store
 TrueTypeFontImporter:
+  externalObjects: {}
   serializedVersion: 4
   fontSize: 16
   forceTextureCase: -2
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: Roboto
   fontNames:
   - Roboto
   fallbackFontReferences:
@@ -24,6 +22,8 @@ TrueTypeFontImporter:
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
   userData: 
   assetBundleName: 
   assetBundleVariant: 
@@ -31,6 +31,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 78464
   packageName: Translucent Image - Fast UI Background Blur
-  packageVersion: 6.5.0
+  packageVersion: 7.0.1
   assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/zz_Common/Fonts/Roboto-LightItalic.ttf
-  uploadId: 824068
+  uploadId: 966744

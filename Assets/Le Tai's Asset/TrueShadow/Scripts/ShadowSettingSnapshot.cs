@@ -12,6 +12,7 @@ class ShadowSettingSnapshot
     public readonly Canvas                 canvas;
     public readonly RectTransform          canvasRt;
     public readonly float                  canvasScale;
+    public readonly float                  canvasTfScaleY;
     public readonly BlurAlgorithmSelection algorithm;
     public readonly float                  size;
     public readonly Vector2                canvasRelativeOffset;
@@ -23,7 +24,7 @@ class ShadowSettingSnapshot
         canvas      = shadow.Graphic.canvas;
         canvasRt    = (RectTransform)canvas.transform;
 
-        var    spriteMesh = shadow.SpriteMeshHandle.obj;
+        var    spriteMesh = shadow.CasterMesh;
         Bounds meshBound;
         if (spriteMesh)
         {
@@ -37,7 +38,8 @@ class ShadowSettingSnapshot
         else
             meshBound = new Bounds(Vector3.zero, Vector3.zero);
 
-        canvasScale = canvas.scaleFactor;
+        canvasScale    = canvas.scaleFactor;
+        canvasTfScaleY = canvas.transform.lossyScale.y;
 
         var canvasRelativeRotation = Quaternion.Inverse(canvasRt.rotation) * shadow.RectTransform.rotation;
         canvasRelativeOffset = shadow.Offset.Rotate(-canvasRelativeRotation.eulerAngles.z) * canvasScale;
@@ -134,7 +136,13 @@ class ShadowSettingSnapshot
         case RawImage rawImage:
             var textureHash = 0;
             if (rawImage.texture)
+            {
+#if UNITY_6000_4_OR_NEWER
+                textureHash = rawImage.texture.GetEntityId().GetHashCode();
+#else
                 textureHash = rawImage.texture.GetInstanceID();
+#endif
+            }
 
             hash = HashUtils.CombineHashCodes(
                 commonHash,
@@ -194,7 +202,7 @@ class ShadowSettingSnapshot
             tmp.maxVisibleCharacters,
             tmp.maxVisibleWords,
             tmp.maxVisibleLines,
-            Mathf.CeilToInt(tmp.transform.lossyScale.y * 100),
+            Mathf.CeilToInt(tmp.transform.lossyScale.y / canvasTfScaleY * 100),
             tmp.font.GetHashCode(),
             tmp.fontSize.GetHashCode(),
             tmpColorHash,

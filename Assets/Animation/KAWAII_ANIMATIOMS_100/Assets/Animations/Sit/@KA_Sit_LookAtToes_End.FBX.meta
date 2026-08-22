@@ -1,14 +1,7 @@
 fileFormatVersion: 2
 guid: f1d6c917047e30043bfb01ea5875a3bb
-AssetOrigin:
-  serializedVersion: 1
-  productId: 277585
-  packageName: KAWAII ANIMATIONS 100
-  packageVersion: 1.10.2.2
-  assetPath: Assets/KAWAII_ANIMATIOMS_100/Assets/Animations/Sit/@KA_Sit_LookAtToes_End.FBX
-  uploadId: 828262
 ModelImporter:
-  serializedVersion: 24200
+  serializedVersion: 22200
   internalIDToNameTable: []
   externalObjects: {}
   materials:
@@ -23,6 +16,8 @@ ModelImporter:
     optimizeGameObjects: 0
     removeConstantScaleCurves: 0
     motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
     animationImportErrors: 
     animationImportWarnings: 
     animationRetargetingWarnings: 
@@ -36,36 +31,7 @@ ModelImporter:
     animationWrapMode: 0
     extraExposedTransformPaths: []
     extraUserProperties: []
-    clipAnimations:
-    - serializedVersion: 16
-      name: KA_Sit_LookAtToes_End
-      takeName: Unreal Take
-      internalID: 8993902097722301239
-      firstFrame: 0
-      lastFrame: 70
-      wrapMode: 0
-      orientationOffsetY: 0
-      level: 0.45
-      cycleOffset: 0
-      loop: 0
-      hasAdditiveReferencePose: 0
-      loopTime: 0
-      loopBlend: 0
-      loopBlendOrientation: 0
-      loopBlendPositionY: 0
-      loopBlendPositionXZ: 0
-      keepOriginalOrientation: 0
-      keepOriginalPositionY: 1
-      keepOriginalPositionXZ: 0
-      heightFromFeet: 0
-      mirror: 0
-      bodyMask: 01000000010000000100000001000000010000000100000001000000010000000100000001000000010000000100000001000000
-      curves: []
-      events: []
-      transformMask: []
-      maskType: 3
-      maskSource: {instanceID: 0}
-      additiveReferencePoseFrame: 0
+    clipAnimations: []
     isReadable: 0
   meshes:
     lODScreenPercentages: []
@@ -92,9 +58,6 @@ ModelImporter:
     maxBonesPerVertex: 4
     minBoneWeight: 0.001
     optimizeBones: 1
-    generateMeshLods: 0
-    meshLodGenerationFlags: 0
-    maximumMeshLod: -1
     meshOptimizationFlags: -1
     indexFormat: 0
     secondaryUVAngleDistortion: 8
@@ -823,7 +786,8 @@ ModelImporter:
     hasTranslationDoF: 1
     hasExtraRoot: 1
     skeletonHasParents: 1
-  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: d5317c42c7d79dd41b326383ba7a0871, type: 3}
+  lastHumanDescriptionAvatarSource: {fileID: 9000000, guid: d5317c42c7d79dd41b326383ba7a0871,
+    type: 3}
   autoGenerateAvatarMappingIfUnspecified: 1
   animationType: 3
   humanoidOversampling: 1
@@ -835,3 +799,10 @@ ModelImporter:
   userData: 
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 277585
+  packageName: KAWAII ANIMATIONS 100
+  packageVersion: 1.10.3
+  assetPath: Assets/Animation/KAWAII_ANIMATIOMS_100/Assets/Animations/Sit/@KA_Sit_LookAtToes_End.FBX
+  uploadId: 903416

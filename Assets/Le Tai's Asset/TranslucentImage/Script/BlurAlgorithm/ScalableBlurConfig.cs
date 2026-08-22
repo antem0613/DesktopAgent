@@ -42,7 +42,6 @@ public class ScalableBlurConfig : BlurConfig
     [SerializeField]
     bool useStrength = true;
 
-
     public BlurMode Mode
     {
         get => mode;
@@ -126,14 +125,15 @@ public class ScalableBlurConfig : BlurConfig
         return Mathf.Pow(2, meanLog);
     }
 
-    internal static (float calcRadius, int calcIteration) FromStrength(float targetStrength)
+    internal (float calcRadius, int calcIteration) FromStrength(float targetStrength)
     {
-        var maxIterContribution = Mathf.Pow(targetStrength, .6f); // Make configurable?
+        // var minIterContribution = Mathf.Pow(targetStrength / (1f * 2f), .8f); // Make configurable?
+        var minIterContribution = targetStrength / (1f * 2f);
 
         // Bit fiddling would be faster, but need unsafe or .NET Core 3.0+
         // for BitOperations, and BitConverter that doesn't creates garbages :(
         var calcIteration = 0;
-        while ((1 << calcIteration) < maxIterContribution)
+        while ((1 << calcIteration) < minIterContribution)
             calcIteration++;
         var calcRadius = targetStrength / (1 << calcIteration);
 

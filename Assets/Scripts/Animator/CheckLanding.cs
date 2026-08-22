@@ -6,7 +6,7 @@ public class CheckLanding : StateMachineBehaviour
 {
     public override void OnStateEnter(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        var manager = FindFirstObjectByType<CharacterManager>();
+        var manager = FindAnyObjectByType<CharacterManager>();
         if (manager != null)
         {
             manager.OnEnterLandingAnimation();
@@ -21,7 +21,7 @@ public class CheckLanding : StateMachineBehaviour
 
         if (testManager == null)
         {
-            testManager = FindFirstObjectByType<TestActionDecisionManager>();
+            testManager = FindAnyObjectByType<TestActionDecisionManager>();
         }
 
         testManager?.OnEnterLandingAnimation();
@@ -29,7 +29,7 @@ public class CheckLanding : StateMachineBehaviour
 
     public override void OnStateExit(Animator animator, AnimatorStateInfo stateInfo, int layerIndex)
     {
-        var manager = FindFirstObjectByType<CharacterManager>();
+        var manager = FindAnyObjectByType<CharacterManager>();
         if (manager != null)
         {
             manager.OnExitLandingAnimation();
@@ -44,7 +44,7 @@ public class CheckLanding : StateMachineBehaviour
 
         if (testManager == null)
         {
-            testManager = FindFirstObjectByType<TestActionDecisionManager>();
+            testManager = FindAnyObjectByType<TestActionDecisionManager>();
         }
 
         testManager?.OnExitLandingAnimation();

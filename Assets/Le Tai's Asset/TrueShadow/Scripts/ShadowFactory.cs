@@ -173,7 +173,7 @@ public class ShadowFactory
         cmd.Clear();
         cmd.BeginSample("TrueShadow:Capture");
 
-        var mesh   = snapshot.shadow.SpriteMeshHandle.obj;
+        var mesh   = snapshot.shadow.CasterMesh;
         var bounds = mesh.bounds;
 
         var blurConfig = snapshot.algorithm == BlurAlgorithmSelection.Fast

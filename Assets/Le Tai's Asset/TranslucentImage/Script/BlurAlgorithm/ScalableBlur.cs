@@ -16,6 +16,9 @@ public class ScalableBlur : IBlurAlgorithm
     LocalKeyword kwBackgroundFillNone;
     LocalKeyword kwBackgroundFillColor;
     LocalKeyword kwUseExtraSample;
+#if UNITY_EDITOR
+    LocalKeywordSpace prevkwSpace;
+#endif
 
     Material Material
     {
@@ -168,9 +171,21 @@ public class ScalableBlur : IBlurAlgorithm
     protected void ConfigMaterial(BackgroundFill backgroundFill)
     {
         var mat = Material;
-
         if (kwUseExtraSample == default || !kwUseExtraSample.isValid)
+        {
             InitKeywords();
+        }
+#if UNITY_EDITOR
+        else
+        {
+            var space = mat.shader.keywordSpace;
+            if (prevkwSpace != space)
+            {
+                prevkwSpace = space;
+                InitKeywords();
+            }
+        }
+#endif
 
         switch (backgroundFill.mode)
         {
@@ -203,7 +218,7 @@ public class ScalableBlur : IBlurAlgorithm
         }
         else
         {
-            (radius, iteration) = ScalableBlurConfig.FromStrength(strength);
+            (radius, iteration) = config.FromStrength(strength);
         }
 
         return (strength, radius, iteration);

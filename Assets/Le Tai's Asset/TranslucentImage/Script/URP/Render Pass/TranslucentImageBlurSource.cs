@@ -204,6 +204,7 @@ public class TranslucentImageBlurSource : ScriptableRendererFeature
         });
     }
 
+#if !UNITY_6000_4_OR_NEWER
 #if HAS_SETUP_OVERRIDE
     public override void SetupRenderPasses(ScriptableRenderer renderer, in RenderingData renderingData)
     {
@@ -215,6 +216,7 @@ public class TranslucentImageBlurSource : ScriptableRendererFeature
 
         SetupSRP(renderer);
     }
+#endif
 #endif
 
     public override void AddRenderPasses(

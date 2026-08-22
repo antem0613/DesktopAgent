@@ -8,7 +8,6 @@ TrueTypeFontImporter:
   characterSpacing: 0
   characterPadding: 1
   includeFontData: 1
-  fontName: Droid Sans Mono
   fontNames:
   - Droid Sans Mono
   fallbackFontReferences:
@@ -25,6 +24,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 78464
   packageName: Translucent Image - Fast UI Background Blur
-  packageVersion: 6.5.0
+  packageVersion: 7.0.1
   assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/zz_Common/Fonts/DroidSansMono.ttf
-  uploadId: 824068
+  uploadId: 966744

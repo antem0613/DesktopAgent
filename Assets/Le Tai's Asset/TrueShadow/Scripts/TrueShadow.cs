@@ -1,4 +1,4 @@
-﻿// Copyright (c) Le Loc Tai <leloctai.com> . All rights reserved. Do not redistribute.
+// Copyright (c) Le Loc Tai <leloctai.com> . All rights reserved. Do not redistribute.
 
 using System;
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ public partial class TrueShadow : UIBehaviour, IMeshModifier, ICanvasElement
     static readonly Color DEFAULT_COLOR = new Color(0, 0, 0, .6f);
 
     [Tooltip("Accurate algorithm doesn't miss small features, but can be much slower for large or dynamic shadows. " +
-        "Fast is recommended in most cases")]
+             "Fast is recommended in most cases")]
     [SerializeField] BlurAlgorithmSelection algorithm = BlurAlgorithmSelection.Fast;
 
     [Tooltip("Size of the shadow")]
@@ -443,11 +443,9 @@ public partial class TrueShadow : UIBehaviour, IMeshModifier, ICanvasElement
 
 
     internal ShadowRenderer shadowRenderer;
-
-    internal ObjectHandle<Mesh> SpriteMeshHandle { get; private set; }
-    internal Graphic            Graphic          { get; private set; }
-    internal CanvasRenderer     CanvasRenderer   { get; private set; }
-    internal RectTransform      RectTransform    { get; private set; }
+    internal Graphic        Graphic        { get; private set; }
+    internal CanvasRenderer CanvasRenderer { get; private set; }
+    internal RectTransform  RectTransform  { get; private set; }
 
     internal Texture Content
     {
@@ -465,6 +463,33 @@ public partial class TrueShadow : UIBehaviour, IMeshModifier, ICanvasElement
 #endif
             default: return Graphic.mainTexture;
             }
+        }
+    }
+
+    Mesh meshOwned;
+    Mesh meshBorrowed;
+
+    internal Mesh CasterMesh
+    {
+        get
+        {
+            if (casterMeshProvider != null)
+                return meshBorrowed;
+
+#if TMP_PRESENT
+            switch (Graphic)
+            {
+            case TMPro.TextMeshProUGUI tmp:
+                return string.IsNullOrEmpty(tmp.text) ? null : tmp.mesh;
+            case TMPro.TMP_SubMeshUI stmp:
+                var isEmpty = string.IsNullOrEmpty(stmp.textComponent.text);
+#if UNITY_2022_2 || UNITY_2023_2_OR_NEWER
+                isEmpty |= !stmp.canvasRenderer.GetMesh(); // This is a different mesh than stmp.mesh
+#endif
+                return isEmpty ? null : stmp.mesh;
+            }
+#endif
+            return meshOwned;
         }
     }
 
@@ -514,7 +539,6 @@ public partial class TrueShadow : UIBehaviour, IMeshModifier, ICanvasElement
         RectTransform  = GetComponent<RectTransform>();
         Graphic        = GetComponent<Graphic>();
         CanvasRenderer = GetComponent<CanvasRenderer>();
-        if (!SpriteMeshHandle.obj) SpriteMeshHandle = ObjectHandle.Take(new Mesh());
 
         InitializePlugins();
 
@@ -604,7 +628,7 @@ public partial class TrueShadow : UIBehaviour, IMeshModifier, ICanvasElement
 
     protected override void OnDestroy()
     {
-        SpriteMeshHandle.Dispose();
+        DestroyMesh(ref meshOwned);
 
         // ShadowSorter.Instance.UnRegister(this);
         if (shadowRenderer) shadowRenderer.Dispose();
@@ -617,7 +641,7 @@ public partial class TrueShadow : UIBehaviour, IMeshModifier, ICanvasElement
     bool ShouldPerformWorks()
     {
         bool areCanvasRenderersCulled = CanvasRenderer && CanvasRenderer.cull &&
-            shadowRenderer.CanvasRenderer && shadowRenderer.CanvasRenderer.cull;
+                                        shadowRenderer.CanvasRenderer && shadowRenderer.CanvasRenderer.cull;
         return isActiveAndEnabled && !areCanvasRenderersCulled;
     }
 
@@ -756,5 +780,17 @@ public partial class TrueShadow : UIBehaviour, IMeshModifier, ICanvasElement
         }
     }
 #endif
+
+    static void DestroyMesh(ref Mesh mesh)
+    {
+        if (!mesh) return;
+
+        if (Application.isPlaying)
+            Destroy(mesh);
+        else
+            DestroyImmediate(mesh);
+
+        mesh = null;
+    }
 }
 }

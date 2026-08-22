@@ -803,6 +803,6 @@ AssetOrigin:
   serializedVersion: 1
   productId: 277585
   packageName: KAWAII ANIMATIONS 100
-  packageVersion: 1.10.2.2
-  assetPath: Assets/KAWAII_ANIMATIOMS_100/Assets/Animations/Locomotion/Turn/@KA_TurnRight_90.FBX
-  uploadId: 828262
+  packageVersion: 1.10.3
+  assetPath: Assets/Animation/KAWAII_ANIMATIOMS_100/Assets/Animations/Locomotion/Turn/@KA_TurnRight_90.FBX
+  uploadId: 903416

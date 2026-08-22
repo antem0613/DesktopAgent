@@ -10,6 +10,10 @@ using Debug = UnityEngine.Debug;
 using Object = UnityEngine.Object;
 
 namespace Asset_Cleaner {
+    static class AssetCleanerVersion {
+        public const string Current = "1.51";
+    }
+
     class BacklinkStore {
         public bool Initialized { get; private set; }
 
@@ -29,7 +33,7 @@ namespace Asset_Cleaner {
 
         // Disk cache
         static string CachePath => "Library/AssetCleanerCache.bin";
-        const string CacheVersion = "1.50";
+        const string CacheVersion = AssetCleanerVersion.Current;
         int _currentPathCount;
 
         // Cache loading

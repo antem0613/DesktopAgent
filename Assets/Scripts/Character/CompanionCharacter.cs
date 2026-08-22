@@ -1,4 +1,4 @@
-using Cysharp.Threading.Tasks;
+﻿using Cysharp.Threading.Tasks;
 using Kirurobo;
 using System;
 using System.Diagnostics;
@@ -147,6 +147,8 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     /// <summary>
     /// 行動の重みと継続する限度をもったクラス
     /// </summary>
+    /// 
+    [Serializable]
     class ActionState{
         public float bias;
         public float minRange;
@@ -213,7 +215,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
 
         if (uniWindowMoveHandle == null)
         {
-            uniWindowMoveHandle = FindFirstObjectByType<UniWindowMoveHandle>();
+            uniWindowMoveHandle = FindAnyObjectByType<UniWindowMoveHandle>();
         }
 
         return _targetCamera != null;
@@ -1317,7 +1319,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     float GetGroundY()
     {
 #if UNITY_EDITOR
-        var pseudoBar = FindFirstObjectByType<PseudoTaskbar>();
+        var pseudoBar = FindAnyObjectByType<PseudoTaskbar>();
 
         if (pseudoBar != null)
         {

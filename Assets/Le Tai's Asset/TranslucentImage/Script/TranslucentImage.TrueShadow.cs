@@ -13,6 +13,8 @@ public partial class TranslucentImage : ITrueShadowCustomHashProviderV2
     {
         trueShadowCustomHashChanged?.Invoke(
             HashUtils.CombineHashCodes(
+                imageMode.GetHashCode(),
+                textureAlphaMode.GetHashCode(),
                 paraformConfig.CornerRadii.GetHashCode(),
                 (int)(paraformConfig.CornerCurvature * 100),
                 (int)(paraformConfig.RingThickness * 100)

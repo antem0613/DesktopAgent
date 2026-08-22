@@ -16,10 +16,10 @@ public class ScalableBlurConfigEditor : UnityEditor.Editor
 
     int tab, previousTab;
 
+    EditorProperty     mode;
     EditorProperty     radius;
     EditorProperty     iteration;
     EditorProperty     strength;
-    EditorProperty     mode;
     EditorProperty     referenceResolution;
     EditorProperty     matchWidthOrHeight;
     SerializedProperty useStrength;
@@ -32,10 +32,10 @@ public class ScalableBlurConfigEditor : UnityEditor.Editor
 
     public void OnEnable()
     {
+        mode                = new EditorProperty(serializedObject, nameof(ScalableBlurConfig.Mode));
         radius              = new EditorProperty(serializedObject, nameof(ScalableBlurConfig.Radius));
         iteration           = new EditorProperty(serializedObject, nameof(ScalableBlurConfig.Iteration));
         strength            = new EditorProperty(serializedObject, nameof(ScalableBlurConfig.Strength));
-        mode                = new EditorProperty(serializedObject, nameof(ScalableBlurConfig.Mode));
         referenceResolution = new EditorProperty(serializedObject, nameof(ScalableBlurConfig.ReferenceResolution));
         matchWidthOrHeight  = new EditorProperty(serializedObject, nameof(ScalableBlurConfig.MatchWidthOrHeight));
         useStrength         = serializedObject.FindProperty("useStrength");

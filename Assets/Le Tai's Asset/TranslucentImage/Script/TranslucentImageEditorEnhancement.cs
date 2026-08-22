@@ -12,7 +12,7 @@ public partial class TranslucentImage
     {
         base.Reset();
         color  = Color.white;
-        source = source ? source : Shims.FindObjectOfType<TranslucentImageSource>();
+        source = source ? source : Shims.FindAnyObjectByType<TranslucentImageSource>();
     }
 
     protected override void OnValidate()

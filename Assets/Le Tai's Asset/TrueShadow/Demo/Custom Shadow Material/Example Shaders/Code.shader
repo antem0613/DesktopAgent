@@ -1,4 +1,4 @@
-﻿Shader "UI/Code"
+Shader "UI/Code"
 {
     Properties
     {

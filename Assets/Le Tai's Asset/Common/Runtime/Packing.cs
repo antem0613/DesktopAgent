@@ -2,6 +2,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace LeTai.Common
@@ -27,10 +28,10 @@ public static class Packing
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FloatPacker Varying() => new FloatPacker(0u, 0, 0);
+        public static FloatPacker Varying(bool sign = false) => new FloatPacker(sign ? 1u << 31 : 0u, 0, 0);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static FloatPacker Uniform(int bitsPerFloat) => new FloatPacker(0u, 0, bitsPerFloat);
+        public static FloatPacker Uniform(int bitsPerFloat, bool sign = false) => new FloatPacker(sign ? 1u << 31 : 0u, 0, bitsPerFloat);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public FloatPacker Enqueue(float value, float min, float max, int nBits)
@@ -54,8 +55,9 @@ public static class Packing
             if (_nBitsUsed > 30)
                 throw new ArgumentOutOfRangeException(nameof(_nBitsUsed), $"Must use <= 30 bits. Requesting {_nBitsUsed} bits");
 
-            uint bits = EnsureNormalFloatExponent(_payload);
-            return UintToFloatBits(bits);
+            uint sign = _payload & (1u << 31);
+            uint bits = EnsureNormalFloatExponent(_payload & ~(1u << 31));
+            return UintToFloatBits(sign | bits);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -101,11 +103,17 @@ public static class Packing
         return (exponent << 23) | mantissa;
     }
 
+    [StructLayout(LayoutKind.Explicit)]
+    struct UintFloatUnion
+    {
+        [FieldOffset(0)] public uint  UInt;
+        [FieldOffset(0)] public float Float;
+    }
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static float UintToFloatBits(uint bits)
     {
-        byte[] bytes = BitConverter.GetBytes(bits);
-        return BitConverter.ToSingle(bytes, 0);
+        return new UintFloatUnion { UInt = bits }.Float;
     }
 }
 }

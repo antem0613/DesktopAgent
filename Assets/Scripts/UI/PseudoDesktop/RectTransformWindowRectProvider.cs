@@ -10,7 +10,7 @@ public sealed class RectTransformWindowRectProvider : IWindowRectProvider, IWind
     {
         var result = new List<Rect>();
 
-        var panels = Object.FindObjectsByType<CanvasWindowRect>(FindObjectsSortMode.None);
+        var panels = Object.FindObjectsByType<CanvasWindowRect>();
         foreach (var panel in panels)
         {
             if (panel == null || !panel.IsEnabled)
@@ -31,7 +31,7 @@ public sealed class RectTransformWindowRectProvider : IWindowRectProvider, IWind
     {
         var result = new List<WindowRectWithSource>();
 
-        var panels = Object.FindObjectsByType<CanvasWindowRect>(FindObjectsSortMode.None);
+        var panels = Object.FindObjectsByType<CanvasWindowRect>();
         foreach (var panel in panels)
         {
             if (panel == null || !panel.IsEnabled)

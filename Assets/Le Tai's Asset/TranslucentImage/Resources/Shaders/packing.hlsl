@@ -8,18 +8,20 @@ struct FloatUnpacker
     uint payload;
     uint nBitsConsumed;
     uint bitsPerFloat;
+    bool sign;
 };
 
-FloatUnpacker CreateUnpacker(float packed, int bitsPerFloat = 0)
+FloatUnpacker CreateUnpacker(float packedVal, int bitsPerFloat = 0)
 {
-    uint bits = asuint(packed);
+    uint bits     = asuint(packedVal);
     uint exponent = (bits >> 23) & 0xFFu;
     uint mantissa = bits & 0x7FFFFFu;
 
     FloatUnpacker u;
-    u.payload = ((exponent - 1u) << 23) | mantissa;
+    u.payload       = ((exponent - 1u) << 23) | mantissa;
     u.nBitsConsumed = 0;
-    u.bitsPerFloat = bitsPerFloat;
+    u.bitsPerFloat  = bitsPerFloat;
+    u.sign          = bits >> 31;
     return u;
 }
 
@@ -27,7 +29,7 @@ float Dequeue(inout FloatUnpacker u, float minVal, float maxVal, uint nBits = 0)
 {
     if (nBits == 0) nBits = u.bitsPerFloat;
 
-    uint mask = (1u << nBits) - 1u;
+    uint mask  = (1u << nBits) - 1u;
     uint value = (u.payload >> u.nBitsConsumed) & mask;
     u.nBitsConsumed += nBits;
 
@@ -42,19 +44,19 @@ float DequeueNonNegative(inout FloatUnpacker u, float maxVal, uint nBits = 0)
 
 
 void UnpackTwoFloatsSafe(
-    float     packed,
+    float     packedVal,
     float     minA, float  maxA, uint nBitsA,
     float     minB, float  maxB, uint nBitsB,
     out float a, out float b)
 {
-    uint bits = asuint(packed);
+    uint bits = asuint(packedVal);
 
     uint exponent = (bits >> 23) & 0xFFu;
     uint mantissa = bits & 0x7FFFFFu;
 
     uint payload = ((exponent - 1u) << 23) | mantissa;
 
-    uint  maskB = (1u << nBitsB) - 1u;
+    uint  maskB      = (1u << nBitsB) - 1u;
     float aQuantized = payload >> nBitsB;
     float bQuantized = payload & maskB;
 

@@ -42,4 +42,48 @@ public ref struct SpanWriter<T>
         _nextIndex = _span.Length;
     }
 }
+
+/// <summary>
+/// Why:
+///  - Don't want ext method. Pollutes everything.
+///  - Immediate values are not semantically float/vector2/3
+/// </summary>
+public readonly struct Vec4Builder
+{
+    public static Vec4Part1 Append(float x) => new(x);
+}
+
+public readonly struct Vec4Part1
+{
+    readonly float _x;
+    public Vec4Part1(float        x) => _x = x;
+    public Vec4Part2 Append(float y) => new(_x, y);
+}
+
+public readonly struct Vec4Part2
+{
+    readonly float _x, _y;
+
+    public Vec4Part2(float x, float y)
+    {
+        _x = x;
+        _y = y;
+    }
+
+    public Vec4Part3 Append(float z) => new(_x, _y, z);
+}
+
+public readonly struct Vec4Part3
+{
+    readonly float _x, _y, _z;
+
+    public Vec4Part3(float x, float y, float z)
+    {
+        _x = x;
+        _y = y;
+        _z = z;
+    }
+
+    public Vector4 Append(float w) => new(_x, _y, _z, w);
+}
 }

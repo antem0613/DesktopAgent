@@ -8,6 +8,13 @@ using UnityEditor;
 using UnityEngine;
 using EGU = UnityEditor.EditorGUIUtility;
 
+#if UNITY_6000_4_OR_NEWER
+using PropFlagsCompat = UnityEngine.Rendering.ShaderPropertyFlags;
+#else
+using PropFlagsCompat = UnityEditor.MaterialProperty.PropFlags;
+#endif
+
+
 namespace LeTai.Asset.TranslucentImage.Editor
 {
 public class TranslucentImageShaderGUI : ShaderGUI
@@ -151,10 +158,17 @@ public class TranslucentImageShaderGUI : ShaderGUI
 
         void DrawDefault(MaterialProperty prop)
         {
-            if ((prop.propertyFlags & UnityEngine.Rendering.ShaderPropertyFlags.HideInInspector) != 0)
+            PropFlagsCompat propFlags;
+            #if UNITY_6000_4_OR_NEWER
+            propFlags = prop.propertyFlags;
+            #else
+            propFlags = prop.flags;
+            #endif
+
+            if ((propFlags & PropFlagsCompat.HideInInspector) != 0)
                 return;
 
-            if (skipUnimportants && (prop.propertyFlags & UnityEngine.Rendering.ShaderPropertyFlags.PerRendererData) != 0)
+            if (skipUnimportants && (propFlags & PropFlagsCompat.PerRendererData) != 0)
                 return;
 
             float h = materialEditor.GetPropertyHeight(prop, prop.displayName);

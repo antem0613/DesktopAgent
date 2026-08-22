@@ -1,5 +1,36 @@
 Changelog:
 
+v7.0.1:
+ - Improve compatibility with Unity 6.5.
+
+v7.0.0:
+This is a major version bump indicating breaking changes. The only breaking change is:
+ - The minimum supported Unity version is now 2022.3, due to the store requirements
+There's no breaking changes if your project is already at that version or higher
+ - Raw Image mode: use a Texture instead of Sprite, which unlocks runtime generated textures
+ - TranslucentImageProceduralTexture: Render any material into the Translucent Image (check out the new Procedural Texture demos!)
+ - Texture Alpha Mode: use the texture alpha to control foreground opacity
+ - Improved support for the builtin Shadow & Outline component
+ - Fix a stray heap alloc
+ - Fix shader compilation when targeting PlayStation
+ - And other minor bug fixes
+
+v6.6.2:
+ - Fix VR support
+
+v6.6.1:
+ - Support Paraform 1.2.0
+
+v6.6.0:
+ - Support URP out of the box without manual package import. Requires 2020.3.16+ (patch version matter)
+ - Improve support for Unity 6000.4
+ - Improve world space UI demo to be more clear
+ - Add a convenient button to create new Material in case of source conflict\
+ - Fix allocation in the render graph path from residual debugging codes
+ - Tune algorithm to improve quality at the cost of less strength control. This is a temporary workaround. The next version should improve quality and control greatly
+ - Fix compilation error if the XR module is manually disabled
+ - Silent some harmless errors and warnings
+
 v6.5.0:
  - Add selector to swap between multiple Sources on the same Camera
  - Fix multiple sources not working in URP

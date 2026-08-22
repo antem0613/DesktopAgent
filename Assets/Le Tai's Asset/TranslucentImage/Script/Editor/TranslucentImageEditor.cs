@@ -24,6 +24,10 @@ public class TranslucentImageEditor : ImageEditor
     SerializedProperty sprite;
     SerializedProperty preserveAspect;
     SerializedProperty useSpriteMesh;
+    SerializedProperty textureAlphaMode;
+    SerializedProperty imageMode;
+    SerializedProperty rawTexture;
+    SerializedProperty uvRect;
 
     EditorProperty source;
     EditorProperty foregroundOpacity;
@@ -63,10 +67,14 @@ public class TranslucentImageEditor : ImageEditor
         typeof(ImageEditor).GetField("m_SpriteContent", BindingFlags.Instance | BindingFlags.NonPublic)
                            .SetValue(this, new GUIContent("Sprite"));
 
-        sprite         = serializedObject.FindProperty("m_Sprite");
-        type           = serializedObject.FindProperty("m_Type");
-        preserveAspect = serializedObject.FindProperty("m_PreserveAspect");
-        useSpriteMesh  = serializedObject.FindProperty("m_UseSpriteMesh");
+        sprite           = serializedObject.FindProperty("m_Sprite");
+        type             = serializedObject.FindProperty("m_Type");
+        preserveAspect   = serializedObject.FindProperty("m_PreserveAspect");
+        useSpriteMesh    = serializedObject.FindProperty("m_UseSpriteMesh");
+        textureAlphaMode = serializedObject.FindProperty("_textureAlphaMode");
+        imageMode        = serializedObject.FindProperty("_imageMode");
+        rawTexture       = serializedObject.FindProperty("_rawTexture");
+        uvRect           = serializedObject.FindProperty("_uvRect");
 
         source            = new EditorProperty(serializedObject, nameof(TranslucentImage.source), "_source");
         foregroundOpacity = new EditorProperty(serializedObject, nameof(TranslucentImage.foregroundOpacity));
@@ -117,6 +125,7 @@ public class TranslucentImageEditor : ImageEditor
         EditorGUILayout.LabelField("Appearance", EditorStyles.boldLabel);
 
         DrawSpriteControls();
+        EditorGUILayout.PropertyField(textureAlphaMode);
         EditorGUILayout.PropertyField(m_Color);
         foregroundOpacity.Draw();
         _vibrancy.Draw();
@@ -148,6 +157,9 @@ public class TranslucentImageEditor : ImageEditor
 
         if (!source.serializedProperty.objectReferenceValue)
         {
+            if (tiList.Any(ti => !ti.gameObject.scene.IsValid()))
+                return;
+
             var existingSources = Shims.FindObjectsOfType<TranslucentImageSource>();
             if (existingSources.Length > 0)
             {
@@ -235,7 +247,7 @@ public class TranslucentImageEditor : ImageEditor
     [SuppressMessage("ReSharper", "HeuristicUnreachableCode")]
     void DrawShapeControls()
     {
-        var useParaform = tiList.Any(ti => ti.material && ti.material.shader.name.EndsWith("-Paraform"));
+        var useParaform = tiList.All(ti => ti.material && ti.material.shader.name.EndsWith("-Paraform"));
 
         using (new EditorGUILayout.HorizontalScope())
         {
@@ -281,6 +293,17 @@ public class TranslucentImageEditor : ImageEditor
 
     void DrawSpriteControls()
     {
+        EditorGUILayout.PropertyField(imageMode);
+
+        if ((TranslucentImage.ImageMode)imageMode.enumValueIndex == TranslucentImage.ImageMode.Texture)
+        {
+            EditorGUILayout.PropertyField(rawTexture);
+            EditorGUILayout.PropertyField(uvRect);
+            SetShowNativeSize(rawTexture.objectReferenceValue != null, false);
+            NativeSizeButtonGUI();
+            return;
+        }
+
         SpriteGUI();
         showTypeAnim.target = sprite.objectReferenceValue != null;
         if (EditorGUILayout.BeginFadeGroup(showTypeAnim.faded))
@@ -315,20 +338,22 @@ public class TranslucentImageEditor : ImageEditor
 
         if (usingIncorrectShader)
         {
-            EditorGUILayout.HelpBox("Material is using unsupported shader", MessageType.Warning);
+            EditorGUILayout.HelpBox("Material is using an unsupported shader", MessageType.Warning);
         }
         if (materialUsedInDifferentSource)
         {
+            using var _ = new EditorGUILayout.HorizontalScope();
             EditorGUILayout.HelpBox("Translucent Images with different Sources" +
                                     " should also use different Materials",
                                     MessageType.Error);
+            BtnCreateMaterial();
         }
     }
 
     void DrawMaterialProperties()
     {
         using var change          = new EditorGUI.ChangeCheckScope();
-        var       targetMaterials = tiList.Select(t => t.material).Cast<Object>().ToArray();
+        var       targetMaterials = tiList.Select(t => t.material).ToArray();
 
         using (_ = new EditorGUI.IndentLevelScope())
         {
@@ -341,25 +366,22 @@ public class TranslucentImageEditor : ImageEditor
                     using (new EditorGUILayout.HorizontalScope())
                     {
                         EditorGUILayout.HelpBox("Create a new Material to edit", MessageType.Info);
-                        if (GUILayout.Button("Create Material", GUILayout.ExpandHeight(true)))
-                        {
-                            var path = EditorUtility.SaveFilePanelInProject("Save New Material", "Translucent Image Material", "mat", "");
-                            if (!string.IsNullOrEmpty(path))
-                            {
-                                var material = Instantiate(HAVE_PARAFORM
-                                                               ? DefaultResources.Instance.paraformMaterial
-                                                               : DefaultResources.Instance.material);
-                                m_Material.objectReferenceValue = material;
-                                AssetDatabase.CreateAsset(material, path);
-                            }
-                        }
+                        BtnCreateMaterial();
                     }
                     GUI.enabled = false;
                 }
-
-                CreateCachedEditor(targetMaterials, typeof(MaterialEditor), ref materialEditor);
-                var materialProperties = MaterialEditor.GetMaterialProperties(targetMaterials);
-                TranslucentImageShaderGUI.DrawProperties((MaterialEditor)materialEditor, materialProperties, true);
+                var shader = targetMaterials[0].shader;
+                if (targetMaterials.All(material => material.shader == shader))
+                {
+                    var editorTargets = targetMaterials.Cast<Object>().ToArray();
+                    CreateCachedEditor(editorTargets, typeof(MaterialEditor), ref materialEditor);
+                    var materialProperties = MaterialEditor.GetMaterialProperties(editorTargets);
+                    TranslucentImageShaderGUI.DrawProperties((MaterialEditor)materialEditor, materialProperties, true);
+                }
+                else
+                {
+                    EditorGUILayout.HelpBox("Materials with different shaders can't be multi-edited", MessageType.Info);
+                }
 
                 GUI.enabled = prevGuiEnabled;
             }
@@ -376,6 +398,22 @@ public class TranslucentImageEditor : ImageEditor
                     Undo.RecordObject(ti.materialForRendering, $"Modify material {ti.material.name}");
                     TranslucentImage.CopyMaterialPropertiesTo(ti.material, ti.materialForRendering);
                 }
+            }
+        }
+    }
+
+    void BtnCreateMaterial()
+    {
+        if (GUILayout.Button("Create Material", GUILayout.ExpandHeight(true)))
+        {
+            var path = EditorUtility.SaveFilePanelInProject("Save New Material", "Translucent Image Material", "mat", "");
+            if (!string.IsNullOrEmpty(path))
+            {
+                var material = Instantiate(HAVE_PARAFORM
+                                               ? DefaultResources.Instance.paraformMaterial
+                                               : DefaultResources.Instance.material);
+                m_Material.objectReferenceValue = material;
+                AssetDatabase.CreateAsset(material, path);
             }
         }
     }

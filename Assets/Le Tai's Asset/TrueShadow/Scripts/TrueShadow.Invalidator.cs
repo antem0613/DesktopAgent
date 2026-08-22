@@ -251,9 +251,9 @@ public partial class TrueShadow
 
         if (!isActiveAndEnabled) return;
 
-        SpriteMeshHandle.Dispose();
-        SpriteMeshHandle = ObjectHandle.Borrow(Instantiate(mesh));
-        ModifyShadowCastingMesh(SpriteMeshHandle.obj);
+        DestroyMesh(ref meshOwned);
+        meshOwned = Instantiate(mesh);
+        ModifyShadowCastingMesh(meshOwned);
 
         SetLayoutTextureDirty();
     }
@@ -269,11 +269,10 @@ public partial class TrueShadow
         if (!(Graphic is TMPro.TextMeshProUGUI))
         {
 #endif
-            // For when pressing play while in prefab mode
-            if (!SpriteMeshHandle.obj) SpriteMeshHandle = ObjectHandle.Take(new Mesh());
+            if (!meshOwned) meshOwned = new Mesh();
 
-            verts.FillMesh(SpriteMeshHandle.obj);
-            ModifyShadowCastingMesh(SpriteMeshHandle.obj);
+            verts.FillMesh(meshOwned);
+            ModifyShadowCastingMesh(meshOwned);
 #if TMP_PRESENT
         }
 #endif
@@ -283,27 +282,6 @@ public partial class TrueShadow
 
     void SetLayoutTextureDirty()
     {
-#if TMP_PRESENT
-        Mesh tmpMesh = null;
-        if (Graphic is TMPro.TextMeshProUGUI tmp)
-        {
-            tmpMesh = string.IsNullOrEmpty(tmp.text) ? null : tmp.mesh;
-        }
-        else if (Graphic is TMPro.TMP_SubMeshUI stmp)
-        {
-            var isEmpty = string.IsNullOrEmpty(stmp.textComponent.text);
-#if UNITY_2022_2 || UNITY_2023_2_OR_NEWER
-            isEmpty |= !stmp.canvasRenderer.GetMesh(); // This is a different mesh than stmp.mesh
-#endif
-            tmpMesh = isEmpty ? null : stmp.mesh;
-        }
-
-        if (tmpMesh != null)
-        {
-            SpriteMeshHandle.Dispose();
-            SpriteMeshHandle = ObjectHandle.Borrow(tmpMesh);
-        }
-#endif
         SetLayoutDirty();
         SetTextureDirty();
     }

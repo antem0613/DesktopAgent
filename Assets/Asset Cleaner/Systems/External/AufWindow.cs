@@ -16,7 +16,7 @@ namespace Asset_Cleaner {
         void OnEnable() {
             var wd = Globals<WindowData>.Value = new WindowData();
             wd.Window = this;
-            wd.Window.titleContent = new GUIContent("Asset Cleaner v1.50");
+            wd.Window.titleContent = new GUIContent($"Asset Cleaner v{AssetCleanerVersion.Current}");
 
             var firstTime = _persistentUndo == null;
             Globals<PersistentUndoRedoState>.Value = _persistentUndo ?? new PersistentUndoRedoState();

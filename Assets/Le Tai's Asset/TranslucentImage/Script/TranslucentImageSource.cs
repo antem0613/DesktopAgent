@@ -1,11 +1,15 @@
-﻿using System;
+﻿#if (ENABLE_VR && ENABLE_XR_MODULE)
+#define USE_VR
+#endif
+
+using System;
 using System.Collections.Generic;
 using Unity.Collections;
 using Unity.Jobs;
 using Unity.Profiling;
 using UnityEngine;
 using UnityEngine.Rendering;
-#if ENABLE_VR
+#if USE_VR
 using UnityEngine.XR;
 #endif
 
@@ -38,9 +42,9 @@ public partial class TranslucentImageSource : MonoBehaviour
 
     [SerializeField]
     [Tooltip("Expand the blurred area to avoid gap around moving UIs when using a low Max Update Rate." +
-        "\nUse higher value for lower Max Update Rate or faster UI movement. Use 0 for infinite Update Rate or static UIs." +
-        "\nFor the best culling effectiveness, set this at runtime while UIs are moving, and reset to 0 while they're static." +
-        "\nUnit: fraction of the screen's shorter side")]
+             "\nUse higher value for lower Max Update Rate or faster UI movement. Use 0 for infinite Update Rate or static UIs." +
+             "\nFor the best culling effectiveness, set this at runtime while UIs are moving, and reset to 0 while they're static." +
+             "\nUnit: fraction of the screen's shorter side")]
     [Range(0, 1)]
     float cullPadding = 0;
 
@@ -228,8 +232,8 @@ public partial class TranslucentImageSource : MonoBehaviour
         get
         {
             return !SkipCulling
-#if ENABLE_VR
-             && !XRSettings.enabled
+#if USE_VR
+                && !XRSettings.enabled
 #endif
                 ;
         }
@@ -485,7 +489,7 @@ public partial class TranslucentImageSource : MonoBehaviour
         if (BlurredScreen)
             BlurredScreen.Release();
 
-#if ENABLE_VR
+#if USE_VR
         if (XRSettings.enabled)
         {
             BlurredScreen        = new RenderTexture(XRSettings.eyeTextureDesc);
@@ -542,7 +546,7 @@ public partial class TranslucentImageSource : MonoBehaviour
          || Downsample != lastDownsample
          || !RectUtils.ApproximateEqual01(BlurRegion, lastBlurRegion)
          || camPixelSize != lastCamPixelSize
-#if ENABLE_VR
+#if USE_VR
          || XRSettings.deviceEyeTextureDimension != lastEyeTexDim
 #endif
         )
@@ -551,7 +555,7 @@ public partial class TranslucentImageSource : MonoBehaviour
             lastDownsample   = Downsample;
             lastBlurRegion   = BlurRegion;
             lastCamPixelSize = camPixelSize;
-#if ENABLE_VR
+#if USE_VR
             lastEyeTexDim = XRSettings.deviceEyeTextureDimension;
 #endif
         }

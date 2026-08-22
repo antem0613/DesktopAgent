@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections;
 using System.Net.Sockets;
 using System.Text;
@@ -92,7 +92,7 @@ public class TtsCoeiroinkTestComponent : MonoBehaviour
 
         if (characterSpeechBubbleUI == null)
         {
-            characterSpeechBubbleUI = FindFirstObjectByType<CharacterSpeechBubbleUI>();
+            characterSpeechBubbleUI = FindAnyObjectByType<CharacterSpeechBubbleUI>();
         }
 
         if (ttsAudioSource == null)
@@ -142,7 +142,7 @@ public class TtsCoeiroinkTestComponent : MonoBehaviour
     {
         if (characterSpawnComponent == null)
         {
-            characterSpawnComponent = FindFirstObjectByType<TestCharacterSpawnComponent>();
+            characterSpawnComponent = FindAnyObjectByType<TestCharacterSpawnComponent>();
         }
 
         if (characterSpawnComponent == null)
@@ -349,7 +349,7 @@ public class TtsCoeiroinkTestComponent : MonoBehaviour
 
         if (backendServerStartupTest == null)
         {
-            backendServerStartupTest = FindFirstObjectByType<BackendServerStartupTestComponent>();
+            backendServerStartupTest = FindAnyObjectByType<BackendServerStartupTestComponent>();
         }
 
         if (backendServerStartupTest == null)

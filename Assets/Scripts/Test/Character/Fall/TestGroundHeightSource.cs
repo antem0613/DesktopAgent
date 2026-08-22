@@ -1,4 +1,4 @@
-using UnityEngine;
+﻿using UnityEngine;
 
 public class TestGroundHeightSource : MonoBehaviour
 {
@@ -77,7 +77,7 @@ public class TestGroundHeightSource : MonoBehaviour
         source = "None";
 
 #if UNITY_EDITOR
-        var pseudoBars = FindObjectsByType<PseudoTaskbar>(FindObjectsSortMode.None);
+        var pseudoBars = FindObjectsByType<PseudoTaskbar>();
         if (pseudoBars != null && pseudoBars.Length > 0)
         {
             float bestPseudo = 0f;

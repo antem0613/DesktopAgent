@@ -71,5 +71,13 @@ public static class RectUtils
                         rect.width + 2 * padding.x,
                         rect.height + 2 * padding.y);
     }
+
+    public static Rect Expand(Rect rect, Vector4 padding)
+    {
+        return new Rect(rect.x - padding.x,
+                        rect.y - padding.y,
+                        rect.width + padding.x + padding.z,
+                        rect.height + padding.y + padding.w);
+    }
 }
 }

@@ -121,7 +121,7 @@ public class TestCharacterSpawnComponent : MonoBehaviour, ITestFeatureComponent
             return true;
         }
 
-        var cameras = FindObjectsByType<Camera>(FindObjectsSortMode.None);
+        var cameras = FindObjectsByType<Camera>();
         for (int i = 0; i < cameras.Length; i++)
         {
             if (cameras[i] != null && cameras[i].CompareTag("MainCamera"))
@@ -246,7 +246,7 @@ public class TestCharacterSpawnComponent : MonoBehaviour, ITestFeatureComponent
             backendStartupTestComponent = GetComponent<BackendServerStartupTestComponent>();
             if (backendStartupTestComponent == null)
             {
-                backendStartupTestComponent = FindFirstObjectByType<BackendServerStartupTestComponent>();
+                backendStartupTestComponent = FindAnyObjectByType<BackendServerStartupTestComponent>();
             }
         }
 

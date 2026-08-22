@@ -108,6 +108,7 @@ public partial class TranslucentImageBlurRenderPass : ScriptableRenderPass
 #endif
     }
 
+#if !UNITY_6000_4_OR_NEWER
 #if HAS_RENDERGRAPH
     [Obsolete("This rendering path is for compatibility mode only (when Render Graph is disabled). Use Render Graph API instead.", false)]
 #endif
@@ -175,6 +176,7 @@ public partial class TranslucentImageBlurRenderPass : ScriptableRenderPass
         context.ExecuteCommandBuffer(cmd);
         CommandBufferPool.Release(cmd);
     }
+#endif
 
     public static void ExecutePreview(CommandBuffer cmd, ref PreviewExecutionData data)
     {

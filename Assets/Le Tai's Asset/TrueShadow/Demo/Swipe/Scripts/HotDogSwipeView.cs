@@ -1,4 +1,4 @@
-﻿// Copyright (c) Le Loc Tai <leloctai.com> . All rights reserved. Do not redistribute.
+// Copyright (c) Le Loc Tai <leloctai.com> . All rights reserved. Do not redistribute.
 
 using System;
 using System.Collections.Generic;

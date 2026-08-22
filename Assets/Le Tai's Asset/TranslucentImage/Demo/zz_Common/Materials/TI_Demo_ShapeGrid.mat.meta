@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: f5ac9d9a6ad804d9a84a9c48c8dec4a2
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 2100000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 78464
+  packageName: Translucent Image - Fast UI Background Blur
+  packageVersion: 7.0.1
+  assetPath: Assets/Le Tai's Asset/TranslucentImage/Demo/zz_Common/Materials/TI_Demo_ShapeGrid.mat
+  uploadId: 966744

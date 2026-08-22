@@ -88,7 +88,7 @@ public partial class TrueShadow
 
     void HandleCasterMeshProviderMeshChanged(Mesh mesh)
     {
-        SpriteMeshHandle = ObjectHandle.Borrow(mesh);
+        meshBorrowed = mesh;
         SetLayoutTextureDirty();
     }
 

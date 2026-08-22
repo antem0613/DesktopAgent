@@ -1,6 +1,7 @@
 ﻿// Copyright (c) Le Loc Tai <leloctai.com> . All rights reserved. Do not redistribute.
 
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -33,14 +34,7 @@ public struct ParaformConfig
     public Vector4 CornerRadii
     {
         get => cornerRadii;
-        set
-        {
-            if (cornerRadii != value)
-            {
-                cornerRadii = value;
-                NotifyChanged();
-            }
-        }
+        set => Set(ref cornerRadii, value);
     }
 
     [SerializeField]
@@ -51,14 +45,7 @@ public struct ParaformConfig
     public float CornerCurvature
     {
         get => cornerCurvature;
-        set
-        {
-            if (!Mathf.Approximately(cornerCurvature, value))
-            {
-                cornerCurvature = value;
-                NotifyChanged();
-            }
-        }
+        set => Set(ref cornerCurvature, value);
     }
 
     [SerializeField]
@@ -69,14 +56,7 @@ public struct ParaformConfig
     public float FilletCurvature
     {
         get => filletCurvature;
-        set
-        {
-            if (!Mathf.Approximately(filletCurvature, value))
-            {
-                filletCurvature = value;
-                NotifyChanged();
-            }
-        }
+        set => Set(ref filletCurvature, value);
     }
 
     [FormerlySerializedAs("edgeWidth")]
@@ -88,14 +68,7 @@ public struct ParaformConfig
     public float BevelWidth
     {
         get => bevelWidth;
-        set
-        {
-            if (!Mathf.Approximately(bevelWidth, value))
-            {
-                bevelWidth = value;
-                NotifyChanged();
-            }
-        }
+        set => Set(ref bevelWidth, value);
     }
 
     [SerializeField]
@@ -106,14 +79,7 @@ public struct ParaformConfig
     public float RingThickness
     {
         get => ringThickness;
-        set
-        {
-            if (!Mathf.Approximately(ringThickness, value))
-            {
-                ringThickness = value;
-                NotifyChanged();
-            }
-        }
+        set => Set(ref ringThickness, value);
     }
 
     [SerializeField]
@@ -124,13 +90,24 @@ public struct ParaformConfig
     public float Elevation
     {
         get => elevation;
-        set
+        set => Set(ref elevation, value);
+    }
+
+    void Set(ref float field, float value)
+    {
+        if (!Mathf.Approximately(field, value))
         {
-            if (!Mathf.Approximately(elevation, value))
-            {
-                elevation = value;
-                NotifyChanged();
-            }
+            field = value;
+            NotifyChanged();
+        }
+    }
+
+    void Set<T>(ref T field, T value)
+    {
+        if (!EqualityComparer<T>.Default.Equals(field, value))
+        {
+            field = value;
+            NotifyChanged();
         }
     }
 

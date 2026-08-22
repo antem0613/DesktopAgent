@@ -7,6 +7,11 @@
 
         Pass
         {
+            PackageRequirements
+            {
+                "com.unity.render-pipelines.universal"
+            }
+
             HLSLPROGRAM
             #pragma target 3.0
             //HLSLcc is not used by default on gles

@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using LeTai.Common;
 using UnityEngine;
-using UnityEngine.Pool;
 using UnityEngine.Rendering;
 using UnityEngine.Serialization;
 using UnityEngine.UI;
@@ -14,7 +14,7 @@ namespace LeTai.Asset.TranslucentImage
 /// </summary>
 [HelpURL("https://leloctai.com/asset/translucentimage/docs/articles/customize.html#translucent-image")]
 [SuppressMessage("ReSharper", "InconsistentNaming")]
-public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModifier
+public partial class TranslucentImage : Image, IActiveRegionProvider
 {
     /// <summary>
     /// Source of the blurred background for this image
@@ -41,6 +41,19 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
     {
         get => foregroundOpacity;
         set => foregroundOpacity = value;
+    }
+
+    /// <summary>
+    /// How the Sprite/Color alpha is interpreted: as transparency, or as Foreground Opacity
+    /// </summary>
+    public TextureAlphaMode textureAlphaMode
+    {
+        get => _textureAlphaMode;
+        set
+        {
+            _textureAlphaMode = value;
+            SetVerticesDirty();
+        }
     }
 
     /// <summary>
@@ -121,6 +134,8 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
     [Tooltip("Source of the blurred background for this image")]
     [SerializeField] TranslucentImageSource _source;
 
+    [Tooltip("How the Sprite alpha is interpreted")]
+    [SerializeField] TextureAlphaMode _textureAlphaMode = TextureAlphaMode.Alpha;
     [FormerlySerializedAs("spriteBlending")]
     [FormerlySerializedAs("m_spriteBlending")]
     [Tooltip("How much Sprite and Color contribute to the Image. Use this instead of Color.alpha")]
@@ -150,7 +165,6 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
             material.SetTexture(ShaderID.BLUR_TEX, source.BlurredScreen);
         }
 
-        m_OnDirtyMaterialCallback += OnDirtyMaterial;
         if (canvas)
             canvas.additionalShaderChannels |= AdditionalCanvasShaderChannels.TexCoord1
                                              | AdditionalCanvasShaderChannels.TexCoord2
@@ -167,6 +181,7 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
 
         paraformConfig.changed    += ParaformConfigChanged;
         Canvas.willRenderCanvases += OnWillRenderCanvases;
+        m_OnDirtyMaterialCallback += OnDirtyMaterial;
 
 #if UNITY_EDITOR
         if (!UnityEditor.EditorApplication.isPlayingOrWillChangePlaymode)
@@ -181,7 +196,6 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
     void ParaformConfigChanged()
     {
         SetVerticesDirty();
-        UpdateTrueShadowHash();
     }
 
     protected override void OnDisable()
@@ -191,6 +205,7 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
 
         paraformConfig.changed    -= ParaformConfigChanged;
         Canvas.willRenderCanvases -= OnWillRenderCanvases;
+        m_OnDirtyMaterialCallback -= OnDirtyMaterial;
 
         DisconnectSource(source);
 #if UNITY_EDITOR
@@ -246,6 +261,7 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
 
         var rect = rectTransform.rect;
         PadRectForRefraction(ref rect);
+        rect = RectUtils.Expand(rect, _meshPadding);
 
         activeRegion = new ActiveRegion(rect,
                                         rectTransform.localToWorldMatrix,
@@ -316,8 +332,6 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
     {
         SetBlurTex();
         SetBlurRegion();
-
-        CacheEta();
     }
 
     bool IsInPrefabMode()
@@ -337,7 +351,7 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
         if (IsInPrefabMode()) return;
         if (sourceAcquiredOnStart) return;
 
-        source                = source ? source : Shims.FindObjectOfType<TranslucentImageSource>();
+        source                = source ? source : Shims.FindAnyObjectByType<TranslucentImageSource>();
         sourceAcquiredOnStart = true;
     }
 
@@ -348,69 +362,132 @@ public partial class TranslucentImage : Image, IActiveRegionProvider, IMeshModif
         UpdateTrueShadowHash();
     }
 
-    void WriteVertexData(ref SpanWriter<float> writer)
+    Vector4 PackVertexData()
     {
-        writer.Write(Packing.FloatPacker.Uniform(8)
-                            .Enqueue(foregroundOpacity, 1)
-                            .Enqueue(flatten,           1)
-        );
-        writer.Write(Packing.FloatPacker.Uniform(10)
-                            .Enqueue(vibrancy,   -1, 2)
-                            .Enqueue(brightness, -1, 1)
-        );
+        return Vec4Builder
+              .Append(Packing.FloatPacker.Uniform(8, sign: _textureAlphaMode == TextureAlphaMode.ForegroundOpacity)
+                             .Enqueue(foregroundOpacity, 1)
+                             .Enqueue(flatten,           1))
+              .Append(Packing.FloatPacker.Uniform(10)
+                             .Enqueue(vibrancy,   -1, 2)
+                             .Enqueue(brightness, -1, 1))
+              .Append(0)
+              .Append(0);
     }
 
-    public virtual void ModifyMesh(VertexHelper vh)
+    static readonly VertexHelper    VERTEX_HELPER  = new();
+    static readonly List<Component> MESH_MODIFIERS = new();
+
+    Vector4 _meshPadding;
+
+    protected override void UpdateGeometry()
     {
-        ListPool<UIVertex>.Get(out var vertices);
-        vh.GetUIVertexStream(vertices);
+        var rect = rectTransform.rect;
 
-        Span<float> data   = stackalloc float[4];
-        var         writer = SpanUtils.WriterFor(data);
+        if (rectTransform != null && rect.width >= 0 && rect.height >= 0)
+            OnPopulateMesh(VERTEX_HELPER);
+        else
+            VERTEX_HELPER.Clear();
 
-#if LETAI_PARAFORM
-        Span<float> dataParaform         = stackalloc float[4 * 2];
-        var         writerParaformCommon = SpanUtils.WriterFor(dataParaform[..^2]);
-        var         writerParaformVertex = SpanUtils.WriterFor(dataParaform[^2..]);
-        var         paraformEncoder      = new Paraform.ParaformVertexDataEncoder(rectTransform, paraformConfig);
-#endif
-
-        WriteVertexData(ref writer);
-        // writer.FillRest();
-        var uv1 = SpanUtils.ToVector4(data);
-
-#if LETAI_PARAFORM
-        paraformEncoder.WriteCommon(ref writerParaformCommon);
-        var uv2 = SpanUtils.ToVector4(dataParaform[..4]);
-#endif
-
-        for (var i = 0; i < vertices.Count; i++)
+        GetComponents(typeof(IMeshModifier), MESH_MODIFIERS);
+        var modCount = MESH_MODIFIERS.Count;
+        for (var i = 0; i < modCount; i++)
         {
-            UIVertex vert = vertices[i];
+            var modifier = (IMeshModifier)MESH_MODIFIERS[i];
+
+            // shadow expands vh into non-shared vertices
+            var streamLength = VERTEX_HELPER.currentIndexCount;
+
+            modifier.ModifyMesh(VERTEX_HELPER);
+
+            if (modifier is Shadow) // also work for Outline
+            {
+                var shadowVertCount = VERTEX_HELPER.currentIndexCount - streamLength;
+                MarkShadowVertices(VERTEX_HELPER, 0, shadowVertCount);
+            }
+        }
+        MESH_MODIFIERS.Clear();
+
+        VERTEX_HELPER.FillMesh(workerMesh);
+        canvasRenderer.SetMesh(workerMesh);
+
+        if (modCount > 0)
+        {
+            var meshBounds = workerMesh.bounds;
+            var min        = meshBounds.min;
+            var max        = meshBounds.max;
+
+            // avoid shrinking defensively. may not hurt
+            _meshPadding = new Vector4(Mathf.Max(0, rect.xMin - min.x),
+                                       Mathf.Max(0, rect.yMin - min.y),
+                                       Mathf.Max(0, max.x - rect.xMax),
+                                       Mathf.Max(0, max.y - rect.yMax));
+        }
+        else
+        {
+            _meshPadding = Vector4.zero;
+        }
+    }
+
+    static void MarkShadowVertices(VertexHelper vh, int start, int count)
+    {
+        UIVertex vert = default;
+
+        var end = start + count;
+        for (var i = start; i < end; i++)
+        {
+            vh.PopulateUIVertex(ref vert, i);
+
+            var uv1 = vert.uv1;
+            uv1.y    = -Mathf.Abs(uv1.y);
+            vert.uv1 = uv1;
+
+            vh.SetUIVertex(vert, i);
+        }
+    }
+
+    protected override void OnPopulateMesh(VertexHelper vh)
+    {
+        PopulateBaseGeometry(vh);
+
+        var uv1 = PackVertexData();
+
+#if LETAI_PARAFORM
+        var paraformEncoder = new Paraform.ParaformVertexDataEncoder(rectTransform, paraformConfig);
+        var (uv2, uvCommonPart) = paraformEncoder.PackVertexDataCommon();
+#endif
+
+        UIVertex vert = default;
+        for (var i = 0; i < vh.currentVertCount; i++)
+        {
+            vh.PopulateUIVertex(ref vert, i);
 
             vert.uv1 = uv1;
 
 #if LETAI_PARAFORM
             vert.uv2 = uv2;
-            paraformEncoder.WritePerVertex(ref writerParaformVertex, vert.position);
-            vert.uv3 = SpanUtils.ToVector4(dataParaform[4..8]);
-            writerParaformVertex.Reset();
+            vert.uv3 = paraformEncoder.PackVertexDataSpecific(uvCommonPart, vert.position);
 #endif
 
-            vertices[i] = vert;
+            vh.SetUIVertex(vert, i);
         }
 
-        vh.Clear();
-        vh.AddUIVertexTriangleStream(vertices);
-        // ParaformVertexDataEncoder.ModifyMesh(this, paraformConfig, vh);
+
+        UpdateTrueShadowHash();
     }
 
-    public virtual void ModifyMesh(Mesh mesh)
+    void PopulateBaseGeometry(VertexHelper vh)
     {
-        using var vh = new VertexHelper(mesh);
+        if (_imageMode == ImageMode.Sprite)
+            base.OnPopulateMesh(vh);
+        else
+            PopulateRawTextureMesh(vh);
+    }
 
-        ModifyMesh(vh);
-        vh.FillMesh(mesh);
+    public enum TextureAlphaMode
+    {
+        Alpha,
+        ForegroundOpacity,
     }
 }
 }

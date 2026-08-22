@@ -1,4 +1,4 @@
-﻿Shader "UI/Bubble"
+Shader "UI/Bubble"
 {
     Properties
     {

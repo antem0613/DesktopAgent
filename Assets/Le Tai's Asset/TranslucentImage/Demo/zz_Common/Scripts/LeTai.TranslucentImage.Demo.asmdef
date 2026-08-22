@@ -2,7 +2,9 @@
     "name": "LeTai.Asset.TranslucentImage.Demo",
     "rootNamespace": "",
     "references": [
-        "GUID:ff218ee40fe2b8648ab3234d56415557"
+        "GUID:ff218ee40fe2b8648ab3234d56415557",
+        "GUID:75469ad4d38634e559750d17036d5f7c",
+        "GUID:15fc0a57446b3144c949da3e2b9737a9"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -11,6 +13,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "",
+            "define": "HAS_URP"
+        }
+    ],
     "noEngineReferences": false
 }

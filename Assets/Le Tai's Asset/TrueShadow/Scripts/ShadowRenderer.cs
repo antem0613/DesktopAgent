@@ -142,7 +142,7 @@ public partial class ShadowRenderer : MonoBehaviour, ILayoutIgnorer, IMaterialMo
             return;
 
         var casterRt   = shadow.RectTransform;
-        var spriteMesh = shadow.SpriteMeshHandle.obj;
+        var spriteMesh = shadow.CasterMesh;
 
         if (!casterRt
          || !shadowTexture

@@ -1,5 +1,6 @@
 {
     "name": "LeTai.TranslucentImage.UniversalRP.Editor",
+    "rootNamespace": "",
     "references": [
         "GUID:e646286fd75dc0f44bb2f84ffb34408d",
         "GUID:15fc0a57446b3144c949da3e2b9737a9"
@@ -12,7 +13,15 @@
     "overrideReferences": false,
     "precompiledReferences": [],
     "autoReferenced": true,
-    "defineConstraints": [],
-    "versionDefines": [],
+    "defineConstraints": [
+        "HAS_URP"
+    ],
+    "versionDefines": [
+        {
+            "name": "com.unity.render-pipelines.universal",
+            "expression": "",
+            "define": "HAS_URP"
+        }
+    ],
     "noEngineReferences": false
 }

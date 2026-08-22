@@ -92,7 +92,7 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
 
         if (characterSpeechBubbleUI == null)
         {
-            characterSpeechBubbleUI = FindFirstObjectByType<CharacterSpeechBubbleUI>();
+            characterSpeechBubbleUI = FindAnyObjectByType<CharacterSpeechBubbleUI>();
         }
 
         if (ttsAudioSource == null)

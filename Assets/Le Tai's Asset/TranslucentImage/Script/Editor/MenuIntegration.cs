@@ -76,7 +76,7 @@ public class MenuIntegration : MonoBehaviour
             return canvas.gameObject;
 
         // No canvas in selection or its parents? Then use just any canvas..
-        canvas = Shims.FindObjectOfType<Canvas>();
+        canvas = Shims.FindAnyObjectByType<Canvas>();
         if (canvas != null && canvas.gameObject.activeInHierarchy)
             return canvas.gameObject;
 
@@ -101,7 +101,7 @@ public class MenuIntegration : MonoBehaviour
 
     static void CreateEventSystem(bool select, GameObject parent = null)
     {
-        var esys = Shims.FindObjectOfType<EventSystem>();
+        var esys = Shims.FindAnyObjectByType<EventSystem>();
         if (esys == null)
         {
             var eventSystem = new GameObject("EventSystem");
