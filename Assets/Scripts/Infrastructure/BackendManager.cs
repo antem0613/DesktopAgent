@@ -45,9 +45,14 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         public Coroutine TopmostEnforceCoroutine;
     }
 
-    private Process _process;
-    private Process _ollamaProcess;
-    private Process _coeiroinkProcess;
+    private sealed class ManagedService
+    {
+        public ManagedServiceDescriptor Descriptor;
+        public Process Process;
+    }
+
+    private readonly List<ManagedService> _services = new();
+    private const string PrimaryServiceName = "LangGraph";
 #if UNITY_STANDALONE_WIN || UNITY_EDITOR_WIN
     private IntPtr _managedProcessJob = IntPtr.Zero;
 #endif
@@ -99,7 +104,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         UnityEngine.Debug.Log("[BackendManager] Initializing WebSocket character state server.");
         InitializeCharacterStateServer();
-
+        InitializeServices();
         ApplySettings();
     }
 
@@ -152,13 +157,19 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     }
 
     /// <summary>
-    /// UI/依存プロセス起動とバックエンド起動後、タイムアウトまで疎通確認をポーリングします。
+    /// 依存サービスを先行起動し、プライマリサービス起動後にタイムアウトまで疎通確認をポーリングします。
     /// </summary>
     private IEnumerator StartBackendRoutine()
     {
-        StartCoeiroink();
+        foreach (var svc in _services)
+        {
+            if (!svc.Descriptor.IsDependency) continue;
+            if (!IsServiceAlive(svc.Descriptor.Name) && !IsProcessAlive(svc.Process))
+                TryStartManagedService(svc);
+        }
 
-        if (!IsProcessAlive(_process) && !StartProcess())
+        var primary = FindService(PrimaryServiceName);
+        if (primary != null && !IsProcessAlive(primary.Process) && !StartProcess(out primary.Process))
         {
             lock (s_backendStartSync)
             {
@@ -174,7 +185,7 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         while (elapsed < timeout)
         {
-            if (IsBackendAlive())
+            if (IsServiceAlive(PrimaryServiceName))
             {
                 lock (s_backendStartSync)
                 {
@@ -198,8 +209,9 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
     /// <summary>
     /// 作業ディレクトリと起動情報を解決し、通常起動→ネイティブ起動→pyフォールバックの順で起動を試行します。
     /// </summary>
-    private bool StartProcess()
+    private bool StartProcess(out Process outProcess)
     {
+        outProcess = null;
         string workingDirectory = ResolveWorkingDirectory();
         if (string.IsNullOrWhiteSpace(workingDirectory) || !Directory.Exists(workingDirectory))
         {
@@ -213,15 +225,15 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 
         try
         {
-            _process = Process.Start(startInfo);
-            if (_process == null)
+            outProcess = Process.Start(startInfo);
+            if (outProcess == null)
             {
-                if (TryLaunchBackend(startInfo, out _process))
+                if (TryLaunchBackend(startInfo, out outProcess))
                 {
                     return true;
                 }
 
-                if (TryLaunchPythonBackend(workingDirectory, out _process))
+                if (TryLaunchPythonBackend(workingDirectory, out outProcess))
                 {
                     return true;
                 }
@@ -229,17 +241,17 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
                 return false;
             }
 
-            TryAssignProcessToJob(_process);
+            TryAssignProcessToJob(outProcess);
 
             return true;
         } catch
         {
-            if (TryLaunchBackend(startInfo, out _process))
+            if (TryLaunchBackend(startInfo, out outProcess))
             {
                 return true;
             }
 
-            if (TryLaunchPythonBackend(workingDirectory, out _process))
+            if (TryLaunchPythonBackend(workingDirectory, out outProcess))
             {
                 return true;
             }
@@ -752,6 +764,15 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         {
             return;
         }
+
+        foreach (var svc in _services)
+        {
+            svc.Descriptor.HealthTimeoutMs = Mathf.Max(50, tcpTimeoutMs);
+        }
+
+        var primarySvc = FindService(PrimaryServiceName);
+        if (primarySvc != null)
+            primarySvc.Descriptor.HealthPort = ResolveBackendPort();
     }
 
     /// <summary>
@@ -775,32 +796,33 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         return Path.GetFullPath(Path.Combine(projectRoot, relative));
     }
 
-    /// <summary>
-    /// HTTPヘルスチェックを優先し、必要時はTCP到達性で代替判定します。
-    /// </summary>
-    public bool IsBackendAlive()
+    public bool IsBackendAlive() => IsServiceAlive(PrimaryServiceName);
+
+    public bool IsServiceAlive(string name)
     {
-        int backendPort = ResolveBackendPort();
-        string path = NormalizeHttpPath(Constant.BackendHealthCheckPath);
+        var service = FindService(name);
+        if (service == null) return false;
 
-        if (!string.IsNullOrWhiteSpace(path))
+        var desc = service.Descriptor;
+
+        if (desc.HealthCheck == HealthCheckKind.Http)
         {
-            int timeoutMs = Mathf.Max(100, Constant.BackendHealthCheckHttpTimeoutMs);
-
-            if (TryGetHttpStatusCode(Constant.BackendHost, backendPort, path, timeoutMs, out int statusCode))
+            string path = NormalizeHttpPath(desc.HealthPath);
+            if (!string.IsNullOrWhiteSpace(path))
             {
-                return statusCode >= 200 && statusCode < 300;
+                int timeoutMs = Mathf.Max(100, desc.HealthTimeoutMs);
+                if (TryGetHttpStatusCode(desc.HealthHost, desc.HealthPort, path, timeoutMs, out int statusCode))
+                    return statusCode >= 200 && statusCode < 300;
+                if (statusCode == 404)
+                    return IsTcpReachable(desc.HealthHost, desc.HealthPort);
+                return false;
             }
-
-            if (statusCode == 404)
-            {
-                return IsTcpReachable(Constant.BackendHost, backendPort);
-            }
-
-            return false;
         }
 
-        return IsTcpReachable(Constant.BackendHost, backendPort);
+        if (desc.HealthCheck != HealthCheckKind.None)
+            return IsTcpReachable(desc.HealthHost, desc.HealthPort);
+
+        return IsProcessAlive(service.Process);
     }
 
     /// <summary>
@@ -972,9 +994,10 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
         _uiProcessState.IsStartupLaunchIssued = false;
         _uiProcessState.LaunchAttemptCount = 0;
 
-        StopTrackedProcess(ref _process, "LangGraph");
-        StopTrackedProcess(ref _ollamaProcess, "Ollama");
-        StopTrackedProcess(ref _coeiroinkProcess, "COEIROINK");
+        foreach (var svc in _services)
+        {
+            StopTrackedProcess(ref svc.Process, svc.Descriptor.Name);
+        }
     }
 
     /// <summary>
@@ -1083,28 +1106,61 @@ public partial class BackendManager : SingletonMonoBehaviour<BackendManager>
 #endif
     }
 
-    /// <summary>
-    /// 既存到達性と既存プロセスを確認し、必要時のみCOEIROINKを起動します。
-    /// </summary>
-    private void StartCoeiroink()
+    private void InitializeServices()
     {
-        if (IsTcpReachable(Constant.BackendHost, Constant.CoeiroinkHealthPort))
-        {
-            return;
-        }
+        _services.Clear();
 
-        if (IsProcessAlive(_coeiroinkProcess))
+        _services.Add(new ManagedService
         {
-            return;
-        }
+            Descriptor = new ManagedServiceDescriptor
+            {
+                Name = "COEIROINK",
+                Executable = Constant.CoeiroinkExecutable,
+                HealthCheck = HealthCheckKind.Tcp,
+                HealthHost = Constant.BackendHost,
+                HealthPort = Constant.CoeiroinkHealthPort,
+                HealthTimeoutMs = tcpTimeoutMs,
+                IsDependency = true,
+            }
+        });
 
-        if (!TryStartDependencyProcess("COEIROINK", Constant.CoeiroinkExecutable, ResolveWorkingDirectory(), out var process))
+        _services.Add(new ManagedService
         {
-            return;
-        }
-
-        _coeiroinkProcess = process;
+            Descriptor = new ManagedServiceDescriptor
+            {
+                Name = PrimaryServiceName,
+                Executable = Constant.BackendExecutable,
+                Arguments = Constant.BackendArguments,
+                WorkingDirectory = Constant.BackendWorkingDirectoryRelativePath,
+                HealthCheck = HealthCheckKind.Http,
+                HealthHost = Constant.BackendHost,
+                HealthPort = Constant.BackendPort,
+                HealthPath = Constant.BackendHealthCheckPath,
+                HealthTimeoutMs = Constant.BackendHealthCheckHttpTimeoutMs,
+                IsDependency = false,
+            }
+        });
     }
+
+    private bool TryStartManagedService(ManagedService service)
+    {
+        string workingDirectory = string.IsNullOrWhiteSpace(service.Descriptor.WorkingDirectory)
+            ? ResolveWorkingDirectory()
+            : service.Descriptor.WorkingDirectory;
+
+        bool started = TryStartDependencyProcess(
+            service.Descriptor.Name,
+            service.Descriptor.Executable,
+            workingDirectory,
+            out Process process,
+            service.Descriptor.Arguments ?? string.Empty);
+
+        if (started) service.Process = process;
+        return started;
+    }
+
+    private ManagedService FindService(string name) =>
+        _services.Find(s => string.Equals(s.Descriptor.Name, name, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// 依存プロセスを通常起動し、失敗時はネイティブ起動へフォールバックします。

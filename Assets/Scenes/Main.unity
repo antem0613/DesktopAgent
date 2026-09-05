@@ -751,7 +751,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6835813305452727273, guid: 694a04de324bf7b48807d303477122f5, type: 3}
       propertyPath: m_Enabled
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 6835813305452727273, guid: 694a04de324bf7b48807d303477122f5, type: 3}
       propertyPath: recognitionInputMode

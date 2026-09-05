@@ -115,20 +115,6 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
     /// </summary>
     private void Start()
     {
-        if (_isUiProcess)
-        {
-            Log.Info("[TtsCoeiroinkTest] Start skipped in external-ui process.");
-            return;
-        }
-
-        Log.Info("[TtsCoeiroinkTest] Start completed.");
-
-        if (!autoPlayOnStart)
-        {
-            Log.Info("[TtsCoeiroinkTest] Auto test playback is disabled.");
-            return;
-        }
-
         Log.Info("[TtsCoeiroinkTest] Auto test playback started.");
         StartCoroutine(WaitCharacterSpawn());
     }
@@ -364,18 +350,15 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
     {
         if (_isCharacterProcess) return;
 
-        if (IsEngineAlive())
-        {
-            return;
-        }
-
-        if (BackendManager.Instance == null)
+        var backendManager = BackendManager.Instance;
+        if (backendManager == null)
         {
             Log.Warning("[TtsCoeiroinkTest] BackendManager is not found. Skip backend startup request.");
             return;
         }
 
-        BackendManager.Instance.StartBackend();
+        if (backendManager.IsServiceAlive("COEIROINK")) return;
+        backendManager.StartBackend();
     }
 
     /// <summary>
@@ -410,27 +393,13 @@ public class TTSManager : SingletonMonoBehaviour<TTSManager>
     /// </summary>
     private bool IsEngineAlive()
     {
-        try
-        {
-            if (!TryGetEndpoint(out var host, out var port))
-            {
-                return false;
-            }
+        var backendManager = BackendManager.Instance;
+        if (backendManager != null)
+            return backendManager.IsServiceAlive("COEIROINK");
 
-            using var client = new TcpClient();
-            var result = client.BeginConnect(host, port, null, null);
-            var success = result.AsyncWaitHandle.WaitOne(TimeSpan.FromMilliseconds(healthCheckTimeoutMs));
-            if (!success)
-            {
-                return false;
-            }
-
-            client.EndConnect(result);
-            return true;
-        } catch
-        {
-            return false;
-        }
+        // Character process fallback: BackendManager is absent, check TCP directly
+        if (!TryGetEndpoint(out var host, out var port)) return false;
+        return IsEngineAlive(host, port);
     }
 
     /// <summary>

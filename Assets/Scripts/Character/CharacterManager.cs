@@ -13,6 +13,12 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 using Unity.Logging;
 
+/// <summary>
+/// -- Important --
+/// This script is obosoleted.
+/// Remaining references are retained to preserve the previous states until the implementation change.
+/// </summary>
+
 public class CharacterManager : SingletonMonoBehaviour<CharacterManager>
 {
     [Header("Startup Order")]
