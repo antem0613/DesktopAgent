@@ -15,4 +15,13 @@ public class CharacterBundleMeta
     public string bundleFileName = "character.bundle";
     /// <summary>AssetBundle 内のプレハブ名（拡張子なし）。</summary>
     public string prefabName;
+
+    /// <summary>キャラクターの呼び名。未設定の場合は displayName を使用する。</summary>
+    public string callName = "";
+    /// <summary>キャラクターが使用する TTS エンジン種別。</summary>
+    public CompanionDescripter.TtsEngine ttsEngine = CompanionDescripter.TtsEngine.Coeiroink;
+    /// <summary>TTS の話者ID。</summary>
+    public string ttsSpeakerId = "";
+    /// <summary>TTS のスタイルID。</summary>
+    public int ttsStyleId = 0;
 }

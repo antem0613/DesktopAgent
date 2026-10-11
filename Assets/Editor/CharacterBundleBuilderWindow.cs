@@ -93,6 +93,10 @@ public class CharacterBundleBuilderWindow : EditorWindow
                 folder = info.Prefab.name,
                 bundleFileName = "character.bundle",
                 prefabName = info.Prefab.name,
+                callName = info.Descriptor.CallName,
+                ttsEngine = info.Descriptor.Voice.engine,
+                ttsSpeakerId = info.Descriptor.Voice.speakerId,
+                ttsStyleId = info.Descriptor.Voice.styleId,
             });
 
             Debug.Log($"[CharacterBundleBuilder] Built: {info.Prefab.name} (id={info.Descriptor.CharacterId})");

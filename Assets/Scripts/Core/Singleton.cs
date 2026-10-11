@@ -11,11 +11,17 @@ public class Singleton<T> where T : class, new()
     private static readonly object _lock = new();
 
 #if UNITY_EDITOR
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
-    private static void DomainReset()
+    static Singleton()
     {
-        Log.Debug("[Singleton<" + typeof(T).Name + ">] DomainReset called.");
-        _instance = null;
+        // [RuntimeInitializeOnLoadMethod] はジェネリッククラス内のメソッドに付与できないため、
+        // ドメインリロード時のリセット処理は非ジェネリックな SingletonDomainResetRegistry に委譲する。
+        // 静的コンストラクタは閉じた型（Singleton<T> の T ごと）に1度だけ実行されるため、
+        // 実際に使用された型のみ登録される。
+        SingletonDomainResetRegistry.Register(() =>
+        {
+            Log.Debug("[Singleton<" + typeof(T).Name + ">] DomainReset called.");
+            _instance = null;
+        });
     }
 #endif
 

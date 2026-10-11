@@ -58,6 +58,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
     Animator _modelAnimator;
     AnimatorSync _animatorSync;
     Camera _targetCamera;
+    CompanionDescripter _descriptor;
     CancellationTokenSource _cancellationTokenSource;
     GameObject _modelContainer;
     GameObject _spawnedModel;
@@ -590,6 +591,7 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
             }
 
             var descriptr = _modelContainer.GetComponent<CompanionDescripter>();
+            _descriptor = descriptr;
             string charName = descriptr != null ? descriptr.CharacterName : _modelContainer.name;
             UnityEngine.Debug.Log($"{LogPrefix} SpawnAsync completed. character={charName}");
 
@@ -647,9 +649,26 @@ public class CompanionCharacter : SingletonMonoBehaviour<CompanionCharacter>
         _modelContainer = null;
         _spawnedModel = null;
         _modelAnimator = null;
+        _descriptor = null;
         _loadedBundle?.Unload(false);
         _loadedBundle = null;
     }
+
+    // ─── キャラクターメタ情報の公開プロパティ ──────────────────────────────────
+    // CompanionDescripter に保持された呼び名・性格プロンプト・ポートレート・TTS プロファイルを
+    // 読み取り専用で公開する。実際のチャット応答生成/TTS発話への配線は将来対応。
+
+    /// <summary>キャラクターの呼び名。未スポーン時は空文字を返す。</summary>
+    public string CallName => _descriptor != null ? _descriptor.CallName : string.Empty;
+
+    /// <summary>キャラクターの性格設定プロンプト。未スポーン時は空文字を返す。</summary>
+    public string PersonalityPrompt => _descriptor != null ? _descriptor.PersonalityPrompt : string.Empty;
+
+    /// <summary>キャラクターのポートレート画像。未スポーンまたは未設定の場合は null を返す。</summary>
+    public Texture2D Portrait => _descriptor != null ? _descriptor.Portrait : null;
+
+    /// <summary>キャラクターの TTS プロファイル。未スポーン時はデフォルトプロファイルを返す。</summary>
+    public CompanionDescripter.TtsProfile Voice => _descriptor != null ? _descriptor.Voice : new CompanionDescripter.TtsProfile();
 
     /// <summary>
     /// キャラクターに関する設定を適用する

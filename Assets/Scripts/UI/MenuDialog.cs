@@ -22,8 +22,6 @@ public class MenuDialog : DialogBase
         base.Awake();
         _menuRectTransform = GetComponent<RectTransform>();
         _shortcutCancellationTokenSource = new CancellationTokenSource();
-
-        Hide();
     }
 
     private void OnEnable()

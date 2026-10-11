@@ -89,15 +89,18 @@ public static class CharacterCatalog
         {
             if (cancellationToken.IsCancellationRequested) break;
 
-            string bundlePath = Path.Combine(dir, DefaultBundleFileName);
-            if (!File.Exists(bundlePath)) continue;
-
             string folderName = Path.GetFileName(dir);
             if (indexedFolders.Contains(folderName)) continue;  // 登録済み
+
+            string bundlePath = FindBundleFileInDirectory(dir);
+            if (bundlePath == null) continue;
 
             Log.Info($"{LogPrefix} 未登録のバンドルを検出: {bundlePath}");
             var meta = await ReadMetaFromBundleAsync(bundlePath, dir, cancellationToken);
             if (meta == null) continue;
+
+            // 実際に見つかったファイル名をそのまま記録する（character.bundle へのリネームを不要にする）
+            meta.bundleFileName = Path.GetFileName(bundlePath);
 
             indexedEntries.Add(meta);
             indexedFolders.Add(folderName);
@@ -226,6 +229,29 @@ public static class CharacterCatalog
 
     // ─── Async user bundle scan (persistentDataPath) ──────────────────────────────────────────
 
+    /// <summary>
+    /// キャラクターフォルダ内のバンドルファイルを検出する。
+    /// 既定のファイル名（character.bundle）を優先しつつ、任意のファイル名の .bundle ファイルも
+    /// そのまま検出することで、エクスポート後のリネームを不要にする。
+    /// </summary>
+    private static string FindBundleFileInDirectory(string dir)
+    {
+        string defaultPath = Path.Combine(dir, DefaultBundleFileName);
+        if (File.Exists(defaultPath)) return defaultPath;
+
+        try
+        {
+            var candidates = Directory.GetFiles(dir, "*.bundle");
+            if (candidates.Length > 0) return candidates[0];
+        }
+        catch (Exception ex)
+        {
+            Log.Warning($"{LogPrefix} .bundle ファイルの検索に失敗: {dir}. {ex.Message}");
+        }
+
+        return null;
+    }
+
     private static CharacterIndexFile TryReadUserIndexFile(string indexPath)
     {
         if (!File.Exists(indexPath)) return null;
@@ -291,6 +317,10 @@ public static class CharacterCatalog
                     folder = Path.GetFileName(dirPath),
                     bundleFileName = DefaultBundleFileName,
                     prefabName = nameWithoutExt,
+                    callName = desc.CallName,
+                    ttsEngine = desc.Voice.engine,
+                    ttsSpeakerId = desc.Voice.speakerId,
+                    ttsStyleId = desc.Voice.styleId,
                 };
             }
 
